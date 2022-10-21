@@ -1,0 +1,26 @@
+
+/**
+ * @description {{responseDescription}}
+ */
+export interface {{funcName}}Response_{{responseStatusCode}} {
+  
+}
+
+/**
+ * @description {{description}}
+ */
+const {{funcName}} = async <
+  PetResponse
+>({
+  tags,
+  limit
+}: {
+  tags: Array<string>,
+  limit: number
+}) => {
+  const res = await fetch('www.google.com', {
+    method: 'GET',
+  });
+
+  res.json() as T;
+};
