@@ -1,5 +1,7 @@
 import fs from 'fs';
 
+import commander from 'commander';
+
 import {
   OpenApiParameter,
   OpenApiPath,
@@ -167,9 +169,7 @@ const generatePaths = async (schema: OpenAPISpec) => {
           request = 'null';
         }
 
-        out.inner = `generateServiceCall<${
-          request
-        }, any>('${
+        out.inner = `generateServiceCall<${request}, any>('${
           schema.servers?.[0].url + (inner as any).url
         }', '${(inner as any).method}')`;
         return out;
@@ -201,6 +201,7 @@ const readInSchema = async (filePath: string): Promise<OpenAPISpec> => {
 
 const makeStringUnsafe = (safeString: string): string => {
   /*
+   * Make string unsafe? wtf? see below
    * This exists cause handlebars is meant for html templating. In that situation,
    * It would be an incredibly bad idea to do this. We are not doing html templating though.
    */
@@ -215,10 +216,31 @@ const makeStringUnsafe = (safeString: string): string => {
   return safeString;
 };
 
-const processSchema = async (schema: OpenAPISpec) => {
+const processSchema = async (schema: OpenAPISpec, outFile: string) => {
   let lib = await generateLib(schema);
   lib = makeStringUnsafe(lib);
-  await writeLibToDisk(process.argv[3], lib);
+  await writeLibToDisk(outFile, lib);
 };
 
-readInSchema(process.argv[2]).then(processSchema).catch(console.log);
+/**
+ * FETCHER
+ * ==================================================
+ * Chassis Service Client Lib Generator
+ */
+
+commander.program
+  .name('Fetcher Generator')
+  .description('CLI tool for creating Fetcher clients')
+  .version(process.env.npm_package_version || '0.0.0');
+
+commander.program
+  .command('generate')
+  .description('Generates a fetcher client for the provided openAPI schema.')
+  .argument('schema', 'File path to the schema you would like to use.')
+  .argument('output', 'File path to output your client lib to.')
+  .action(async (...args) => {
+    const schema = await readInSchema(args[0]);
+    await processSchema(schema, args[1]);
+  });
+
+commander.program.parse();
