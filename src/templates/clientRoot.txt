@@ -1,3 +1,33 @@
+/*
+ *    ___
+ * __/_  `.  .-"""-.
+ * \_,` | \-'  /   )`-')
+ *  "") `"`    \  ((`"`
+ *  ___Y  ,    .'7 /|
+ * (_,___/...-` (_/_/      FETCHER
+ *
+ */
+
+type HTTPMethod = 'get' | 'post' | 'put' | 'patch' | 'update' | 'delete';
+
+type Request<Q, P, B> = {
+  query: Q,
+  params: P,
+  body: B
+};
+
+const generateServiceCall = <Query, Params, Body, Response>(url: string, method: HTTPMethod) => {
+  return async (request: Request<Query, Params, Body>, fetchOptions: any = {}) => {
+    const response = await fetch(url, {
+      body: JSON.stringify(request),
+      method: method.toUpperCase(),
+      ...fetchOptions
+    })
+    const result = await response.json();
+    return result as Response;
+  }
+};
+
 /**
  * @description {{schema.info.description}}
  */

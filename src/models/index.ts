@@ -2,7 +2,7 @@ export enum OpenApiType {
   Integer = 'integer',
   Number = 'number',
   String = 'string',
-  Boolean = 'boolean',
+  boolean = 'boolean',
   Object = 'object',
   Array = 'array',
 }
@@ -22,7 +22,7 @@ export enum OpenApiTypeFormat {
 export const ValidOpenApiTypeFormatsForOpenApiType: Record<OpenApiType, Array<OpenApiTypeFormat>> = {
   [OpenApiType.Object]: [],
   [OpenApiType.Array]: [],
-  [OpenApiType.Boolean]: [],
+  [OpenApiType.boolean]: [],
   [OpenApiType.Integer]: [
     OpenApiTypeFormat.Int32,
     OpenApiTypeFormat.Int64

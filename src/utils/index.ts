@@ -2,7 +2,7 @@ import { OpenApiType } from "../models";
 
 export const isBaseOpenApiType = (type: OpenApiType) => {
   return [
-    OpenApiType.Boolean,
+    OpenApiType.boolean,
     OpenApiType.Integer,
     OpenApiType.Number,
     OpenApiType.String,
@@ -17,6 +17,6 @@ export const openApiTypeToTSType = (type: OpenApiType) => {
     [OpenApiType.Number]: 'number',
     [OpenApiType.String]: 'string',
     [OpenApiType.Object]: 'object',
-    [OpenApiType.Boolean]: 'boolean'
+    [OpenApiType.boolean]: 'boolean'
   }[type];
 };

@@ -1,5 +1,3 @@
 {{#each paths}}
-  {{key}}: {
-    {{inner}}
-  },
+  {{key}}: {{{inner}}},
 {{/each}}
