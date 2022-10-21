@@ -1,6 +1,4 @@
 node_modules
-
-./build/**/**
-
+build
 tsconfig.tsbuildinfo
 testAPI.ts
