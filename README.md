@@ -1,30 +1,23 @@
-# Some Shit
+# Fetcher
+<img title="what a good boy" src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fa%2Fa9%2FBearded_Collie.jpg&f=1&nofb=1&ipt=2a0d91e9f1a93764c1d7093fde17eeaa7cd9653df89b5e0b4d35e9f9ae7d3982&ipo=images" height="250px"></img>
 
-## Random stuff
+## Chassis Service Client Lib Generator
 
-url + method to function name
+### About
 
-`/pet/findByStatus/ GET` = Petstore.pet.findByStatus.get({ status: "available" });
+This program is meant to generate client code which handles making network calls to our boom services. Writing, and maintaining network calls is a pain. Wether its the backend puts out a new api you need to utilize, or they update a response object, you now have to basically copy their work into your client codebase. There is little thought that goes into these functions most of the time. Most of the time you will look at the endpoint, request schema, and response schema, and implement a basic function wrapping it all up for use across your client. Why not just generate those functions?
 
-NOT SURE WHAT TO DO FOR REQUEST BODIES OR SECURITY SCHEMAS
+### Why
 
-## Different levels of generation
+* Writing network calls sucks
+* Writing typed network calls sucks even more
+* The backend already wrote all the types and such, lets just use it.
+* Fullstack Typesaftey lets us move quickly.
+* Fullstack Typesaftey lets us catch bugs before they happen.
 
-1: Just Types
-2: Just Network Calls
-3: Typed Network Calls
+### Tech Used
 
-## Steps
-
-1: Read JSON file
-2: Setup base client lib from title, description, etc.
-3: Go through each endpoint
-4: Create Interfaces/Enums for all schemas
-5: Create Network Requests for all endpoints
-
-## Tech To Use
-
-* Handlebars. for templating
+* Handlebars - For templating
 
 ## Open API Spec
 
