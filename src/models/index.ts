@@ -40,32 +40,37 @@ export const ValidOpenApiTypeFormatsForOpenApiType: Record<OpenApiType, Array<Op
   ],
 };
 
+// CORRECT FOR V3.0.0
 export interface OpenAPIContact {
   name?: string;
   url?: string;
   email?: string;
 }
 
+// CORRECT FOR V3.0.0
 export interface OpenAPILicense {
   name: string;
   url?: string;
 }
 
+// CORRECT FOR V3.0.0
 export interface OpenAPIInfo {
   title: string;
-  version: string;
   description?: string;
   termsOfService?: string;
   contact?: OpenAPIContact;
   license?: OpenAPILicense;
+  version?: string;
 }
 
+// CORRECT FOR V3.0.0
 export interface OpenApiServerVariable {
   enum?: Array<string>;
   default: string;
   description?: string;
 }
 
+// CORRECT FOR V3.0.0
 export interface OpenApiServer {
   url: string;
   description?: string;
@@ -83,14 +88,12 @@ export interface OpenApiParameter {
 
 export interface OpenApiReference {
   $ref: string;
-  description: string;
-  summary: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface OpenApiOperation {}
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// CORRECT FOR V3.0.0
 export interface OpenApiTag {
   name: string,
   description?: string,
@@ -112,9 +115,8 @@ export interface OpenApiSchema {
   properties: Record<string, OpenApiProperty>
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface OpenApiComponents {
-  schemas: Record<string, OpenApiSchema>
+  schemas: Record<string, OpenApiSchema | OpenApiReference>
 }
 
 export interface OpenApiPathsObject {
@@ -129,18 +131,19 @@ export interface OpenApiPath {
   parameters?: Array<OpenApiParameter | OpenApiReference>;
 }
 
+// CORRECT FOR V3.0.0
 export interface OpenApiExternalDocs {
-  description: string,
+  description?: string,
   url: string
 }
 
 export interface OpenAPISpec {
-  openapi: string;
-  info: OpenAPIInfo;
-  servers?: Array<OpenApiServer>;
+  openapi: string; // DONE
+  info: OpenAPIInfo; // DONE
+  servers?: Array<OpenApiServer>; // DONE
   paths: Record<string, OpenApiPathsObject>;
   components?: OpenApiComponents;
-  security?: Array<OpenApiSecurity>;
-  tags?: Array<OpenApiTag>;
-  externalDocs?: OpenApiExternalDocs;
+  security?: Array<OpenApiSecurity>; // NEED TO WORK ON
+  tags?: Array<OpenApiTag>; // DONE
+  externalDocs?: OpenApiExternalDocs; // DONE
 }

@@ -6,18 +6,18 @@
  *  ___Y  ,    .'7 /|
  * (_,___/...-` (_/_/      FETCHER
  *
+ *
+ *  Yo this file is auto generated, no touchy.
+ *
  */
+
+/* eslint-disable max-lines */
+/* eslint-disable sort-keys */
 
 type HTTPMethod = 'get' | 'post' | 'put' | 'patch' | 'update' | 'delete';
 
-type Request<Q, P, B> = {
-  query: Q,
-  params: P,
-  body: B
-};
-
-const generateServiceCall = <Query, Params, Body, Response>(url: string, method: HTTPMethod) => {
-  return async (request: Request<Query, Params, Body>, fetchOptions: any = {}) => {
+const generateServiceCall = <Request, Response>(url: string, method: HTTPMethod) => {
+  return async (request: Request, fetchOptions: any = {}) => {
     const response = await fetch(url, {
       body: JSON.stringify(request),
       method: method.toUpperCase(),

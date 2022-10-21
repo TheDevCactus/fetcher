@@ -1,27 +1,29 @@
 import fs from 'fs';
 
-import Handlebars from 'handlebars';
+import {
+  OpenApiParameter,
+  OpenApiPath,
+  OpenApiPathsObject,
+  OpenAPISpec,
+} from './models';
+import {
+  compileHandlebarsTemplateFromFile,
+  openApiTypeToTSType,
+  writeLibToDisk,
+} from './utils';
 
-import { OpenApiPath, OpenApiPathsObject, OpenAPISpec } from './models';
-
-const loadTemplate = async (filePath: string) => {
-  const file = await fs.readFileSync(filePath, {
-    encoding: 'utf-8',
-  });
-  return file;
-};
-
-const writeLib = async (filePath: string, lib: string) => {
-  await fs.writeFileSync(filePath, lib, {
-    encoding: 'utf-8',
-  });
-};
+interface RandomBadName {
+  _end: true;
+  method: string;
+  pathObj: OpenApiPath;
+  url: string;
+}
 
 const addNestedKeysToObject = (
   nestedKeys: Array<string>,
   obj: Record<string, any>,
   finalObj: any,
-  basePath: string
+  basePath: string,
 ) => {
   const firstKey = nestedKeys.splice(0, 1)[0];
   if (!firstKey) {
@@ -37,7 +39,7 @@ const addNestedKeysToObject = (
       obj[firstKey][key] = {
         _end: true,
         method: key,
-        pathObj: finalObj,
+        pathObj: finalObj[key],
         url: basePath,
       };
     });
@@ -70,31 +72,110 @@ const cleanKey = (key: string) => {
   return key;
 };
 
-
 const generatePaths = async (schema: OpenAPISpec) => {
+  const objectGenerator = await compileHandlebarsTemplateFromFile(
+    './src/templates/object.txt',
+  );
+  const generator = await compileHandlebarsTemplateFromFile(
+    './src/templates/path.txt',
+  );
 
-  const template = await loadTemplate('./src/templates/path.txt');
-  const generator = Handlebars.compile(template);
   const nestedPathsObject = nestPathsObject(schema.paths);
 
   const buildPaths = (paths: OpenApiPathsObject): string => {
     return generator({
       paths: Object.entries(paths).map(([key, inner]) => {
-        const out: {key: string, inner: string} = {
+        const out: { key: string; inner: string } = {
           inner: '',
           key: `'${cleanKey(key)}'`,
         };
         // eslint-disable-next-line no-underscore-dangle
         if (typeof inner === 'object' && !(inner as any)?._end) {
-          out.inner = '{' + buildPaths(inner as OpenApiPathsObject) + '}'
+          out.inner = '{' + buildPaths(inner as OpenApiPathsObject) + '}';
           return out;
         }
+        const { pathObj }: RandomBadName = inner as RandomBadName;
 
-        out.inner = `generateServiceCall<{ dog: boolean }, {cat: string}, {bird: number}, any>('${
+        /*
+         *
+         * MAKE PARAMS OBJECT
+         *
+         */
+        const paramsObject = pathObj.parameters
+          ?.filter((param) => {
+            if (!(param as any).in) {
+              return false;
+            }
+            param = param as OpenApiParameter;
+            return param.in === 'path';
+          })
+          .reduce((t, param: any) => {
+            return {
+              ...t,
+              [param.name]: openApiTypeToTSType(param.schema.type),
+            };
+          }, {});
+
+        const paramsType = objectGenerator({
+          properties: Object.entries(paramsObject || {}).map(
+            ([key, value]) => ({
+              key,
+              value,
+            }),
+          ),
+        });
+
+        /*
+         *
+         * MAKE QUERY OBJECT
+         *
+         */
+        const queryObject = pathObj.parameters
+          ?.filter((param) => {
+            if (!(param as any).in) {
+              return false;
+            }
+            param = param as OpenApiParameter;
+            return param.in === 'query';
+          })
+          .reduce((t, param: any) => {
+            return {
+              ...t,
+              [param.name]: openApiTypeToTSType(param.schema.type),
+            };
+          }, {});
+
+        const queryType = objectGenerator({
+          properties: Object.entries(queryObject || {}).map(([key, value]) => ({
+            key,
+            value,
+          })),
+        });
+
+        /*
+         *
+         * SET INNER
+         *
+         */
+
+        let request = '';
+        if (queryObject && Object.keys(queryObject).length) {
+          request += 'query: ' + queryType + '\n';
+        }
+        if (paramsObject && Object.keys(paramsObject).length) {
+          request += 'params: ' + paramsType + '\n';
+        }
+        if (request.length) {
+          request = '{' + request + '}';
+        } else {
+          request = 'null';
+        }
+
+        out.inner = `generateServiceCall<${
+          request
+        }, any>('${
           schema.servers?.[0].url + (inner as any).url
-        }', '${
-          (inner as any).method
-        }')`;
+        }', '${(inner as any).method}')`;
         return out;
       }),
     });
@@ -104,20 +185,15 @@ const generatePaths = async (schema: OpenAPISpec) => {
 };
 
 const generateLib = async (schema: OpenAPISpec) => {
-  const out = [];
-  const template = await loadTemplate('./src/templates/clientRoot.txt');
-  const generator = Handlebars.compile(template);
-
+  const generator = await compileHandlebarsTemplateFromFile(
+    './src/templates/clientRoot.txt',
+  );
   const methods = await generatePaths(schema);
 
-  out.push(
-    generator({
-      rest: methods,
-      schema,
-    }),
-  );
-
-  return out;
+  return generator({
+    rest: methods,
+    schema,
+  });
 };
 
 const readInSchema = async (filePath: string): Promise<OpenAPISpec> => {
@@ -144,11 +220,9 @@ const makeStringUnsafe = (safeString: string): string => {
 };
 
 const processSchema = async (schema: OpenAPISpec) => {
-  const lib = await generateLib(schema);
-
-  lib[0] = makeStringUnsafe(lib[0]);
-
-  await writeLib('./goalOutputFiles/test.ts', lib[0]);
+  let lib = await generateLib(schema);
+  lib = makeStringUnsafe(lib);
+  await writeLibToDisk('./goalOutputFiles/test.ts', lib);
 };
 
 readInSchema(process.argv[2]).then(processSchema).catch(console.log);

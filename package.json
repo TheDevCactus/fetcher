@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "yarn run tsc",
-    "test": "yarn run build && clear &&  node ./build/index.js ./inputFiles/pokeapi.json"
+    "test": "yarn run build && clear &&  node ./build/index.js ./inputFiles/petstore.json"
   },
   "devDependencies": {
     "eslint": "^8.25.0",
