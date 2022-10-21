@@ -28,4 +28,4 @@ NOT SURE WHAT TO DO FOR REQUEST BODIES OR SECURITY SCHEMAS
 
 ## Open API Spec
 
-https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md
+https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.0.md
