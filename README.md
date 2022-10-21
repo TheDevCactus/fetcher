@@ -7,6 +7,10 @@
 
 This program is meant to generate client code which handles making network calls to our boom services. Writing, and maintaining network calls is a pain. Wether its the backend puts out a new api you need to utilize, or they update a response object, you now have to basically copy their work into your client codebase. There is little thought that goes into these functions most of the time. Most of the time you will look at the endpoint, request schema, and response schema, and implement a basic function wrapping it all up for use across your client. Why not just generate those functions?
 
+### Deployed Diagram
+
+![Random scribbles of a mad man](./.vscode/typesafe-client-lib-generation.png)
+
 ### Why
 
 * Writing network calls sucks
@@ -26,6 +30,10 @@ This program is meant to generate client code which handles making network calls
 * `yarn build` - build the application
 * `yarn test` - build and test the application with a test schema
 * `yarn clean` - clean the project
+
+#### Tips
+
+* `todo.md` in the root dir is git ignored if you need a scratch pad
 
 ## Open API Spec
 

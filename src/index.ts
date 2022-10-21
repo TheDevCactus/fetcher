@@ -2,24 +2,18 @@ import fs from 'fs';
 
 import commander from 'commander';
 
+import { Operation } from './models';
 import {
   OpenApiParameter,
   OpenApiPath,
   OpenApiPathsObject,
   OpenAPISpec,
-} from './models';
+} from './models/OpenAPI';
 import {
   compileHandlebarsTemplateFromFile,
   openApiTypeToTSType,
   writeLibToDisk,
 } from './utils';
-
-interface RandomBadName {
-  _end: true;
-  method: string;
-  pathObj: OpenApiPath;
-  url: string;
-}
 
 const addNestedKeysToObject = (
   nestedKeys: Array<string>,
@@ -96,7 +90,7 @@ const generatePaths = async (schema: OpenAPISpec) => {
           out.inner = '{' + buildPaths(inner as OpenApiPathsObject) + '}';
           return out;
         }
-        const { pathObj }: RandomBadName = inner as RandomBadName;
+        const { pathObj }: Operation = inner as Operation;
 
         /*
          * MAKE PARAMS OBJECT
