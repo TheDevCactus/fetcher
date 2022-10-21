@@ -19,6 +19,14 @@ This program is meant to generate client code which handles making network calls
 
 * Handlebars - For templating
 
+### Development
+
+#### Scripts
+
+* `yarn build` - build the application
+* `yarn test` - build and test the application with a test schema
+* `yarn clean` - clean the project
+
 ## Open API Spec
 
 https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.0.md

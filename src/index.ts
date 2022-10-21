@@ -218,7 +218,7 @@ const makeStringUnsafe = (safeString: string): string => {
 const processSchema = async (schema: OpenAPISpec) => {
   let lib = await generateLib(schema);
   lib = makeStringUnsafe(lib);
-  await writeLibToDisk('./goalOutputFiles/test.ts', lib);
+  await writeLibToDisk(process.argv[3], lib);
 };
 
 readInSchema(process.argv[2]).then(processSchema).catch(console.log);

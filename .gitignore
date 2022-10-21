@@ -1,1 +1,4 @@
 node_modules
+build
+tsconfig.tsbuildinfo
+testAPI.ts

@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "build": "yarn run tsc",
-    "test": "yarn run build && clear &&  node ./build/index.js ./inputFiles/petstore.json"
+    "test": "yarn run build && clear &&  node ./build/src/index.js ./inputFiles/petstore.json ./testAPI.ts",
+    "clean": "rm -rf build ./testAPI.ts"
   },
   "devDependencies": {
     "eslint": "^8.25.0",
