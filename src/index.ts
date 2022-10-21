@@ -97,9 +97,7 @@ const generatePaths = async (schema: OpenAPISpec) => {
         const { pathObj }: RandomBadName = inner as RandomBadName;
 
         /*
-         *
          * MAKE PARAMS OBJECT
-         *
          */
         const paramsObject = pathObj.parameters
           ?.filter((param) => {
@@ -126,9 +124,7 @@ const generatePaths = async (schema: OpenAPISpec) => {
         });
 
         /*
-         *
          * MAKE QUERY OBJECT
-         *
          */
         const queryObject = pathObj.parameters
           ?.filter((param) => {
