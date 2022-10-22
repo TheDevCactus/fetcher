@@ -29,9 +29,10 @@ Below is a diagram of how you could deploy this application to automatically gen
 
 #### Scripts
 
-* `yarn build` - build the application
-* `yarn test` - build and test the application with a test schema
-* `yarn clean` - clean the project
+* `yarn build` - Build the application
+* `yarn dev` - Runs the cli, generating an api lib
+* `yarn test` - Run tests
+* `yarn clean` - Clean the project
 
 #### Tips
 
