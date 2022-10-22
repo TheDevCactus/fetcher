@@ -9,6 +9,8 @@ This program is meant to generate client code which handles making network calls
 
 ### Deployed Diagram
 
+Below is a diagram of how you could deploy this application to automatically generate new Client Lib's whenever a backend service is deployed. This application is the "Boom Client Lib Generator"
+
 ![Random scribbles of a mad man](./.vscode/typesafe-client-lib-generation.png)
 
 ### Why

@@ -14,12 +14,12 @@ module.exports = {
     },
   },
   root: true,
-  extends: ['eslint:recommended', 'react-app', 'react-app/jest', 'prettier'],
+  extends: ['eslint:recommended', 'prettier'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     sourceType: 'module',
   },
-  plugins: ['jest', 'simple-import-sort'],
+  plugins: ['simple-import-sort'],
   rules: {
     'simple-import-sort/imports': [
       'error',
@@ -59,11 +59,6 @@ module.exports = {
     // 'default-case-last': 'error',
     'default-case': 'error',
     'dot-notation': 'error',
-    'jest/no-disabled-tests': 'warn',
-    'jest/no-focused-tests': 'error',
-    'jest/no-identical-title': 'error',
-    'jest/prefer-to-have-length': 'warn',
-    'jest/valid-expect': 'error',
     'no-multi-assign': 'error',
     'no-multiple-empty-lines': ['error', { max: 2, maxEOF: 1 }],
     'no-mixed-spaces-and-tabs': 'error',

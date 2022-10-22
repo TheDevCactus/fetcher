@@ -2,7 +2,7 @@ import fs from 'fs';
 
 import commander from 'commander';
 
-import { Operation } from './models';
+import { Operation, Test } from './models';
 import {
   OpenApiParameter,
   OpenApiPath,
@@ -10,7 +10,10 @@ import {
   OpenAPISpec,
 } from './models/OpenAPI';
 import {
+  buildTypeObjectFromSchema,
   compileHandlebarsTemplateFromFile,
+  expandRefsOnObject,
+  makeStringUnsafe,
   openApiTypeToTSType,
   writeLibToDisk,
 } from './utils';
@@ -93,11 +96,25 @@ const generatePaths = async (schema: OpenAPISpec) => {
         const { pathObj }: Operation = inner as Operation;
 
         /*
+         * MAKE RESPONSES ARRAY
+         */
+        const responses = [];
+        console.log((pathObj as any).responses);
+
+        /*
+         * MAKE BODY OBJECT
+         */
+        let bodyType = '';
+        if ((pathObj as any)?.requestBody?.content?.['application/json']?.schema) {
+          bodyType = buildTypeObjectFromSchema((pathObj as any)?.requestBody?.content?.['application/json']?.schema);
+        }
+
+        /*
          * MAKE PARAMS OBJECT
          */
         const paramsObject = pathObj.parameters
           ?.filter((param) => {
-            if (!(param as any).in) {
+            if (!(param as any).in) { // Checks if we are at the end of the nested object or something
               return false;
             }
             param = param as OpenApiParameter;
@@ -106,7 +123,7 @@ const generatePaths = async (schema: OpenAPISpec) => {
           .reduce((t, param: any) => {
             return {
               ...t,
-              [param.name]: openApiTypeToTSType(param.schema.type),
+              [param.name]: buildTypeObjectFromSchema(param.schema),
             };
           }, {});
 
@@ -133,7 +150,7 @@ const generatePaths = async (schema: OpenAPISpec) => {
           .reduce((t, param: any) => {
             return {
               ...t,
-              [param.name]: openApiTypeToTSType(param.schema.type),
+              [param.name]: buildTypeObjectFromSchema(param.schema),
             };
           }, {});
 
@@ -144,12 +161,7 @@ const generatePaths = async (schema: OpenAPISpec) => {
           })),
         });
 
-        /*
-         *
-         * SET INNER
-         *
-         */
-
+        // This is ugly.
         let request = '';
         if (queryObject && Object.keys(queryObject).length) {
           request += 'query: ' + queryType + '\n';
@@ -157,12 +169,20 @@ const generatePaths = async (schema: OpenAPISpec) => {
         if (paramsObject && Object.keys(paramsObject).length) {
           request += 'params: ' + paramsType + '\n';
         }
+        if (bodyType.length) {
+          request += 'body: ' + bodyType + '\n';
+        }
         if (request.length) {
           request = '{' + request + '}';
         } else {
           request = 'null';
         }
 
+        /*
+         *
+         * SET INNER
+         *
+         */
         out.inner = `generateServiceCall<${request}, any>('${
           schema.servers?.[0].url + (inner as any).url
         }', '${(inner as any).method}')`;
@@ -190,24 +210,8 @@ const readInSchema = async (filePath: string): Promise<OpenAPISpec> => {
   const file = await fs.readFileSync(filePath, {
     encoding: 'utf-8',
   });
+
   return JSON.parse(file) as OpenAPISpec;
-};
-
-const makeStringUnsafe = (safeString: string): string => {
-  /*
-   * Make string unsafe? wtf? see below
-   * This exists cause handlebars is meant for html templating. In that situation,
-   * It would be an incredibly bad idea to do this. We are not doing html templating though.
-   */
-  safeString = safeString.replace(/&amp;/g, '&');
-  safeString = safeString.replace(/&lt;/g, '<');
-  safeString = safeString.replace(/&gt;/g, '>');
-  safeString = safeString.replace(/&quot;/g, '"');
-  safeString = safeString.replace(/&#x27;/g, "'");
-  safeString = safeString.replace(/&#x60;/g, '`');
-  safeString = safeString.replace(/&#x3D;/g, '=');
-
-  return safeString;
 };
 
 const processSchema = async (schema: OpenAPISpec, outFile: string) => {
@@ -233,7 +237,8 @@ commander.program
   .argument('schema', 'File path to the schema you would like to use.')
   .argument('output', 'File path to output your client lib to.')
   .action(async (...args) => {
-    const schema = await readInSchema(args[0]);
+    let schema = await readInSchema(args[0]);
+    schema = expandRefsOnObject(schema) as OpenAPISpec;
     await processSchema(schema, args[1]);
   });
 
