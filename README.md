@@ -40,3 +40,13 @@ Below is a diagram of how you could deploy this application to automatically gen
 ## Open API Spec
 
 https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.0.md
+
+## Notes
+
+Need to only define types once.
+
+Cleanup code. its literally garbage right now.
+
+Do the network calls ourself?
+
+Or does the dev pass in something like axios which we can utilize. This would be more dynamic but might be really dumb
