@@ -249,6 +249,7 @@ commander.program
   .action(async (...args) => {
     let schema = await readInSchema(args[0]);
     schema = expandRefsOnObject(schema) as OpenAPISpec;
+    schema.info.title = schema.info.title.split(' ').join('');
     await processSchema(schema, args[1]);
   });
 
