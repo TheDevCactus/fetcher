@@ -98,8 +98,18 @@ const generatePaths = async (schema: OpenAPISpec) => {
         /*
          * MAKE RESPONSES ARRAY
          */
-        const responses = [];
-        console.log((pathObj as any).responses);
+        const responses: Set<any> = new Set();
+        Object.entries((pathObj as any).responses).forEach(([statusCode, response]: [string, any]) => {
+          if (!response.content || !response?.content?.['application/json']?.schema) {
+            responses.add('null');
+            return;
+          }
+          responses.add(
+            buildTypeObjectFromSchema(response.content['application/json'].schema)
+          )
+        });
+
+        const responsesType = [...responses].join(' | ');
 
         /*
          * MAKE BODY OBJECT
@@ -183,7 +193,7 @@ const generatePaths = async (schema: OpenAPISpec) => {
          * SET INNER
          *
          */
-        out.inner = `generateServiceCall<${request}, any>('${
+        out.inner = `generateServiceCall<${request}, ${responsesType}>('${
           schema.servers?.[0].url + (inner as any).url
         }', '${(inner as any).method}')`;
         return out;

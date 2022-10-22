@@ -9,6 +9,7 @@ export interface Schema {
   properties?: Schema;
   required?: Array<string>;
   items?: Schema;
+  additionalProperties?: Schema;
 }
 export const buildTypeObjectFromSchema = (schema: Schema): string => {
   const isParamRequired = (key: string): boolean => {
@@ -30,11 +31,16 @@ export const buildTypeObjectFromSchema = (schema: Schema): string => {
     case OpenApiType.String:
       return openApiTypeToTSType(schema.type);
     case OpenApiType.Object:
-      if (!schema.properties) {
-        throw new Error(`Schema type object must have a properties property`);
-      }
-      return `{${Object.entries(schema.properties).map(([key, value]) => (
-        `${key}${isParamRequired(key) ? '' : '?'}: ${buildTypeObjectFromSchema(value)}`
+      // put this back but for now it isn't right
+      // if (!schema.properties && !schema.additionalProperties) {
+      //   throw new Error(`Schema type object must have a properties property`);
+      // }
+      // eslint-disable-next-line no-case-declarations
+      const properties = {
+        ...schema.properties,
+      };
+      return `{${Object.entries(properties).map(([key, value]) => (
+        `${key}${isParamRequired(key) ? '' : '?'}: ${buildTypeObjectFromSchema(value as Schema)}`
       ))}}`
     default:
       throw new Error(`Encountered unrecognized type: ${schema.type}`);

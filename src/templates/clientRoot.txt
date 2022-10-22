@@ -30,7 +30,6 @@ const generateServiceCall = <Request, Response>(url: string, method: HTTPMethod)
  * @description {{schema.info.description}}
  */
 const {{schema.info.title}} = {
-  baseUrl: '{{schema.servers.[0].url}}',
   {{rest}}
 }
 
