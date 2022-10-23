@@ -73,10 +73,10 @@ export const followObjectPath = (
   return found;
 };
 
-export const expandRefsOnObject = (
+export const expandRefsOnObject = <T>(
   currentRoot: Record<string, any>,
   base?: Record<string, any>,
-): Record<string, any> => {
+): T => {
   if (!base) {
     base = currentRoot;
   }
@@ -98,7 +98,7 @@ export const expandRefsOnObject = (
     }
   }
 
-  return currentRoot;
+  return currentRoot as T;
 };
 
 export const openApiTypeToTSType = (type: OpenApiType): string => {

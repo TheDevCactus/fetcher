@@ -236,21 +236,17 @@ const buildLib = async (schemaFilePath: string, outFile: string) => {
     fs.readFileSync(schemaFilePath, { encoding: 'utf-8' }),
   ]);
 
-  let schema = JSON.parse(file) as OpenAPISpec;
-  schema = expandRefsOnObject(schema) as OpenAPISpec;
+  let schema: OpenAPISpec = JSON.parse(file);
+  schema = expandRefsOnObject(schema);
   schema.info.title = schema.info.title.split(' ').join('');
 
-  const methods = await generatePaths(schema);
-  await fs.writeFileSync(
-    outFile,
-    generator({
-      rest: methods,
-      schema,
-    }),
-    {
-      encoding: 'utf-8',
-    },
-  );
+  const networkCalls = await generatePaths(schema);
+  const lib = generator({
+    networkCalls,
+    schema,
+  });
+
+  await fs.writeFileSync(outFile, lib);
 };
 
 commander.program

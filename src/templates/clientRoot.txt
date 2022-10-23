@@ -62,7 +62,7 @@ const generateServiceCall = <
  * @description {{schema.info.description}}
  */
 const {{schema.info.title}} = {
-  {{rest}}
+  {{networkCalls}}
 }
 
 export default {{schema.info.title}}
