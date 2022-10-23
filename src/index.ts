@@ -175,6 +175,7 @@ const generatePaths = async (schema: OpenAPISpec) => {
             value: queryType,
           });
         }
+
         if (paramsObject && Object.keys(paramsObject).length) {
           requestProperties.push({
             key: 'params',
@@ -232,7 +233,7 @@ const generatePaths = async (schema: OpenAPISpec) => {
 const buildLib = async (schemaFilePath: string, outFile: string) => {
   const [generator, file] = await Promise.all([
     useHandlebarsTemplateFromFile('./src/templates/clientRoot.txt'),
-    fs.readFileSync(schemaFilePath, { encoding: 'utf-8' })
+    fs.readFileSync(schemaFilePath, { encoding: 'utf-8' }),
   ]);
 
   let schema = JSON.parse(file) as OpenAPISpec;
@@ -266,7 +267,7 @@ commander.program
     buildLib(args[0], args[1]).then(() => {
       console.log(`
         LIB GENERATED!
-      `)
+      `);
     });
   });
 

@@ -46,11 +46,13 @@ https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.0.md
 
 Need to only define types once.
 
-Cleanup code. its literally garbage right now.
+Cleanup build paths function 
 
 Do the network calls ourself?
-
 Or does the dev pass in something like axios which we can utilize. This would be more dynamic but might be really dumb
+Something like how react query now is Tanstack query and has "adapters" for different frameworks. We could provide a default adapter for fetch, then developers can B.Y.O.A (bring your own adapter) if you wanna have more control over your network calls, or use something like axios, etc.
+
+If we could extend the OpenAPI 3.0.0 schema to include things like "invalidates" and "cacheSettings" on operations, we could easily also generate Tanstack Query hooks for all of our network calls as well. Which would be insaneeeeeeeeeeeee. Literally all you would write is UI
 
 Does the backend have tests for their endpoints? If so we could easily test our generated api's by matching their responses.
 
