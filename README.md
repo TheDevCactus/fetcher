@@ -52,6 +52,8 @@ Do the network calls ourself?
 
 Or does the dev pass in something like axios which we can utilize. This would be more dynamic but might be really dumb
 
+Does the backend have tests for their endpoints? If so we could easily test our generated api's by matching their responses.
+
 ## Example output
 
 ```ts

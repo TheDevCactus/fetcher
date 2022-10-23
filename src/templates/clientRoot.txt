@@ -14,22 +14,47 @@
 
 type HTTPMethod = 'get' | 'post' | 'put' | 'patch' | 'update' | 'delete';
 
-const generateServiceCall = <Request, Response>(
+const generateServiceCall = <
+  Request extends {
+    body?: Record<string, any>;
+    query?: Record<string, any>;
+    params?: Record<string, any>;
+  } | null,
+  Response
+>(
   url: string,
   method: HTTPMethod,
   knownStatusCodes: Array<number>
 ) => {
   return async (request: Request, fetchOptions: any = {}) => {
-    const response = await fetch(url, {
-      body: JSON.stringify(request),
+    let finalURL = url;
+    
+    if (request?.query) {
+      finalURL += `?${Object.entries(request.query)
+        .map(([key, value]) => `${key}=${value}`)
+        .join("&")}`;
+    }
+
+    if (request?.params) {
+      Object.entries(request.params).forEach(([key, value]) => {
+        finalURL = finalURL.replaceAll(`{${key}}`, value);
+      });
+    }
+    
+    const response = await fetch(finalURL, {
+      body: request?.body ? JSON.stringify(request.body) : null,
       method: method.toUpperCase(),
       ...fetchOptions,
     });
     if (!knownStatusCodes.includes(response.status)) {
-      throw new Error('Unexpected error occurred');
+      throw new Error("Unexpected error occurred");
     }
     const result = await response.json();
-    return result as Response;
+    return {
+      data: result as unknown as Response,
+      status: response.status,
+      headers: response.headers,
+    };
   };
 };
 

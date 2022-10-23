@@ -2,7 +2,7 @@ import fs from 'fs';
 
 import commander from 'commander';
 
-import { Operation, Test } from './models';
+import { Operation } from './models';
 import {
   OpenApiParameter,
   OpenApiPath,
@@ -10,83 +10,60 @@ import {
   OpenAPISpec,
 } from './models/OpenAPI';
 import {
+  buildNestedObject,
   buildTypeObjectFromSchema,
-  compileHandlebarsTemplateFromFile,
   expandRefsOnObject,
-  makeStringUnsafe,
-  openApiTypeToTSType,
-  writeLibToDisk,
+  paramKeyToSemanticKey,
+  setDeepParam,
+  useHandlebarsTemplateFromFile,
 } from './utils';
 
-const addNestedKeysToObject = (
-  nestedKeys: Array<string>,
-  obj: Record<string, any>,
-  finalObj: any,
-  basePath: string,
-) => {
-  const firstKey = nestedKeys.splice(0, 1)[0];
-  if (!firstKey) {
-    return;
-  }
-
-  if (!obj[firstKey]) {
-    obj[firstKey] = {};
-  }
-
-  if (!nestedKeys.length) {
-    Object.keys(finalObj).forEach((key) => {
-      obj[firstKey][key] = {
-        _end: true,
-        method: key,
-        pathObj: finalObj[key],
-        url: basePath,
-      };
-    });
-
-    return;
-  }
-
-  addNestedKeysToObject(nestedKeys, obj[firstKey], finalObj, basePath);
-  return;
+// CLEAN
+const createEndObject = (pathObj: OpenApiPath, path: string) => {
+  const endObject: Record<string, any> = {};
+  Object.keys(pathObj).forEach((key) => {
+    endObject[key] = {
+      _end: true,
+      method: key,
+      pathObj: (pathObj as any)[key],
+      url: path,
+    };
+  });
+  return endObject;
 };
 
+// CLEAN
 const nestPathsObject = (
   pathsObject: Record<string, OpenApiPath>,
 ): OpenApiPathsObject => {
-  const out = {};
+  let out = {};
 
   Object.entries(pathsObject).forEach(([path, pathObj]) => {
     const splitPath = path.split('/').filter((path) => path !== '');
-    addNestedKeysToObject(splitPath, out, pathObj, path);
+    out = buildNestedObject(splitPath, out);
+    setDeepParam(out, splitPath, createEndObject(pathObj, path));
   });
 
   return out;
 };
 
-const cleanKey = (key: string) => {
-  if (key.startsWith('{') && key.endsWith('}')) {
-    key = 'by' + key[1].toUpperCase() + key.slice(2, key.length - 1);
-  }
-
-  return key;
-};
-
+// ASS
 const generatePaths = async (schema: OpenAPISpec) => {
-  const objectGenerator = await compileHandlebarsTemplateFromFile(
-    './src/templates/object.txt',
-  );
-  const generator = await compileHandlebarsTemplateFromFile(
-    './src/templates/path.txt',
-  );
-
-  const nestedPathsObject = nestPathsObject(schema.paths);
+  const [objectGenerator, pathGenerator, generateGenerateServiceCallMethod] =
+    await Promise.all([
+      useHandlebarsTemplateFromFile('./src/templates/object.txt'),
+      useHandlebarsTemplateFromFile('./src/templates/path.txt'),
+      useHandlebarsTemplateFromFile(
+        './src/templates/generateServiceCallMethod.txt',
+      ),
+    ]);
 
   const buildPaths = (paths: OpenApiPathsObject): string => {
-    return generator({
+    return pathGenerator({
       paths: Object.entries(paths).map(([key, inner]) => {
         const out: { key: string; inner: string } = {
           inner: '',
-          key: `'${cleanKey(key)}'`,
+          key: `'${paramKeyToSemanticKey(key)}'`,
         };
         // eslint-disable-next-line no-underscore-dangle
         if (typeof inner === 'object' && !(inner as any)?._end) {
@@ -99,22 +76,20 @@ const generatePaths = async (schema: OpenAPISpec) => {
          * MAKE RESPONSES ARRAY
          */
         const responses: Set<any> = new Set();
-        Object.entries((pathObj as any).responses).forEach(
-          ([statusCode, response]: [string, any]) => {
-            if (
-              !response.content ||
-              !response?.content?.['application/json']?.schema
-            ) {
-              responses.add('null');
-              return;
-            }
-            responses.add(
-              buildTypeObjectFromSchema(
-                response.content['application/json'].schema,
-              ),
-            );
-          },
-        );
+        Object.values((pathObj as any).responses).forEach((response: any) => {
+          if (
+            !response.content ||
+            !response?.content?.['application/json']?.schema
+          ) {
+            responses.add('null');
+            return;
+          }
+          responses.add(
+            buildTypeObjectFromSchema(
+              response.content['application/json'].schema,
+            ),
+          );
+        });
 
         const responsesType = [...responses].join(' | ');
 
@@ -184,24 +159,44 @@ const generatePaths = async (schema: OpenAPISpec) => {
           })),
         });
 
-        // This is ugly.
-        let request = '';
+        /*
+         * CREATE REQUEST TYPE
+         */
+        const requestProperties: Array<{
+          key: string;
+          required: boolean;
+          value: string;
+        }> = [];
+
         if (queryObject && Object.keys(queryObject).length) {
-          request += 'query: ' + queryType + '\n';
+          requestProperties.push({
+            key: 'query',
+            required: true,
+            value: queryType,
+          });
         }
         if (paramsObject && Object.keys(paramsObject).length) {
-          request += 'params: ' + paramsType + '\n';
+          requestProperties.push({
+            key: 'params',
+            required: true,
+            value: paramsType,
+          });
         }
         if (bodyType.length) {
-          request += 'body: ' + bodyType + '\n';
+          requestProperties.push({
+            key: 'body',
+            required: true,
+            value: bodyType,
+          });
         }
-        if (request.length) {
-          request = '{' + request + '}';
-        } else {
-          request = 'null';
-        }
+        const request = requestProperties.length
+          ? objectGenerator({ properties: requestProperties })
+          : 'null';
 
-        const validStatusKeys = [
+        /*
+         * CREATE VALID STATUS KEYS
+         */
+        const validResponseStatuses = [
           ...Object.keys((pathObj as any).responses).reduce<Set<number>>(
             (statusCodes, statusCode) => {
               statusCodes.add(
@@ -218,48 +213,44 @@ const generatePaths = async (schema: OpenAPISpec) => {
          * SET INNER
          *
          */
-        out.inner = `generateServiceCall<${request}, ${responsesType}>('${
-          schema.servers?.[0].url + (inner as any).url
-        }', '${(inner as any).method}', [${validStatusKeys}])`;
+        out.inner = generateGenerateServiceCallMethod({
+          method: (inner as any).method,
+          request: request,
+          response: responsesType,
+          url: `${schema.servers?.[0].url}${(inner as any).url}`,
+          validResponseStatuses: validResponseStatuses,
+        });
         return out;
       }),
     });
   };
 
-  return buildPaths(nestedPathsObject);
+  return buildPaths(nestPathsObject(schema.paths));
 };
 
-const generateLib = async (schema: OpenAPISpec) => {
-  const generator = await compileHandlebarsTemplateFromFile(
-    './src/templates/clientRoot.txt',
-  );
+// CLEAN
+const buildLib = async (schemaFilePath: string, outFile: string) => {
+  const [generator, file] = await Promise.all([
+    useHandlebarsTemplateFromFile('./src/templates/clientRoot.txt'),
+    fs.readFileSync(schemaFilePath, { encoding: 'utf-8' })
+  ]);
+
+  let schema = JSON.parse(file) as OpenAPISpec;
+  schema = expandRefsOnObject(schema) as OpenAPISpec;
+  schema.info.title = schema.info.title.split(' ').join('');
+
   const methods = await generatePaths(schema);
-
-  return generator({
-    rest: methods,
-    schema,
-  });
+  await fs.writeFileSync(
+    outFile,
+    generator({
+      rest: methods,
+      schema,
+    }),
+    {
+      encoding: 'utf-8',
+    },
+  );
 };
-
-const readInSchema = async (filePath: string): Promise<OpenAPISpec> => {
-  const file = await fs.readFileSync(filePath, {
-    encoding: 'utf-8',
-  });
-
-  return JSON.parse(file) as OpenAPISpec;
-};
-
-const processSchema = async (schema: OpenAPISpec, outFile: string) => {
-  let lib = await generateLib(schema);
-  lib = makeStringUnsafe(lib);
-  await writeLibToDisk(outFile, lib);
-};
-
-/**
- * FETCHER
- * ==================================================
- * Chassis Service Client Lib Generator
- */
 
 commander.program
   .name('Fetcher Generator')
@@ -272,10 +263,11 @@ commander.program
   .argument('schema', 'File path to the schema you would like to use.')
   .argument('output', 'File path to output your client lib to.')
   .action(async (...args) => {
-    let schema = await readInSchema(args[0]);
-    schema = expandRefsOnObject(schema) as OpenAPISpec;
-    schema.info.title = schema.info.title.split(' ').join('');
-    await processSchema(schema, args[1]);
+    buildLib(args[0], args[1]).then(() => {
+      console.log(`
+        LIB GENERATED!
+      `)
+    });
   });
 
 commander.program.parse();

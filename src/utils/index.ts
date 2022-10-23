@@ -18,30 +18,35 @@ export const buildTypeObjectFromSchema = (schema: Schema): string => {
     }
     return schema.required.includes(key);
   };
- 
+
   switch (schema.type) {
     case OpenApiType.Array:
       if (!schema.items) {
         throw new Error(`Schema type array must have an items property`);
       }
-      return `Array<${buildTypeObjectFromSchema(schema.items)}>`
+      return `Array<${buildTypeObjectFromSchema(schema.items)}>`;
     case OpenApiType.Integer:
     case OpenApiType.Number:
     case OpenApiType.boolean:
     case OpenApiType.String:
       return openApiTypeToTSType(schema.type);
     case OpenApiType.Object:
-      // put this back but for now it isn't right
-      // if (!schema.properties && !schema.additionalProperties) {
-      //   throw new Error(`Schema type object must have a properties property`);
-      // }
+      /*
+       * Put this back, but for now it isn't right
+       * if (!schema.properties && !schema.additionalProperties) {
+       *   throw new Error(`Schema type object must have a properties property`);
+       * }
+       */
       // eslint-disable-next-line no-case-declarations
       const properties = {
         ...schema.properties,
       };
-      return `{${Object.entries(properties).map(([key, value]) => (
-        `${key}${isParamRequired(key) ? '' : '?'}: ${buildTypeObjectFromSchema(value as Schema)}`
-      ))}}`
+      return `{${Object.entries(properties).map(
+        ([key, value]) =>
+          `${key}${
+            isParamRequired(key) ? '' : '?'
+          }: ${buildTypeObjectFromSchema(value as Schema)}`,
+      )}}`;
     default:
       throw new Error(`Encountered unrecognized type: ${schema.type}`);
   }
@@ -113,23 +118,21 @@ export const openApiTypeToTSType = (type: OpenApiType): string => {
   return found;
 };
 
-export const compileHandlebarsTemplateFromFile = async (
-  filePath: string,
-  options?: CompileOptions,
-) => {
-  const file = await fs.readFileSync(filePath, {
-    encoding: 'utf-8',
-  });
-  const generator = Handlebars.compile(file, options);
+export const useHandlebarsTemplateFromFile = (() => {
+  const generators: Record<string, HandlebarsTemplateDelegate<any>> = {};
 
-  return generator;
-};
+  return async (filePath: string, options?: CompileOptions) => {
+    if (generators[filePath]) {
+      return generators[filePath];
+    }
 
-export const writeLibToDisk = async (filePath: string, lib: string) => {
-  return fs.writeFileSync(filePath, lib, {
-    encoding: 'utf-8',
-  });
-};
+    const file = await fs.readFileSync(filePath, { encoding: 'utf-8' });
+    generators[filePath] = Handlebars.compile(file, options);
+    return (context: any, options?: Handlebars.RuntimeOptions | undefined) => {
+      return makeStringUnsafe(generators[filePath](context, options))
+    };
+  };
+})();
 
 export const makeStringUnsafe = (safeString: string): string => {
   /*
@@ -146,4 +149,54 @@ export const makeStringUnsafe = (safeString: string): string => {
   safeString = safeString.replace(/&#x3D;/g, '=');
 
   return safeString;
+};
+
+export const paramKeyToSemanticKey = (key: string) => {
+  let out = 'by';
+  let shouldCapitalizeNext = true;
+
+  for (let i = 0; i < key.length; i ++) {
+    if (key[i] === '{' || key[i] === '}') {
+      continue;
+    }
+
+    if (shouldCapitalizeNext) {
+      out += key[i].toUpperCase();
+      shouldCapitalizeNext = false;
+      continue;
+    }
+
+    out += key[i];
+  }
+
+  return out;
+};
+
+export const buildNestedObject = (pathToNest: Array<string>, obj: Record<string, any>): Record<string, any> => {
+  const workingPathToNest = [...pathToNest];
+  const firstKey = workingPathToNest.splice(0, 1)[0];
+
+  if (!firstKey) {
+    return obj;
+  }
+
+  if (!obj[firstKey]) {
+    obj[firstKey] = {};
+  }
+
+  obj[firstKey] = buildNestedObject(workingPathToNest, obj[firstKey]);
+  return obj;
+};
+
+export const setDeepParam = <T>(obj: Record<string, any>, pathToParam: Array<string>, value: T) => {
+  const workingPathToParam = [...pathToParam];
+
+  while (workingPathToParam.length > 1) {
+    obj = obj[workingPathToParam.splice(0, 1)[0]];
+    if (!obj) {
+      throw new Error('Invalid path to param');
+    }
+  }
+
+  obj[workingPathToParam[0]] = value;
 };

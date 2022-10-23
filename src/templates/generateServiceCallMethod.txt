@@ -1,0 +1,1 @@
+generateServiceCall<{{request}}, {{response}}>('{{url}}', '{{method}}', [{{validResponseStatuses}}])

@@ -5,11 +5,14 @@ import { expect } from 'chai';
 
 import { OpenApiType } from '../src/models/OpenAPI';
 import {
+  buildNestedObject,
   buildTypeObjectFromSchema,
   expandRefsOnObject,
   followObjectPath,
   openApiTypeToTSType,
+  paramKeyToSemanticKey,
   Schema,
+  setDeepParam,
 } from '../src/utils';
 
 describe('Utils', () => {
@@ -196,9 +199,86 @@ describe('Utils', () => {
         '{id?: number,name: string,category?: {id?: number,name?: string},photoUrls: Array<string>,tags?: Array<{id?: number,name?: string}>,status?: string}',
     };
     it('Should convert a schema object into the text representation of a TS type', () => {
-      expect(buildTypeObjectFromSchema(testData.inputSchema as unknown as Schema)).to.equal(
-        testData.outputString,
+      const builtSchema = buildTypeObjectFromSchema(
+        testData.inputSchema as unknown as Schema,
       );
+      expect(builtSchema).to.equal(testData.outputString);
+    });
+  });
+  describe('cleanKey', () => {
+    const testData = {
+      dirtyKey: '{dogsRule}',
+      dirtyKeyTwo: '{dogsRule',
+      dirtyKeyThree: 'dogsRule}',
+      dirtyKeyFour: 'dogsRule',
+      cleaned: 'byDogsRule',
+    };
+    it('Should convert a url param key into a semantic normal object key, (i.e. {dogsRule} -> byDogsRule', () => {
+      expect(paramKeyToSemanticKey(testData.dirtyKey)).to.equal(
+        testData.cleaned,
+      );
+      expect(paramKeyToSemanticKey(testData.dirtyKeyTwo)).to.equal(
+        testData.cleaned,
+      );
+      expect(paramKeyToSemanticKey(testData.dirtyKeyThree)).to.equal(
+        testData.cleaned,
+      );
+      expect(paramKeyToSemanticKey(testData.dirtyKeyFour)).to.equal(
+        testData.cleaned,
+      );
+    });
+  });
+  describe('buildNestedObject', () => {
+    const testData = {
+      nestedKeys: ['dog', 'cat', 'bird', 'fish'],
+      nestedObject: {
+        dog: {
+          cat: {
+            bird: {
+              fish: {},
+            },
+          },
+        },
+      },
+    };
+    it('Should nest keys within a provided object', () => {
+      expect(buildNestedObject(testData.nestedKeys, {})).to.deep.include(
+        testData.nestedObject,
+      );
+    });
+  });
+  describe('setDeepParam', () => {
+    const testData = {
+      validNestedKeys: ['dog', 'cat', 'bird', 'fish'],
+      invalidNestedKeys: ['dog', 'cat', 'worm', 'fish'],
+      nestedObject: {
+        dog: {
+          cat: {
+            bird: {
+            },
+          },
+        },
+      },
+      valueToSet: 'hi mom',
+    };
+    it('Should deeply set a property on a nested object', () => {
+      setDeepParam(
+        testData.nestedObject,
+        testData.validNestedKeys,
+        testData.valueToSet,
+      );
+      expect(testData.nestedObject.dog.cat.bird).to.deep.include({
+        fish: testData.valueToSet,
+      });
+    });
+    it('Should throw an error if an invalid path is provided', () => {
+      expect(() =>
+        setDeepParam(
+          testData.nestedObject,
+          testData.invalidNestedKeys,
+          testData.valueToSet,
+        ),
+      ).to.throw('Invalid path to param');
     });
   });
 });
