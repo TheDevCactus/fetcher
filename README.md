@@ -44,9 +44,10 @@ https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.0.md
 
 ## Notes
 
-Need to only define types once.
+We should only type types once if they are provided in the "components" section of the schema.
+This way we can also provide more semantic names (assuming the schemas names for components are semantic).
 
-Cleanup build paths function 
+Cleanup buildPaths function 
 
 Do the network calls ourself?
 Or does the dev pass in something like axios which we can utilize. This would be more dynamic but might be really dumb
@@ -75,25 +76,54 @@ Does the backend have tests for their endpoints? If so we could easily test our 
 
 type HTTPMethod = 'get' | 'post' | 'put' | 'patch' | 'update' | 'delete';
 
-const generateServiceCall = <Request, Response>(
+const generateServiceCall = <
+  Request extends {
+    body?: Record<string, any>;
+    query?: Record<string, any>;
+    params?: Record<string, any>;
+  } | null,
+  Response,
+>(
   url: string,
   method: HTTPMethod,
+  knownStatusCodes: Array<number>,
 ) => {
   return async (request: Request, fetchOptions: any = {}) => {
-    const response = await fetch(url, {
-      body: JSON.stringify(request),
+    let finalURL = url;
+
+    if (request?.query) {
+      finalURL += `?${Object.entries(request.query)
+        .map(([key, value]) => `${key}=${value}`)
+        .join('&')}`;
+    }
+
+    if (request?.params) {
+      Object.entries(request.params).forEach(([key, value]) => {
+        finalURL = finalURL.replaceAll(`{${key}}`, value);
+      });
+    }
+
+    const response = await fetch(finalURL, {
+      body: request?.body ? JSON.stringify(request.body) : null,
       method: method.toUpperCase(),
       ...fetchOptions,
     });
+    if (!knownStatusCodes.includes(response.status)) {
+      throw new Error('Unexpected error occurred');
+    }
     const result = await response.json();
-    return result as Response;
+    return {
+      data: result as unknown as Response,
+      status: response.status,
+      headers: response.headers,
+    };
   };
 };
 
 /**
  * @description This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You can find out more about Swagger at [http://swagger.io](http://swagger.io). In the third iteration of the pet store, we've switched to the design first approach! You can now help us improve the API whether it's by making changes to the definition itself or to the code. That way, with time, we can improve the API in general, and expose some of the new features in OAS3. Some useful links: - [The Pet Store repository](https://github.com/swagger-api/swagger-petstore)- [The source API definition for the Pet Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
  */
-const SwaggerPetstore = {
+const Petstore = {
   pet: {
     put: generateServiceCall<
       {
@@ -114,7 +144,7 @@ const SwaggerPetstore = {
         tags?: Array<{ id?: number; name?: string }>;
         status?: string;
       } | null
-    >('https://petstore3.swagger.io/api/v3/pet', 'put'),
+    >('https://petstore3.swagger.io/api/v3/pet', 'put', [200, 400, 404, 405]),
     post: generateServiceCall<
       {
         body: {
@@ -134,12 +164,12 @@ const SwaggerPetstore = {
         tags?: Array<{ id?: number; name?: string }>;
         status?: string;
       } | null
-    >('https://petstore3.swagger.io/api/v3/pet', 'post'),
+    >('https://petstore3.swagger.io/api/v3/pet', 'post', [200, 405]),
     findByStatus: {
       get: generateServiceCall<
         {
           query: {
-            status: string;
+            status?: string;
           };
         },
         Array<{
@@ -150,13 +180,17 @@ const SwaggerPetstore = {
           tags?: Array<{ id?: number; name?: string }>;
           status?: string;
         }> | null
-      >('https://petstore3.swagger.io/api/v3/pet/findByStatus', 'get'),
+      >(
+        'https://petstore3.swagger.io/api/v3/pet/findByStatus',
+        'get',
+        [200, 400],
+      ),
     },
     findByTags: {
       get: generateServiceCall<
         {
           query: {
-            tags: Array<string>;
+            tags?: Array<string>;
           };
         },
         Array<{
@@ -167,13 +201,17 @@ const SwaggerPetstore = {
           tags?: Array<{ id?: number; name?: string }>;
           status?: string;
         }> | null
-      >('https://petstore3.swagger.io/api/v3/pet/findByTags', 'get'),
+      >(
+        'https://petstore3.swagger.io/api/v3/pet/findByTags',
+        'get',
+        [200, 400],
+      ),
     },
     byPetId: {
       get: generateServiceCall<
         {
           params: {
-            petId: number;
+            petId?: number;
           };
         },
         {
@@ -184,41 +222,46 @@ const SwaggerPetstore = {
           tags?: Array<{ id?: number; name?: string }>;
           status?: string;
         } | null
-      >('https://petstore3.swagger.io/api/v3/pet/{petId}', 'get'),
+      >(
+        'https://petstore3.swagger.io/api/v3/pet/{petId}',
+        'get',
+        [200, 400, 404],
+      ),
       post: generateServiceCall<
         {
           query: {
-            name: string;
-            status: string;
+            name?: string;
+            status?: string;
           };
           params: {
-            petId: number;
+            petId?: number;
           };
         },
         null
-      >('https://petstore3.swagger.io/api/v3/pet/{petId}', 'post'),
+      >('https://petstore3.swagger.io/api/v3/pet/{petId}', 'post', [405]),
       delete: generateServiceCall<
         {
           params: {
-            petId: number;
+            petId?: number;
           };
         },
         null
-      >('https://petstore3.swagger.io/api/v3/pet/{petId}', 'delete'),
+      >('https://petstore3.swagger.io/api/v3/pet/{petId}', 'delete', [400]),
       uploadImage: {
         post: generateServiceCall<
           {
             query: {
-              additionalMetadata: string;
+              additionalMetadata?: string;
             };
             params: {
-              petId: number;
+              petId?: number;
             };
           },
           { code?: number; type?: string; message?: string }
         >(
           'https://petstore3.swagger.io/api/v3/pet/{petId}/uploadImage',
           'post',
+          [200],
         ),
       },
     },
@@ -228,6 +271,7 @@ const SwaggerPetstore = {
       get: generateServiceCall<null, {}>(
         'https://petstore3.swagger.io/api/v3/store/inventory',
         'get',
+        [200],
       ),
     },
     order: {
@@ -250,12 +294,12 @@ const SwaggerPetstore = {
           status?: string;
           complete?: boolean;
         } | null
-      >('https://petstore3.swagger.io/api/v3/store/order', 'post'),
+      >('https://petstore3.swagger.io/api/v3/store/order', 'post', [200, 405]),
       byOrderId: {
         get: generateServiceCall<
           {
             params: {
-              orderId: number;
+              orderId?: number;
             };
           },
           {
@@ -266,17 +310,22 @@ const SwaggerPetstore = {
             status?: string;
             complete?: boolean;
           } | null
-        >('https://petstore3.swagger.io/api/v3/store/order/{orderId}', 'get'),
+        >(
+          'https://petstore3.swagger.io/api/v3/store/order/{orderId}',
+          'get',
+          [200, 400, 404],
+        ),
         delete: generateServiceCall<
           {
             params: {
-              orderId: number;
+              orderId?: number;
             };
           },
           null
         >(
           'https://petstore3.swagger.io/api/v3/store/order/{orderId}',
           'delete',
+          [400, 404],
         ),
       },
     },
@@ -305,7 +354,7 @@ const SwaggerPetstore = {
         phone?: string;
         userStatus?: number;
       }
-    >('https://petstore3.swagger.io/api/v3/user', 'post'),
+    >('https://petstore3.swagger.io/api/v3/user', 'post', [200]),
     createWithList: {
       post: generateServiceCall<
         {
@@ -330,30 +379,33 @@ const SwaggerPetstore = {
           phone?: string;
           userStatus?: number;
         } | null
-      >('https://petstore3.swagger.io/api/v3/user/createWithList', 'post'),
+      >('https://petstore3.swagger.io/api/v3/user/createWithList', 'post', [
+        200,
+      ]),
     },
     login: {
       get: generateServiceCall<
         {
           query: {
-            username: string;
-            password: string;
+            username?: string;
+            password?: string;
           };
         },
         string | null
-      >('https://petstore3.swagger.io/api/v3/user/login', 'get'),
+      >('https://petstore3.swagger.io/api/v3/user/login', 'get', [200, 400]),
     },
     logout: {
       get: generateServiceCall<null, null>(
         'https://petstore3.swagger.io/api/v3/user/logout',
         'get',
+        [200],
       ),
     },
     byUsername: {
       get: generateServiceCall<
         {
           params: {
-            username: string;
+            username?: string;
           };
         },
         {
@@ -366,11 +418,15 @@ const SwaggerPetstore = {
           phone?: string;
           userStatus?: number;
         } | null
-      >('https://petstore3.swagger.io/api/v3/user/{username}', 'get'),
+      >(
+        'https://petstore3.swagger.io/api/v3/user/{username}',
+        'get',
+        [200, 400, 404],
+      ),
       put: generateServiceCall<
         {
           params: {
-            username: string;
+            username?: string;
           };
           body: {
             id?: number;
@@ -384,18 +440,23 @@ const SwaggerPetstore = {
           };
         },
         null
-      >('https://petstore3.swagger.io/api/v3/user/{username}', 'put'),
+      >('https://petstore3.swagger.io/api/v3/user/{username}', 'put', [200]),
       delete: generateServiceCall<
         {
           params: {
-            username: string;
+            username?: string;
           };
         },
         null
-      >('https://petstore3.swagger.io/api/v3/user/{username}', 'delete'),
+      >(
+        'https://petstore3.swagger.io/api/v3/user/{username}',
+        'delete',
+        [400, 404],
+      ),
     },
   },
 };
 
-export default SwaggerPetstore;
+export default Petstore;
+
 ```
