@@ -18,34 +18,31 @@ import {
   useHandlebarsTemplateFromFile,
 } from './utils';
 
-// CLEAN
-const createEndObject = (pathObj: OpenApiPath, path: string) => {
-  const endObject: Record<string, any> = {};
-  Object.keys(pathObj).forEach((key) => {
-    endObject[key] = {
-      _end: true,
-      method: key,
-      pathObj: (pathObj as any)[key],
-      url: path,
-    };
-  });
-  return endObject;
-};
+const createEndObject = (pathObj: OpenApiPath, path: string) =>
+  Object.keys(pathObj).reduce<Record<string, any>>(
+    (out, key) => ({
+      ...out,
+      [key]: {
+        _end: true,
+        method: key,
+        pathObj: (pathObj as any)[key],
+        url: path,
+      },
+    }),
+    {},
+  );
 
-// CLEAN
 const nestPathsObject = (
   pathsObject: Record<string, OpenApiPath>,
-): OpenApiPathsObject => {
-  let out = {};
-
-  Object.entries(pathsObject).forEach(([path, pathObj]) => {
-    const splitPath = path.split('/').filter((path) => path !== '');
-    out = buildNestedObject(splitPath, out);
-    setDeepParam(out, splitPath, createEndObject(pathObj, path));
-  });
-
-  return out;
-};
+): OpenApiPathsObject => (
+  Object.entries(pathsObject).reduce<Record<string, any>>(
+    (out, [path, pathObj]) => {
+      const splitPath = path.split('/').filter((path) => path !== '');
+      out = buildNestedObject(splitPath, out);
+      setDeepParam(out, splitPath, createEndObject(pathObj, path));
+      return out;
+    }, {})
+);
 
 // ASS
 const generatePaths = async (schema: OpenAPISpec) => {
@@ -229,7 +226,6 @@ const generatePaths = async (schema: OpenAPISpec) => {
   return buildPaths(nestPathsObject(schema.paths));
 };
 
-// CLEAN
 const buildLib = async (schemaFilePath: string, outFile: string) => {
   const [generator, file] = await Promise.all([
     useHandlebarsTemplateFromFile('./src/templates/clientRoot.txt'),
@@ -246,7 +242,7 @@ const buildLib = async (schemaFilePath: string, outFile: string) => {
     schema,
   });
 
-  await fs.writeFileSync(outFile, lib);
+  return fs.writeFileSync(outFile, lib);
 };
 
 commander.program
