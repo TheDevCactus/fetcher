@@ -99,15 +99,22 @@ const generatePaths = async (schema: OpenAPISpec) => {
          * MAKE RESPONSES ARRAY
          */
         const responses: Set<any> = new Set();
-        Object.entries((pathObj as any).responses).forEach(([statusCode, response]: [string, any]) => {
-          if (!response.content || !response?.content?.['application/json']?.schema) {
-            responses.add('null');
-            return;
-          }
-          responses.add(
-            buildTypeObjectFromSchema(response.content['application/json'].schema)
-          )
-        });
+        Object.entries((pathObj as any).responses).forEach(
+          ([statusCode, response]: [string, any]) => {
+            if (
+              !response.content ||
+              !response?.content?.['application/json']?.schema
+            ) {
+              responses.add('null');
+              return;
+            }
+            responses.add(
+              buildTypeObjectFromSchema(
+                response.content['application/json'].schema,
+              ),
+            );
+          },
+        );
 
         const responsesType = [...responses].join(' | ');
 
@@ -115,8 +122,13 @@ const generatePaths = async (schema: OpenAPISpec) => {
          * MAKE BODY OBJECT
          */
         let bodyType = '';
-        if ((pathObj as any)?.requestBody?.content?.['application/json']?.schema) {
-          bodyType = buildTypeObjectFromSchema((pathObj as any)?.requestBody?.content?.['application/json']?.schema);
+        if (
+          (pathObj as any)?.requestBody?.content?.['application/json']?.schema
+        ) {
+          bodyType = buildTypeObjectFromSchema(
+            (pathObj as any)?.requestBody?.content?.['application/json']
+              ?.schema,
+          );
         }
 
         /*
@@ -124,7 +136,8 @@ const generatePaths = async (schema: OpenAPISpec) => {
          */
         const paramsObject = pathObj.parameters
           ?.filter((param) => {
-            if (!(param as any).in) { // Checks if we are at the end of the nested object or something
+            if (!(param as any).in) {
+              // Checks if we are at the end of the nested object or something
               return false;
             }
             param = param as OpenApiParameter;
@@ -188,6 +201,18 @@ const generatePaths = async (schema: OpenAPISpec) => {
           request = 'null';
         }
 
+        const validStatusKeys = [
+          ...Object.keys((pathObj as any).responses).reduce<Set<number>>(
+            (statusCodes, statusCode) => {
+              statusCodes.add(
+                statusCode === 'default' ? 200 : Number(statusCode),
+              );
+              return statusCodes;
+            },
+            new Set<number>(),
+          ),
+        ];
+
         /*
          *
          * SET INNER
@@ -195,7 +220,7 @@ const generatePaths = async (schema: OpenAPISpec) => {
          */
         out.inner = `generateServiceCall<${request}, ${responsesType}>('${
           schema.servers?.[0].url + (inner as any).url
-        }', '${(inner as any).method}')`;
+        }', '${(inner as any).method}', [${validStatusKeys}])`;
         return out;
       }),
     });

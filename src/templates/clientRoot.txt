@@ -14,16 +14,23 @@
 
 type HTTPMethod = 'get' | 'post' | 'put' | 'patch' | 'update' | 'delete';
 
-const generateServiceCall = <Request, Response>(url: string, method: HTTPMethod) => {
+const generateServiceCall = <Request, Response>(
+  url: string,
+  method: HTTPMethod,
+  knownStatusCodes: Array<number>
+) => {
   return async (request: Request, fetchOptions: any = {}) => {
     const response = await fetch(url, {
       body: JSON.stringify(request),
       method: method.toUpperCase(),
-      ...fetchOptions
-    })
+      ...fetchOptions,
+    });
+    if (!knownStatusCodes.includes(response.status)) {
+      throw new Error('Unexpected error occurred');
+    }
     const result = await response.json();
     return result as Response;
-  }
+  };
 };
 
 /**
