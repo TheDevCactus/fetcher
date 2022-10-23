@@ -3,3 +3,4 @@ build
 tsconfig.tsbuildinfo
 testAPI.ts
 todo.md
+.nyc_output
