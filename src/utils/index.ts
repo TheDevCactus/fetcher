@@ -22,7 +22,7 @@ export const buildTypeObjectFromSchema = (schema: Schema): string => {
   switch (schema.type) {
     case OpenApiType.Array:
       if (!schema.items) {
-        throw new Error(`Schema type array must have an items property`);
+        throw new Error('Schema type array must have an items property');
       }
       return `Array<${buildTypeObjectFromSchema(schema.items)}>`;
     case OpenApiType.Integer:
@@ -138,7 +138,7 @@ export const makeStringUnsafe = (safeString: string): string => {
   /*
    * Make string unsafe? wtf?
    * This exists cause handlebars is meant for html templating. In that situation,
-   * It would be an incredibly bad idea to do this. We are not doing html templating though.
+   * it would be an incredibly bad idea to do this. We are not doing html templating though.
    */
   safeString = safeString.replace(/&amp;/g, '&');
   safeString = safeString.replace(/&lt;/g, '<');
@@ -152,6 +152,10 @@ export const makeStringUnsafe = (safeString: string): string => {
 };
 
 export const paramKeyToSemanticKey = (key: string) => {
+  if (!key.includes('{') && !key.includes('}')) {
+    return key;
+  }
+
   let out = 'by';
   let shouldCapitalizeNext = true;
 

@@ -145,6 +145,14 @@ describe('Utils', () => {
   });
   describe('buildTypeObjectFromSchema', () => {
     const testData = {
+      dirtyInput: {
+        array: {
+          type: 'array',
+        },
+        badType: {
+          type: 'dogsRule',
+        },
+      },
       inputSchema: {
         required: ['name', 'photoUrls'],
         type: 'object',
@@ -204,13 +212,30 @@ describe('Utils', () => {
       );
       expect(builtSchema).to.equal(testData.outputString);
     });
+    it('Should throw an error if an array type is encountered but no item array is provided', () => {
+      expect(() =>
+        buildTypeObjectFromSchema(
+          testData.dirtyInput.array as unknown as Schema,
+        ),
+      ).to.throw('Schema type array must have an items property');
+    });
+    it('Should throw an error if an unknown type is encountered', () => {
+      expect(() =>
+        buildTypeObjectFromSchema(
+          testData.dirtyInput.badType as unknown as Schema,
+        ),
+      ).to.throw(
+        `Encountered unrecognized type: ${testData.dirtyInput.badType.type}`,
+      );
+    });
   });
   describe('cleanKey', () => {
     const testData = {
       dirtyKey: '{dogsRule}',
       dirtyKeyTwo: '{dogsRule',
       dirtyKeyThree: 'dogsRule}',
-      dirtyKeyFour: 'dogsRule',
+      cleanKey: 'dogsRule',
+      cleanKeyCleaned: 'dogsRule',
       cleaned: 'byDogsRule',
     };
     it('Should convert a url param key into a semantic normal object key, (i.e. {dogsRule} -> byDogsRule', () => {
@@ -223,8 +248,8 @@ describe('Utils', () => {
       expect(paramKeyToSemanticKey(testData.dirtyKeyThree)).to.equal(
         testData.cleaned,
       );
-      expect(paramKeyToSemanticKey(testData.dirtyKeyFour)).to.equal(
-        testData.cleaned,
+      expect(paramKeyToSemanticKey(testData.cleanKey)).to.equal(
+        testData.cleanKeyCleaned,
       );
     });
   });
@@ -254,8 +279,7 @@ describe('Utils', () => {
       nestedObject: {
         dog: {
           cat: {
-            bird: {
-            },
+            bird: {},
           },
         },
       },
