@@ -2,7 +2,6 @@
 /* eslint-disable sort-keys */
 /* eslint-disable max-lines-per-function */
 /* eslint-disable max-nested-callbacks */
-import fs from 'fs';
 
 import chai, { expect } from 'chai';
 import spies from 'chai-spies';
@@ -21,8 +20,6 @@ import {
 } from '../src/utils';
 
 chai.use(spies);
-
-const should = chai.should();
 
 describe('Utils', () => {
   describe('followObjectPath', () => {
