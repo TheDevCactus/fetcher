@@ -27,10 +27,6 @@ type ServiceCallAdapter = <Response>(
 
 let adapter: ServiceCallAdapter | null = null;
 
-export const initializeFetcher = (newAdapter: ServiceCallAdapter) => {
-  adapter = newAdapter;
-};
-
 const generateServiceCall = <
   Request extends {
     body?: Record<string, any>;
@@ -88,4 +84,8 @@ const {{schema.info.title}} = {
   {{networkCalls}}
 }
 
-export default {{schema.info.title}}
+
+export default (newAdapter: ServiceCallAdapter) => {
+  adapter = newAdapter;
+  return {{schema.info.title}} 
+}
