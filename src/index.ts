@@ -2,7 +2,7 @@ import fs from 'fs';
 
 import commander from 'commander';
 
-import { NetworkCallSpec } from './models';
+import { NetworkCallSpec, NetworkCallSpecMap, ValidNetworkCallKeys } from './models';
 import {
   OpenApiNestedPaths,
   OpenApiOperation,
@@ -19,13 +19,6 @@ import {
   useHandlebarsTemplateFromFile,
 } from './utils';
 
-export type ValidNetworkCallKeys = Exclude<
-  keyof OpenApiPathItemObject,
-  '$ref' | 'summary' | 'description' | 'servers' | 'parameters'
->;
-export type NetworkCallSpecMap = Partial<
-  Record<ValidNetworkCallKeys, NetworkCallSpec>
->;
 
 const createNetworkCallSpecMap = (
   pathObj: OpenApiPathItemObject,
@@ -243,6 +236,7 @@ const generateNetworkCalls = async (schema: OpenAPISpec) => {
           currentValue as NetworkCallSpec,
         ),
       });
+
       networkCallGeneratorArguments.push(generatorArguments);
     }
 
