@@ -1,7 +1,12 @@
+/* eslint-disable max-lines */
 /* eslint-disable sort-keys */
 /* eslint-disable max-lines-per-function */
 /* eslint-disable max-nested-callbacks */
-import { expect } from 'chai';
+import fs from 'fs';
+
+import chai, { expect } from 'chai';
+import spies from 'chai-spies';
+import mockFS from 'mock-fs';
 
 import { OpenApiType, Schema } from '../src/models/OpenAPI';
 import {
@@ -12,7 +17,12 @@ import {
   openApiTypeToTSType,
   paramKeyToSemanticKey,
   setDeepParam,
+  useHandlebarsTemplateFromFile,
 } from '../src/utils';
+
+chai.use(spies);
+
+const should = chai.should();
 
 describe('Utils', () => {
   describe('followObjectPath', () => {
@@ -152,6 +162,9 @@ describe('Utils', () => {
           type: 'dogsRule',
         },
       },
+      dirtyObject: {
+        type: 'object',
+      },
       inputSchema: {
         required: ['name', 'photoUrls'],
         type: 'object',
@@ -226,6 +239,11 @@ describe('Utils', () => {
       ).to.throw(
         `Encountered unrecognized type: ${testData.dirtyInput.badType.type}`,
       );
+    });
+    it('Should throw an error if the input object has neither properties or additionalProperties', () => {
+      expect(() =>
+        buildTypeObjectFromSchema(testData.dirtyObject as unknown as Schema),
+      ).to.throw(`Schema type object must have a properties property`);
     });
   });
   describe('cleanKey', () => {
@@ -302,6 +320,51 @@ describe('Utils', () => {
           testData.valueToSet,
         ),
       ).to.throw('Invalid path to param');
+    });
+  });
+  describe('useHandlebarsTemplateFromFile', () => {
+    beforeEach(() => {
+      mockFS({
+        someDir: {
+          'template.txt': '{{arg1}},{{arg2}}',
+        },
+      });
+    });
+
+    afterEach(() => {
+      mockFS.restore();
+    });
+
+    const testData = {
+      templateFilePath: './someDir/template.txt',
+      inputArgs: {
+        arg1: 'dogs',
+        arg2: 'rule',
+      },
+      output: 'dogs,rule',
+    };
+    it('Should load a handlebars template from a file path, and return a generator', async () => {
+      const generator = await useHandlebarsTemplateFromFile(
+        testData.templateFilePath,
+      );
+      expect(
+        generator({
+          ...testData.inputArgs,
+        }),
+      ).to.equal(testData.output);
+    });
+    it('Should not reload the template if already holding it in memory', async () => {
+      let generator = await useHandlebarsTemplateFromFile(
+        testData.templateFilePath,
+      );
+      generator = await useHandlebarsTemplateFromFile(
+        testData.templateFilePath,
+      );
+      expect(
+        generator({
+          ...testData.inputArgs,
+        }),
+      ).to.equal(testData.output);
     });
   });
 });
