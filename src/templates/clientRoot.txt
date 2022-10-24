@@ -84,8 +84,9 @@ const {{schema.info.title}} = {
   {{networkCalls}}
 }
 
-
-export default (newAdapter: ServiceCallAdapter) => {
+const initializeLib = (newAdapter: ServiceCallAdapter) => {
   adapter = newAdapter;
   return {{schema.info.title}};
 }
+
+export default initializeLib;
