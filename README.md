@@ -126,10 +126,6 @@ type ServiceCallAdapter = <Response>(
 
 let adapter: ServiceCallAdapter | null = null;
 
-export const initializeFetcher = (newAdapter: ServiceCallAdapter) => {
-  adapter = newAdapter;
-};
-
 const generateServiceCall = <
   Request extends {
     body?: Record<string, any>;
@@ -513,5 +509,11 @@ const Petstore = {
   },
 };
 
-export default Petstore;
+const initializeLib = (newAdapter: ServiceCallAdapter) => {
+  adapter = newAdapter;
+  return Petstore;
+};
+
+export default initializeLib;
+
 ```
