@@ -1,4 +1,5 @@
 # Fetcher
+
 <img title="what a good boy" src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fa%2Fa9%2FBearded_Collie.jpg&f=1&nofb=1&ipt=2a0d91e9f1a93764c1d7093fde17eeaa7cd9653df89b5e0b4d35e9f9ae7d3982&ipo=images" height="250px"></img>
 
 ## Chassis Service Client Lib Generator
@@ -15,28 +16,28 @@ Below is a diagram of how you could deploy this application to automatically gen
 
 ### Why
 
-* Writing network calls sucks
-* Writing typed network calls sucks even more
-* The backend already wrote all the types and such, lets just use it.
-* Fullstack Typesaftey lets us move quickly.
-* Fullstack Typesaftey lets us catch bugs before they happen.
+- Writing network calls sucks
+- Writing typed network calls sucks even more
+- The backend already wrote all the types and such, lets just use it.
+- Fullstack Typesaftey lets us move quickly.
+- Fullstack Typesaftey lets us catch bugs before they happen.
 
 ### Tech Used
 
-* Handlebars - For templating
+- Handlebars - For templating
 
 ### Development
 
 #### Scripts
 
-* `yarn build` - Build the application
-* `yarn dev` - Runs the cli, generating an api lib
-* `yarn test` - Run tests
-* `yarn clean` - Clean the project
+- `yarn build` - Build the application
+- `yarn dev` - Runs the cli, generating an api lib
+- `yarn test` - Run tests
+- `yarn clean` - Clean the project
 
 #### Tips
 
-* `todo.md` in the root dir is git ignored if you need a scratch pad
+- `todo.md` in the root dir is git ignored if you need a scratch pad
 
 ## Open API Spec
 
@@ -47,7 +48,7 @@ https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.0.md
 We should only type types once if they are provided in the "components" section of the schema.
 This way we can also provide more semantic names (assuming the schemas names for components are semantic).
 
-Cleanup buildPaths function 
+Cleanup buildPaths function
 
 Do the network calls ourself?
 Or does the dev pass in something like axios which we can utilize. This would be more dynamic but might be really dumb
@@ -76,6 +77,23 @@ Does the backend have tests for their endpoints? If so we could easily test our 
 
 type HTTPMethod = 'get' | 'post' | 'put' | 'patch' | 'update' | 'delete';
 
+type ServiceCallResponse<Response> = {
+  data: Response;
+  statusCode: number;
+};
+
+type ServiceCallAdapter = <Response>(
+  url: string,
+  method: HTTPMethod,
+  body: unknown,
+) => Promise<ServiceCallResponse<Response>>;
+
+let adapter: ServiceCallAdapter | null = null;
+
+export const initializeFetcher = (newAdapter: ServiceCallAdapter) => {
+  adapter = newAdapter;
+};
+
 const generateServiceCall = <
   Request extends {
     body?: Record<string, any>;
@@ -88,7 +106,7 @@ const generateServiceCall = <
   method: HTTPMethod,
   knownStatusCodes: Array<number>,
 ) => {
-  return async (request: Request, fetchOptions: any = {}) => {
+  return async (request: Request) => {
     let finalURL = url;
 
     if (request?.query) {
@@ -103,19 +121,21 @@ const generateServiceCall = <
       });
     }
 
-    const response = await fetch(finalURL, {
-      body: request?.body ? JSON.stringify(request.body) : null,
-      method: method.toUpperCase(),
-      ...fetchOptions,
-    });
-    if (!knownStatusCodes.includes(response.status)) {
+    if (!adapter) {
+      throw new Error(
+        'Please initialize fetcher before attempting to make any network calls',
+      );
+    }
+
+    const response = await adapter<Response>(finalURL, method, request?.body);
+
+    if (!knownStatusCodes.includes(response.statusCode)) {
       throw new Error('Unexpected error occurred');
     }
-    const result = await response.json();
+
     return {
-      data: result as unknown as Response,
-      status: response.status,
-      headers: response.headers,
+      data: response.data,
+      status: response.statusCode,
     };
   };
 };
@@ -458,5 +478,4 @@ const Petstore = {
 };
 
 export default Petstore;
-
 ```
