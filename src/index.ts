@@ -2,7 +2,11 @@ import fs from 'fs';
 
 import commander from 'commander';
 
-import { NetworkCallSpec, NetworkCallSpecMap, ValidNetworkCallKeys } from './models';
+import {
+  NetworkCallSpec,
+  NetworkCallSpecMap,
+  ValidNetworkCallKeys,
+} from './models';
 import {
   OpenApiNestedPaths,
   OpenApiOperation,
@@ -19,7 +23,10 @@ import {
   useHandlebarsTemplateFromFile,
 } from './utils';
 
-
+/**
+ * @name createNetworkCallSpecMap
+ * @description Stores a NetworkCallSpec (metadata about the request) on our working schema object for a given path/endpoint.
+ */
 const createNetworkCallSpecMap = (
   pathObj: OpenApiPathItemObject,
   path: string,
@@ -40,6 +47,21 @@ const createNetworkCallSpecMap = (
   return out;
 };
 
+/**
+ * @name nestPathsObject
+ * @description Take in a OpenApiSchema Paths object, and convert the url keys into a nested object
+ * {
+ *  /dog/cat/bird: {}
+ * }
+ * becomes
+ * {
+ *  dog: {
+ *    cat: {
+ *      bird: {}
+ *    }
+ *  }
+ * }
+ */
 const nestPathsObject = (
   pathsObject: Record<string, OpenApiPathItemObject>,
 ) => {
@@ -60,6 +82,10 @@ const nestPathsObject = (
   return out;
 };
 
+/**
+ * @name makeResponsesTypeFromNetworkCallSpec
+ * @description Create a Typescript type for the response of a NetworkCallSpec
+ */
 const makeResponsesTypeFromNetworkCallSpec = ({
   pathObj,
 }: NetworkCallSpec): string => {
@@ -87,6 +113,10 @@ const makeResponsesTypeFromNetworkCallSpec = ({
   return [...responses].join(' | ');
 };
 
+/**
+ * @name makeBodyTypeFromNetworkCallSpec
+ * @description Create a Typescript type for the body of a NetworkCallSpec
+ */
 const makeBodyTypeFromNetworkCallSpec = ({
   pathObj,
 }: NetworkCallSpec): string => {
@@ -98,6 +128,11 @@ const makeBodyTypeFromNetworkCallSpec = ({
   );
 };
 
+/**
+ * @name makeTypeFromNetworkCallSpecParams
+ * @description Create a Typescript type from the parameters of a NetworkCallSpec.
+ * You have to filter by which type of parameter you want the type for, i.e. query, path, headers, etc.
+ */
 const makeTypeFromNetworkCallSpecParams = async (
   { pathObj }: NetworkCallSpec,
   parameterLocation: OpenApiParameterLocation,
@@ -132,13 +167,17 @@ const makeTypeFromNetworkCallSpecParams = async (
     : '';
 };
 
+/**
+ * @name makeValidStatusCodesFromNetworkCallSpec
+ * @description Returns an array of valid status codes for a given Network call spec
+ */
 const makeValidStatusCodesFromNetworkCallSpec = ({
   pathObj,
 }: NetworkCallSpec): Array<number> => {
   const responses = Object.keys(pathObj.responses);
   const statusCodes = new Set<number>();
 
-  for (let i = 0; i < responses.length; i ++) {
+  for (let i = 0; i < responses.length; i++) {
     const codeToAdd = responses[i] === 'default' ? 200 : Number(responses[i]);
     statusCodes.add(codeToAdd);
   }
@@ -146,6 +185,11 @@ const makeValidStatusCodesFromNetworkCallSpec = ({
   return [...statusCodes];
 };
 
+/**
+ * @name generateNetworkCalls
+ * @description Generates the actual network calls and object properties of the output lib
+ * @returns
+ */
 const generateNetworkCalls = async (schema: OpenAPISpec) => {
   const [objectGenerator, pathGenerator, generateGenerateServiceCallMethod] =
     await Promise.all([
@@ -249,6 +293,12 @@ const generateNetworkCalls = async (schema: OpenAPISpec) => {
   return buildNetworkCallsString(nestedPathObject);
 };
 
+/**
+ * @name buildLib
+ * @description Entry point to generating a lib from a provided OpenAPI 3.0.0 spec schema
+ * @param schemaFilePath File path of the schema to build from
+ * @param outFile File path to write the lib to
+ */
 const buildLib = async (schemaFilePath: string, outFile: string) => {
   const [generator, file] = await Promise.all([
     useHandlebarsTemplateFromFile('./src/templates/clientRoot.txt'),
@@ -267,6 +317,14 @@ const buildLib = async (schemaFilePath: string, outFile: string) => {
 
   return fs.writeFileSync(outFile, lib);
 };
+
+/**
+ * ===============================================
+ *
+ *               FETCHER GENERATOR
+ *
+ * ===============================================
+ */
 
 commander.program
   .name('Fetcher Generator')
