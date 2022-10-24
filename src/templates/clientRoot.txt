@@ -14,25 +14,42 @@
 
 type HTTPMethod = 'get' | 'post' | 'put' | 'patch' | 'update' | 'delete';
 
+type ServiceCallResponse<Response> = {
+  data: Response;
+  statusCode: number;
+};
+
+type ServiceCallAdapter = <Response>(
+  url: string,
+  method: HTTPMethod,
+  body: unknown,
+) => Promise<ServiceCallResponse<Response>>;
+
+let adapter: ServiceCallAdapter | null = null;
+
+export const initializeFetcher = (newAdapter: ServiceCallAdapter) => {
+  adapter = newAdapter;
+};
+
 const generateServiceCall = <
   Request extends {
     body?: Record<string, any>;
     query?: Record<string, any>;
     params?: Record<string, any>;
   } | null,
-  Response
+  Response,
 >(
   url: string,
   method: HTTPMethod,
-  knownStatusCodes: Array<number>
+  knownStatusCodes: Array<number>,
 ) => {
-  return async (request: Request, fetchOptions: any = {}) => {
+  return async (request: Request) => {
     let finalURL = url;
-    
+
     if (request?.query) {
       finalURL += `?${Object.entries(request.query)
         .map(([key, value]) => `${key}=${value}`)
-        .join("&")}`;
+        .join('&')}`;
     }
 
     if (request?.params) {
@@ -40,20 +57,26 @@ const generateServiceCall = <
         finalURL = finalURL.replaceAll(`{${key}}`, value);
       });
     }
-    
-    const response = await fetch(finalURL, {
-      body: request?.body ? JSON.stringify(request.body) : null,
-      method: method.toUpperCase(),
-      ...fetchOptions,
-    });
-    if (!knownStatusCodes.includes(response.status)) {
-      throw new Error("Unexpected error occurred");
+
+    if (!adapter) {
+      throw new Error(
+        'Please initialize fetcher before attempting to make any network calls',
+      );
     }
-    const result = await response.json();
+
+    const response = await adapter<Response>(
+      finalURL,
+      method,
+      request?.body,
+    );
+
+    if (!knownStatusCodes.includes(response.statusCode)) {
+      throw new Error('Unexpected error occurred');
+    }
+
     return {
-      data: result as unknown as Response,
-      status: response.status,
-      headers: response.headers,
+      data: response.data,
+      status: response.statusCode,
     };
   };
 };
