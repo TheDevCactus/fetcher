@@ -4,7 +4,7 @@
 
 ## Chassis Service Client Lib Generator
 
-### About
+## About
 
 This program generates client code which handles making network calls to our boom services using your existing client http solution. Writing, and maintaining network calls is a pain. Wether its the backend puts out a new api you need to utilize, or they update a response object, you now have to basically copy their work into your client codebase. There is little thought that goes into these functions most of the time. Most of the time you will look at the endpoint, request schema, and response schema, and implement a basic function wrapping it all up for use across your client. Why not just generate those functions?
 
@@ -12,26 +12,20 @@ This program generates client code which handles making network calls to our boo
 
 This section is living, and highly likely to change, but as of now, here is how to use this library.
 
-#### Generating Client Libraries
+### Generating Client Libraries
 
 1) Have the open api schema json file you wish to generate from locally installed.
 2) Have this repo installed, built, and running.
 3) Call `node ./build/src/index.js generate {{PATH_TO_YOUR_SCHEMA}} {{DESTINATION_FOR_LIB}}`
 
-#### Using Generated Client Libraries
+### Using Generated Client Libraries
 
 1) Generate your client library
 2) Move the library into your project (either through node_modules, or just copy and pasting).
 3) Import the setup function from the library
 4) Pass your adapter to the setup function, in return for your initialized client library
 
-### Deployed Diagram
-
-Below is a diagram of how you could deploy this application to automatically generate new Client Lib's whenever a backend service is deployed. This application is the "Boom Client Lib Generator"
-
-![Random scribbles of a mad man](./.vscode/typesafe-client-lib-generation.png)
-
-### Why
+## Why Does This Exist
 
 - Writing network calls sucks
 - Writing typed network calls sucks even more
@@ -39,9 +33,21 @@ Below is a diagram of how you could deploy this application to automatically gen
 - Fullstack Typesaftey lets us move quickly.
 - Fullstack Typesaftey lets us catch bugs before they happen.
 
-### Tech Used
+## Deployed Diagram
 
-- Handlebars - For templating
+Below is a diagram of how you could deploy this application to automatically generate new Client Lib's whenever a backend service is deployed. This application is the "Boom Client Lib Generator"
+
+![Random scribbles of a mad man](./.vscode/typesafe-client-lib-generation.png)
+
+
+## Tech Used
+
+- Handlebars 
+- Mocha 
+- Chai
+- OpenApi 3.0.0 Specification
+- Typescript
+- Node
 
 ### Development
 
