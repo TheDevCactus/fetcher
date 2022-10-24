@@ -1,12 +1,8 @@
-import { OpenApiPath } from "./OpenAPI";
+import { OpenApiOperation } from "./OpenAPI";
 
-export interface Test {
-  [x: string]: Test | Operation
-}
-
-export interface Operation {
+export interface NetworkCallSpec {
   _end: true;
   method: string;
-  pathObj: OpenApiPath;
+  pathObj: OpenApiOperation;
   url: string;
 }

@@ -2,11 +2,12 @@ import fs from 'fs';
 
 import commander from 'commander';
 
-import { Operation } from './models';
+import { NetworkCallSpec } from './models';
 import {
-  OpenApiParameter,
-  OpenApiPath,
-  OpenApiPathsObject,
+  OpenApiNestedPaths,
+  OpenApiOperation,
+  OpenApiParameterLocation,
+  OpenApiPathItemObject,
   OpenAPISpec,
 } from './models/OpenAPI';
 import {
@@ -18,35 +19,141 @@ import {
   useHandlebarsTemplateFromFile,
 } from './utils';
 
-const createEndObject = (pathObj: OpenApiPath, path: string) =>
-  Object.keys(pathObj).reduce<Record<string, any>>(
-    (out, key) => ({
-      ...out,
-      [key]: {
-        _end: true,
-        method: key,
-        pathObj: (pathObj as any)[key],
-        url: path,
-      },
-    }),
-    {},
-  );
+export type ValidNetworkCallKeys = Exclude<
+  keyof OpenApiPathItemObject,
+  '$ref' | 'summary' | 'description' | 'servers' | 'parameters'
+>;
+export type NetworkCallSpecMap = Partial<
+  Record<ValidNetworkCallKeys, NetworkCallSpec>
+>;
+
+const createNetworkCallSpecMap = (
+  pathObj: OpenApiPathItemObject,
+  path: string,
+): NetworkCallSpecMap => {
+  const pathObjectKeys = Object.keys(pathObj) as Array<ValidNetworkCallKeys>;
+  const out: NetworkCallSpecMap = {};
+
+  for (let i = 0; i < pathObjectKeys.length; i++) {
+    const currentKey = pathObjectKeys[i];
+    out[currentKey] = {
+      _end: true,
+      method: currentKey,
+      pathObj: pathObj[currentKey] as OpenApiOperation,
+      url: path,
+    };
+  }
+
+  return out;
+};
 
 const nestPathsObject = (
-  pathsObject: Record<string, OpenApiPath>,
-): OpenApiPathsObject =>
-  Object.entries(pathsObject).reduce<Record<string, any>>(
-    (out, [path, pathObj]) => {
-      const splitPath = path.split('/').filter((path) => path !== '');
-      out = buildNestedObject(splitPath, out);
-      setDeepParam(out, splitPath, createEndObject(pathObj, path));
-      return out;
-    },
-    {},
+  pathsObject: Record<string, OpenApiPathItemObject>,
+) => {
+  const paths = Object.entries(pathsObject);
+  let out: OpenApiNestedPaths = {};
+
+  for (let i = 0; i < paths.length; i++) {
+    const [currentPath, currentPathItemObject] = paths[i];
+    const splitPath = currentPath.split('/').filter((path) => path !== '');
+    out = buildNestedObject(splitPath, out);
+    setDeepParam(
+      out,
+      splitPath,
+      createNetworkCallSpecMap(currentPathItemObject, currentPath),
+    );
+  }
+
+  return out;
+};
+
+const makeResponsesTypeFromNetworkCallSpec = ({
+  pathObj,
+}: NetworkCallSpec): string => {
+  const responses: Set<any> = new Set();
+  const responseObjects = Object.values(pathObj.responses);
+
+  for (let i = 0; i < responseObjects.length; i++) {
+    const currentResponse = responseObjects[i];
+
+    if (
+      !currentResponse.content ||
+      !currentResponse.content?.['application/json']?.schema
+    ) {
+      responses.add('null');
+      continue;
+    }
+
+    responses.add(
+      buildTypeObjectFromSchema(
+        currentResponse.content['application/json'].schema,
+      ),
+    );
+  }
+
+  return [...responses].join(' | ');
+};
+
+const makeBodyTypeFromNetworkCallSpec = ({
+  pathObj,
+}: NetworkCallSpec): string => {
+  if (!pathObj?.requestBody?.content?.['application/json']?.schema) {
+    return '';
+  }
+  return buildTypeObjectFromSchema(
+    pathObj.requestBody.content['application/json'].schema,
+  );
+};
+
+const makeTypeFromNetworkCallSpecParams = async (
+  { pathObj }: NetworkCallSpec,
+  parameterLocation: OpenApiParameterLocation,
+): Promise<string> => {
+  if (!pathObj.parameters) {
+    return '';
+  }
+
+  const objectGenerator = await useHandlebarsTemplateFromFile(
+    './src/templates/object.txt',
   );
 
-// ASS
-const generatePaths = async (schema: OpenAPISpec) => {
+  const propertiesArgument: Array<{ key: string; value: string }> = [];
+  for (let i = 0; i < pathObj.parameters.length; i++) {
+    const currentParam = pathObj.parameters[i];
+
+    if (currentParam.in !== parameterLocation) {
+      continue;
+    }
+
+    propertiesArgument.push({
+      key: currentParam.name,
+      value: currentParam.schema
+        ? buildTypeObjectFromSchema(currentParam.schema)
+        : 'unknown',
+    });
+  }
+  return propertiesArgument.length
+    ? objectGenerator({
+        properties: propertiesArgument,
+      })
+    : '';
+};
+
+const makeValidStatusCodesFromNetworkCallSpec = ({
+  pathObj,
+}: NetworkCallSpec): Array<number> => {
+  const responses = Object.keys(pathObj.responses);
+  const statusCodes = new Set<number>();
+
+  for (let i = 0; i < responses.length; i ++) {
+    const codeToAdd = responses[i] === 'default' ? 200 : Number(responses[i]);
+    statusCodes.add(codeToAdd);
+  }
+
+  return [...statusCodes];
+};
+
+const generateNetworkCalls = async (schema: OpenAPISpec) => {
   const [objectGenerator, pathGenerator, generateGenerateServiceCallMethod] =
     await Promise.all([
       useHandlebarsTemplateFromFile('./src/templates/object.txt'),
@@ -56,175 +163,96 @@ const generatePaths = async (schema: OpenAPISpec) => {
       ),
     ]);
 
-  const buildPaths = (paths: OpenApiPathsObject): string => {
-    return pathGenerator({
-      paths: Object.entries(paths).map(([key, inner]) => {
-        const out: { key: string; inner: string } = {
-          inner: '',
-          key: `'${paramKeyToSemanticKey(key)}'`,
-        };
+  const buildNetworkCallsString = async (
+    nestedPaths: OpenApiNestedPaths,
+  ): Promise<string> => {
+    const networkCallGeneratorArguments: Array<{ inner: string; key: string }> =
+      [];
+    const nestedPathEntries = Object.entries(nestedPaths);
 
-        // eslint-disable-next-line no-underscore-dangle
-        if (typeof inner === 'object' && !(inner as any)?._end) {
-          out.inner = '{' + buildPaths(inner as OpenApiPathsObject) + '}';
-          return out;
-        }
+    for (let i = 0; i < nestedPathEntries.length; i++) {
+      const [currentKey, currentValue] = nestedPathEntries[i];
+      const generatorArguments = {
+        inner: '',
+        key: `'${paramKeyToSemanticKey(currentKey)}'`,
+      };
 
-        const { pathObj }: Operation = inner as Operation;
+      // If we are not at the end of our nested path object, drill deeper
+      // eslint-disable-next-line no-underscore-dangle
+      if (typeof currentValue === 'object' && !currentValue._end) {
+        generatorArguments.inner = `{${await buildNetworkCallsString(
+          currentValue as OpenApiNestedPaths,
+        )}}`;
+        networkCallGeneratorArguments.push(generatorArguments);
+        continue;
+      }
 
-        /*
-         * MAKE RESPONSES ARRAY
-         */
-        const responses: Set<any> = new Set();
-        Object.values((pathObj as any).responses).forEach((response: any) => {
-          if (
-            !response.content ||
-            !response?.content?.['application/json']?.schema
-          ) {
-            responses.add('null');
-            return;
-          }
-          responses.add(
-            buildTypeObjectFromSchema(
-              response.content['application/json'].schema,
-            ),
-          );
+      // We are at the end of our nested path as of now
+
+      const responsesType = makeResponsesTypeFromNetworkCallSpec(
+        currentValue as NetworkCallSpec,
+      );
+      const bodyType = makeBodyTypeFromNetworkCallSpec(
+        currentValue as NetworkCallSpec,
+      );
+      const paramsType = await makeTypeFromNetworkCallSpecParams(
+        currentValue as NetworkCallSpec,
+        OpenApiParameterLocation.Path,
+      );
+      const queryType = await makeTypeFromNetworkCallSpecParams(
+        currentValue as NetworkCallSpec,
+        OpenApiParameterLocation.Query,
+      );
+
+      const requestProperties: Array<{
+        key: string;
+        required: boolean;
+        value: string;
+      }> = [];
+
+      if (queryType.length) {
+        requestProperties.push({
+          key: 'query',
+          required: true,
+          value: queryType,
         });
-        const responsesType = [...responses].join(' | ');
-
-        /*
-         * MAKE BODY OBJECT
-         */
-        let bodyType = '';
-        if (
-          (pathObj as any)?.requestBody?.content?.['application/json']?.schema
-        ) {
-          bodyType = buildTypeObjectFromSchema(
-            (pathObj as any)?.requestBody?.content?.['application/json']
-              ?.schema,
-          );
-        }
-
-        /*
-         * MAKE PARAMS OBJECT
-         */
-        const paramsObject = pathObj.parameters
-          ?.filter((param) => {
-            if (!(param as any).in) {
-              // Checks if we are at the end of the nested object or something
-              return false;
-            }
-            param = param as OpenApiParameter;
-            return param.in === 'path';
-          })
-          .reduce((t, param: any) => {
-            return {
-              ...t,
-              [param.name]: buildTypeObjectFromSchema(param.schema),
-            };
-          }, {});
-        const paramsType = objectGenerator({
-          properties: Object.entries(paramsObject || {}).map(
-            ([key, value]) => ({
-              key,
-              value,
-            }),
-          ),
+      }
+      if (paramsType.length) {
+        requestProperties.push({
+          key: 'params',
+          required: true,
+          value: paramsType,
         });
-
-        /*
-         * MAKE QUERY OBJECT
-         */
-        const queryObject = pathObj.parameters
-          ?.filter((param) => {
-            if (!(param as any).in) {
-              return false;
-            }
-            param = param as OpenApiParameter;
-            return param.in === 'query';
-          })
-          .reduce((t, param: any) => {
-            return {
-              ...t,
-              [param.name]: buildTypeObjectFromSchema(param.schema),
-            };
-          }, {});
-
-        const queryType = objectGenerator({
-          properties: Object.entries(queryObject || {}).map(([key, value]) => ({
-            key,
-            value,
-          })),
+      }
+      if (bodyType.length) {
+        requestProperties.push({
+          key: 'body',
+          required: true,
+          value: bodyType,
         });
+      }
 
-        /*
-         * CREATE REQUEST TYPE
-         */
-        const requestProperties: Array<{
-          key: string;
-          required: boolean;
-          value: string;
-        }> = [];
-
-        if (queryObject && Object.keys(queryObject).length) {
-          requestProperties.push({
-            key: 'query',
-            required: true,
-            value: queryType,
-          });
-        }
-
-        if (paramsObject && Object.keys(paramsObject).length) {
-          requestProperties.push({
-            key: 'params',
-            required: true,
-            value: paramsType,
-          });
-        }
-        if (bodyType.length) {
-          requestProperties.push({
-            key: 'body',
-            required: true,
-            value: bodyType,
-          });
-        }
-        const request = requestProperties.length
+      generatorArguments.inner = generateGenerateServiceCallMethod({
+        method: currentValue.method,
+        request: requestProperties.length
           ? objectGenerator({ properties: requestProperties })
-          : 'null';
+          : 'null',
+        response: responsesType,
+        url: `${schema.servers?.[0].url}${currentValue.url}`,
+        validResponseStatuses: makeValidStatusCodesFromNetworkCallSpec(
+          currentValue as NetworkCallSpec,
+        ),
+      });
+      networkCallGeneratorArguments.push(generatorArguments);
+    }
 
-        /*
-         * CREATE VALID STATUS KEYS
-         */
-        const validResponseStatuses = [
-          ...Object.keys((pathObj as any).responses).reduce<Set<number>>(
-            (statusCodes, statusCode) => {
-              statusCodes.add(
-                statusCode === 'default' ? 200 : Number(statusCode),
-              );
-              return statusCodes;
-            },
-            new Set<number>(),
-          ),
-        ];
-
-        /*
-         *
-         * SET INNER
-         *
-         */
-        out.inner = generateGenerateServiceCallMethod({
-          method: (inner as any).method,
-          request: request,
-          response: responsesType,
-          url: `${schema.servers?.[0].url}${(inner as any).url}`,
-          validResponseStatuses: validResponseStatuses,
-        });
-        return out;
-      }),
+    return pathGenerator({
+      paths: networkCallGeneratorArguments,
     });
   };
 
-  return buildPaths(nestPathsObject(schema.paths));
+  const nestedPathObject = nestPathsObject(schema.paths);
+  return buildNetworkCallsString(nestedPathObject);
 };
 
 const buildLib = async (schemaFilePath: string, outFile: string) => {
@@ -237,7 +265,7 @@ const buildLib = async (schemaFilePath: string, outFile: string) => {
   schema = expandRefsOnObject(schema);
   schema.info.title = schema.info.title.split(' ').join('');
 
-  const networkCalls = await generatePaths(schema);
+  const networkCalls = await generateNetworkCalls(schema);
   const lib = generator({
     networkCalls,
     schema,

@@ -3,7 +3,7 @@
 /* eslint-disable max-nested-callbacks */
 import { expect } from 'chai';
 
-import { OpenApiType } from '../src/models/OpenAPI';
+import { OpenApiType, Schema } from '../src/models/OpenAPI';
 import {
   buildNestedObject,
   buildTypeObjectFromSchema,
@@ -11,7 +11,6 @@ import {
   followObjectPath,
   openApiTypeToTSType,
   paramKeyToSemanticKey,
-  Schema,
   setDeepParam,
 } from '../src/utils';
 

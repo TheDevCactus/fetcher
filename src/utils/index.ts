@@ -2,15 +2,9 @@ import fs from 'fs';
 
 import Handlebars from 'handlebars';
 
-import { OpenApiType } from '../models/OpenAPI';
+import { OpenApiType, Schema } from '../models/OpenAPI';
 
-export interface Schema {
-  type: OpenApiType;
-  properties?: Schema;
-  required?: Array<string>;
-  items?: Schema;
-  additionalProperties?: Schema;
-}
+
 export const buildTypeObjectFromSchema = (schema: Schema): string => {
   const isParamRequired = (key: string): boolean => {
     if (!schema.required) {
@@ -38,8 +32,10 @@ export const buildTypeObjectFromSchema = (schema: Schema): string => {
         throw new Error(`Schema type object must have a properties property`);
       }
 
-      // idk what to do about additional properties...
-      // console.log('!!!', schema.additionalProperties)
+      /*
+       * Idk what to do about additional properties...
+       * console.log('!!!', schema.additionalProperties)
+       */
 
       // eslint-disable-next-line no-case-declarations
       const properties = {
