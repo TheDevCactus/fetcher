@@ -29,14 +29,18 @@ export const buildTypeObjectFromSchema = (schema: Schema): string => {
     case OpenApiType.Number:
     case OpenApiType.boolean:
     case OpenApiType.String:
+      if ((schema as any).enum) {
+        return (schema as any).enum.map((item: any) => `"${item}"`).join(' | ');
+      }
       return openApiTypeToTSType(schema.type);
     case OpenApiType.Object:
-      /*
-       * Put this back, but for now it isn't right
-       * if (!schema.properties && !schema.additionalProperties) {
-       *   throw new Error(`Schema type object must have a properties property`);
-       * }
-       */
+      if (!schema.properties && !schema.additionalProperties) {
+        throw new Error(`Schema type object must have a properties property`);
+      }
+
+      // idk what to do about additional properties...
+      // console.log('!!!', schema.additionalProperties)
+
       // eslint-disable-next-line no-case-declarations
       const properties = {
         ...schema.properties,

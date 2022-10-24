@@ -34,15 +34,16 @@ const createEndObject = (pathObj: OpenApiPath, path: string) =>
 
 const nestPathsObject = (
   pathsObject: Record<string, OpenApiPath>,
-): OpenApiPathsObject => (
+): OpenApiPathsObject =>
   Object.entries(pathsObject).reduce<Record<string, any>>(
     (out, [path, pathObj]) => {
       const splitPath = path.split('/').filter((path) => path !== '');
       out = buildNestedObject(splitPath, out);
       setDeepParam(out, splitPath, createEndObject(pathObj, path));
       return out;
-    }, {})
-);
+    },
+    {},
+  );
 
 // ASS
 const generatePaths = async (schema: OpenAPISpec) => {
@@ -62,11 +63,13 @@ const generatePaths = async (schema: OpenAPISpec) => {
           inner: '',
           key: `'${paramKeyToSemanticKey(key)}'`,
         };
+
         // eslint-disable-next-line no-underscore-dangle
         if (typeof inner === 'object' && !(inner as any)?._end) {
           out.inner = '{' + buildPaths(inner as OpenApiPathsObject) + '}';
           return out;
         }
+
         const { pathObj }: Operation = inner as Operation;
 
         /*
@@ -87,7 +90,6 @@ const generatePaths = async (schema: OpenAPISpec) => {
             ),
           );
         });
-
         const responsesType = [...responses].join(' | ');
 
         /*
@@ -121,7 +123,6 @@ const generatePaths = async (schema: OpenAPISpec) => {
               [param.name]: buildTypeObjectFromSchema(param.schema),
             };
           }, {});
-
         const paramsType = objectGenerator({
           properties: Object.entries(paramsObject || {}).map(
             ([key, value]) => ({

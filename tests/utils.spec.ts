@@ -204,7 +204,7 @@ describe('Utils', () => {
         xml: { name: 'pet' },
       },
       outputString:
-        '{id?: number,name: string,category?: {id?: number,name?: string},photoUrls: Array<string>,tags?: Array<{id?: number,name?: string}>,status?: string}',
+        '{id?: number,name: string,category?: {id?: number,name?: string},photoUrls: Array<string>,tags?: Array<{id?: number,name?: string}>,status?: "available" | "pending" | "sold"}',
     };
     it('Should convert a schema object into the text representation of a TS type', () => {
       const builtSchema = buildTypeObjectFromSchema(
