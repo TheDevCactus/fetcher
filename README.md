@@ -14,16 +14,32 @@ This section is living, and highly likely to change, but as of now, here is how 
 
 ### Generating Client Libraries
 
-1) Have the open api schema json file you wish to generate from locally installed.
-2) Have this repo installed, built, and running.
-3) Call `node ./build/src/index.js generate {{PATH_TO_YOUR_SCHEMA}} {{DESTINATION_FOR_LIB}}`
+1. Have the open api schema json file you wish to generate from locally installed.
+2. Have this repo installed, built, and running.
+3. Call `node ./build/src/index.js generate {{PATH_TO_YOUR_SCHEMA}} {{DESTINATION_FOR_LIB}}`
 
 ### Using Generated Client Libraries
 
-1) Generate your client library
-2) Move the library into your project (either through node_modules, or just copy and pasting).
-3) Import the setup function from the library
-4) Pass your adapter to the setup function, in return for your initialized client library
+1. Generate your client library
+2. Move the library into your project (either through node_modules, or just copy and pasting).
+3. Import the setup function from the library
+4. Pass your adapter to the setup function, in return for your initialized client library
+
+#### Example of initializing a client library, and calling a network call
+
+```ts
+const Petstore = initializePetstore(async (url, method, body) => {
+  // You don't have to use fetch here, you could use axios, you could use local storage, whatever.
+  const response = await fetch(url, {
+    method: method,
+    body: body ? JSON.stringify(body) : null,
+  });
+  const data = await response.json();
+  return { data: data, statusCode: response.status };
+});
+
+const order = Petstore.store.order.byOrderId.get({ params: { orderId: 0 } })
+```
 
 ## Why Does This Exist
 
@@ -39,11 +55,10 @@ Below is a diagram of how you could deploy this application to automatically gen
 
 ![Random scribbles of a mad man](./.vscode/typesafe-client-lib-generation.png)
 
-
 ## Tech Used
 
-- Handlebars 
-- Mocha 
+- Handlebars
+- Mocha
 - Chai
 - OpenApi 3.0.0 Specification
 - Typescript

@@ -87,5 +87,5 @@ const {{schema.info.title}} = {
 
 export default (newAdapter: ServiceCallAdapter) => {
   adapter = newAdapter;
-  return {{schema.info.title}} 
+  return {{schema.info.title}};
 }
