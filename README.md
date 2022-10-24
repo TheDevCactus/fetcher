@@ -133,7 +133,7 @@ const Petstore = {
           category?: { id?: number; name?: string };
           photoUrls: Array<string>;
           tags?: Array<{ id?: number; name?: string }>;
-          status?: string;
+          status?: 'available' | 'pending' | 'sold';
         };
       },
       {
@@ -142,7 +142,7 @@ const Petstore = {
         category?: { id?: number; name?: string };
         photoUrls: Array<string>;
         tags?: Array<{ id?: number; name?: string }>;
-        status?: string;
+        status?: 'available' | 'pending' | 'sold';
       } | null
     >('https://petstore3.swagger.io/api/v3/pet', 'put', [200, 400, 404, 405]),
     post: generateServiceCall<
@@ -153,7 +153,7 @@ const Petstore = {
           category?: { id?: number; name?: string };
           photoUrls: Array<string>;
           tags?: Array<{ id?: number; name?: string }>;
-          status?: string;
+          status?: 'available' | 'pending' | 'sold';
         };
       },
       {
@@ -162,14 +162,14 @@ const Petstore = {
         category?: { id?: number; name?: string };
         photoUrls: Array<string>;
         tags?: Array<{ id?: number; name?: string }>;
-        status?: string;
+        status?: 'available' | 'pending' | 'sold';
       } | null
     >('https://petstore3.swagger.io/api/v3/pet', 'post', [200, 405]),
     findByStatus: {
       get: generateServiceCall<
         {
           query: {
-            status?: string;
+            status?: 'available' | 'pending' | 'sold';
           };
         },
         Array<{
@@ -178,7 +178,7 @@ const Petstore = {
           category?: { id?: number; name?: string };
           photoUrls: Array<string>;
           tags?: Array<{ id?: number; name?: string }>;
-          status?: string;
+          status?: 'available' | 'pending' | 'sold';
         }> | null
       >(
         'https://petstore3.swagger.io/api/v3/pet/findByStatus',
@@ -199,7 +199,7 @@ const Petstore = {
           category?: { id?: number; name?: string };
           photoUrls: Array<string>;
           tags?: Array<{ id?: number; name?: string }>;
-          status?: string;
+          status?: 'available' | 'pending' | 'sold';
         }> | null
       >(
         'https://petstore3.swagger.io/api/v3/pet/findByTags',
@@ -220,7 +220,7 @@ const Petstore = {
           category?: { id?: number; name?: string };
           photoUrls: Array<string>;
           tags?: Array<{ id?: number; name?: string }>;
-          status?: string;
+          status?: 'available' | 'pending' | 'sold';
         } | null
       >(
         'https://petstore3.swagger.io/api/v3/pet/{petId}',
@@ -282,7 +282,7 @@ const Petstore = {
             petId?: number;
             quantity?: number;
             shipDate?: string;
-            status?: string;
+            status?: 'placed' | 'approved' | 'delivered';
             complete?: boolean;
           };
         },
@@ -291,7 +291,7 @@ const Petstore = {
           petId?: number;
           quantity?: number;
           shipDate?: string;
-          status?: string;
+          status?: 'placed' | 'approved' | 'delivered';
           complete?: boolean;
         } | null
       >('https://petstore3.swagger.io/api/v3/store/order', 'post', [200, 405]),
@@ -307,7 +307,7 @@ const Petstore = {
             petId?: number;
             quantity?: number;
             shipDate?: string;
-            status?: string;
+            status?: 'placed' | 'approved' | 'delivered';
             complete?: boolean;
           } | null
         >(
