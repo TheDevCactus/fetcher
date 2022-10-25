@@ -12,7 +12,12 @@
 /* eslint-disable max-lines */
 /* eslint-disable sort-keys */
 
-export type HTTPMethod = "get" | "post" | "put" | "patch" | "update" | "delete";
+export type ResponseType<
+  Func extends (argA: any, argB: Record<string, any>) => any,
+  StatusCode extends keyof Parameters<Func>[1],
+> = Parameters<Parameters<Func>[1][StatusCode]>[0];
+
+export type HTTPMethod = 'get' | 'post' | 'put' | 'patch' | 'update' | 'delete';
 
 export type ServiceCallResponse<Response> = {
   data: Response;
@@ -22,7 +27,7 @@ export type ServiceCallResponse<Response> = {
 export type ServiceCallAdapter = <Response>(
   url: string,
   method: HTTPMethod,
-  body?: unknown
+  body?: unknown,
 ) => Promise<ServiceCallResponse<Response>>;
 
 let adapter: ServiceCallAdapter | null = null;
@@ -43,7 +48,7 @@ const BoomSportsUserService = {
               searchField?: string;
               page?: number;
               count?: number;
-              includeDeleted?: "true";
+              includeDeleted?: 'true';
             };
           },
           callbacks: Record<number, any> & {
@@ -74,7 +79,7 @@ const BoomSportsUserService = {
                 roles?: Array<number>;
                 events?: {};
                 wallets?: {};
-              }>
+              }>,
             ) => void;
             400?: (response?: unknown) => void;
             500?: (response: {
@@ -84,21 +89,21 @@ const BoomSportsUserService = {
               details?: string;
             }) => void;
             fallback?: (response?: unknown) => void;
-          }
+          },
         ) => {
           let finalURL =
-            "https://development-api.boomfantasy.com:443/api/v1/users";
+            'https://development-api.boomfantasy.com:443/api/v1/users';
           finalURL += `?${Object.entries(request.query)
             .map(([key, value]) => `${key}=${value}`)
-            .join("&")}`;
+            .join('&')}`;
           if (!adapter) {
             throw new Error(
-              "Please initialize Fetcher before attempting to make any network calls"
+              'Please initialize Fetcher before attempting to make any network calls',
             );
           }
 
           try {
-            const response = await adapter(finalURL, "get");
+            const response = await adapter(finalURL, 'get');
 
             if (callbacks[response.statusCode]) {
               callbacks[response.statusCode](response.data);
@@ -106,7 +111,7 @@ const BoomSportsUserService = {
             }
 
             if (!callbacks.fallback) {
-              throw new Error("Unexpected error occurred");
+              throw new Error('Unexpected error occurred');
             }
             callbacks.fallback(response.data);
           } catch (err: any) {
@@ -116,7 +121,7 @@ const BoomSportsUserService = {
             }
 
             if (!callbacks.fallback) {
-              throw new Error("Unexpected error occurred");
+              throw new Error('Unexpected error occurred');
             }
             callbacks.fallback(err.response.data);
           }
@@ -139,18 +144,18 @@ const BoomSportsUserService = {
                 details?: string;
               }) => void;
               fallback?: (response?: unknown) => void;
-            }
+            },
           ) => {
             let finalURL =
-              "https://development-api.boomfantasy.com:443/api/v1/users/roles";
+              'https://development-api.boomfantasy.com:443/api/v1/users/roles';
             if (!adapter) {
               throw new Error(
-                "Please initialize Fetcher before attempting to make any network calls"
+                'Please initialize Fetcher before attempting to make any network calls',
               );
             }
 
             try {
-              const response = await adapter(finalURL, "get");
+              const response = await adapter(finalURL, 'get');
 
               if (callbacks[response.statusCode]) {
                 callbacks[response.statusCode](response.data);
@@ -158,7 +163,7 @@ const BoomSportsUserService = {
               }
 
               if (!callbacks.fallback) {
-                throw new Error("Unexpected error occurred");
+                throw new Error('Unexpected error occurred');
               }
               callbacks.fallback(response.data);
             } catch (err: any) {
@@ -168,7 +173,7 @@ const BoomSportsUserService = {
               }
 
               if (!callbacks.fallback) {
-                throw new Error("Unexpected error occurred");
+                throw new Error('Unexpected error occurred');
               }
               callbacks.fallback(err.response.data);
             }
@@ -178,7 +183,7 @@ const BoomSportsUserService = {
           get: async (
             request: {
               query: {
-                includeDeleted?: "true";
+                includeDeleted?: 'true';
               };
               params: {
                 userId?: string;
@@ -219,24 +224,24 @@ const BoomSportsUserService = {
                 details?: string;
               }) => void;
               fallback?: (response?: unknown) => void;
-            }
+            },
           ) => {
             let finalURL =
-              "https://development-api.boomfantasy.com:443/api/v1/users/:userId";
+              'https://development-api.boomfantasy.com:443/api/v1/users/:userId';
             finalURL += `?${Object.entries(request.query)
               .map(([key, value]) => `${key}=${value}`)
-              .join("&")}`;
+              .join('&')}`;
             Object.entries(request.params).forEach(([key, value]) => {
               finalURL = finalURL.replaceAll(`{${key}}`, value);
             });
             if (!adapter) {
               throw new Error(
-                "Please initialize Fetcher before attempting to make any network calls"
+                'Please initialize Fetcher before attempting to make any network calls',
               );
             }
 
             try {
-              const response = await adapter(finalURL, "get");
+              const response = await adapter(finalURL, 'get');
 
               if (callbacks[response.statusCode]) {
                 callbacks[response.statusCode](response.data);
@@ -244,7 +249,7 @@ const BoomSportsUserService = {
               }
 
               if (!callbacks.fallback) {
-                throw new Error("Unexpected error occurred");
+                throw new Error('Unexpected error occurred');
               }
               callbacks.fallback(response.data);
             } catch (err: any) {
@@ -254,7 +259,7 @@ const BoomSportsUserService = {
               }
 
               if (!callbacks.fallback) {
-                throw new Error("Unexpected error occurred");
+                throw new Error('Unexpected error occurred');
               }
               callbacks.fallback(err.response.data);
             }
@@ -270,7 +275,7 @@ const BoomSportsUserService = {
                 imageId?: string;
                 adId?: string;
                 roles?: Array<number>;
-                removeProfilePic?: "true";
+                removeProfilePic?: 'true';
                 consent?: {
                   marketingEmail?: boolean;
                   marketingPhone?: boolean;
@@ -279,7 +284,7 @@ const BoomSportsUserService = {
                 fcmToken?: string;
                 eventInfo?: {};
                 details?: {};
-                w9Status?: "yes" | "no" | "requested";
+                w9Status?: 'yes' | 'no' | 'requested';
               };
             },
             callbacks: Record<number, any> & {
@@ -291,21 +296,21 @@ const BoomSportsUserService = {
                 details?: string;
               }) => void;
               fallback?: (response?: unknown) => void;
-            }
+            },
           ) => {
             let finalURL =
-              "https://development-api.boomfantasy.com:443/api/v1/users/:userId";
+              'https://development-api.boomfantasy.com:443/api/v1/users/:userId';
             Object.entries(request.params).forEach(([key, value]) => {
               finalURL = finalURL.replaceAll(`{${key}}`, value);
             });
             if (!adapter) {
               throw new Error(
-                "Please initialize Fetcher before attempting to make any network calls"
+                'Please initialize Fetcher before attempting to make any network calls',
               );
             }
 
             try {
-              const response = await adapter(finalURL, "patch", request.body);
+              const response = await adapter(finalURL, 'patch', request.body);
 
               if (callbacks[response.statusCode]) {
                 callbacks[response.statusCode](response.data);
@@ -313,7 +318,7 @@ const BoomSportsUserService = {
               }
 
               if (!callbacks.fallback) {
-                throw new Error("Unexpected error occurred");
+                throw new Error('Unexpected error occurred');
               }
               callbacks.fallback(response.data);
             } catch (err: any) {
@@ -323,7 +328,7 @@ const BoomSportsUserService = {
               }
 
               if (!callbacks.fallback) {
-                throw new Error("Unexpected error occurred");
+                throw new Error('Unexpected error occurred');
               }
               callbacks.fallback(err.response.data);
             }
@@ -349,21 +354,21 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/:userId/location";
+                'https://development-api.boomfantasy.com:443/api/v1/users/:userId/location';
               Object.entries(request.params).forEach(([key, value]) => {
                 finalURL = finalURL.replaceAll(`{${key}}`, value);
               });
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "patch", request.body);
+                const response = await adapter(finalURL, 'patch', request.body);
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -371,7 +376,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -381,7 +386,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -395,11 +400,11 @@ const BoomSportsUserService = {
                 };
                 body: {
                   newStatus:
-                    | "banned"
-                    | "unbanned"
-                    | "closed"
-                    | "reopened"
-                    | "deleted";
+                    | 'banned'
+                    | 'unbanned'
+                    | 'closed'
+                    | 'reopened'
+                    | 'deleted';
                   reason?: string;
                   eventInfo?: {};
                 };
@@ -413,21 +418,21 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/:userId/status";
+                'https://development-api.boomfantasy.com:443/api/v1/users/:userId/status';
               Object.entries(request.params).forEach(([key, value]) => {
                 finalURL = finalURL.replaceAll(`{${key}}`, value);
               });
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "patch", request.body);
+                const response = await adapter(finalURL, 'patch', request.body);
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -435,7 +440,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -445,7 +450,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -468,21 +473,21 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/:userId/manual_verify";
+                'https://development-api.boomfantasy.com:443/api/v1/users/:userId/manual_verify';
               Object.entries(request.params).forEach(([key, value]) => {
                 finalURL = finalURL.replaceAll(`{${key}}`, value);
               });
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "patch", request.body);
+                const response = await adapter(finalURL, 'patch', request.body);
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -490,7 +495,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -500,7 +505,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -512,7 +517,7 @@ const BoomSportsUserService = {
                 params: {
                   userId?: string;
                 };
-                body: { walletType: "credits"; beginningValue?: number };
+                body: { walletType: 'credits'; beginningValue?: number };
               },
               callbacks: Record<number, any> & {
                 204?: (response?: unknown) => void;
@@ -523,21 +528,21 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/:userId/wallets";
+                'https://development-api.boomfantasy.com:443/api/v1/users/:userId/wallets';
               Object.entries(request.params).forEach(([key, value]) => {
                 finalURL = finalURL.replaceAll(`{${key}}`, value);
               });
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "post", request.body);
+                const response = await adapter(finalURL, 'post', request.body);
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -545,7 +550,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -555,7 +560,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -563,7 +568,7 @@ const BoomSportsUserService = {
             get: async (
               request: {
                 query: {
-                  type?: "credits";
+                  type?: 'credits';
                 };
                 params: {
                   userId?: string;
@@ -587,24 +592,24 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/:userId/wallets";
+                'https://development-api.boomfantasy.com:443/api/v1/users/:userId/wallets';
               finalURL += `?${Object.entries(request.query)
                 .map(([key, value]) => `${key}=${value}`)
-                .join("&")}`;
+                .join('&')}`;
               Object.entries(request.params).forEach(([key, value]) => {
                 finalURL = finalURL.replaceAll(`{${key}}`, value);
               });
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "get");
+                const response = await adapter(finalURL, 'get');
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -612,7 +617,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -622,7 +627,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -632,7 +637,7 @@ const BoomSportsUserService = {
                 request: {
                   params: {
                     userId?: string;
-                    type?: "credits";
+                    type?: 'credits';
                   };
                   body: { delta: number };
                 },
@@ -651,24 +656,24 @@ const BoomSportsUserService = {
                     details?: string;
                   }) => void;
                   fallback?: (response?: unknown) => void;
-                }
+                },
               ) => {
                 let finalURL =
-                  "https://development-api.boomfantasy.com:443/api/v1/users/:userId/wallets/:type";
+                  'https://development-api.boomfantasy.com:443/api/v1/users/:userId/wallets/:type';
                 Object.entries(request.params).forEach(([key, value]) => {
                   finalURL = finalURL.replaceAll(`{${key}}`, value);
                 });
                 if (!adapter) {
                   throw new Error(
-                    "Please initialize Fetcher before attempting to make any network calls"
+                    'Please initialize Fetcher before attempting to make any network calls',
                   );
                 }
 
                 try {
                   const response = await adapter(
                     finalURL,
-                    "patch",
-                    request.body
+                    'patch',
+                    request.body,
                   );
 
                   if (callbacks[response.statusCode]) {
@@ -677,7 +682,7 @@ const BoomSportsUserService = {
                   }
 
                   if (!callbacks.fallback) {
-                    throw new Error("Unexpected error occurred");
+                    throw new Error('Unexpected error occurred');
                   }
                   callbacks.fallback(response.data);
                 } catch (err: any) {
@@ -687,7 +692,7 @@ const BoomSportsUserService = {
                   }
 
                   if (!callbacks.fallback) {
-                    throw new Error("Unexpected error occurred");
+                    throw new Error('Unexpected error occurred');
                   }
                   callbacks.fallback(err.response.data);
                 }
@@ -697,7 +702,7 @@ const BoomSportsUserService = {
                   request: {
                     params: {
                       userId?: string;
-                      type?: "credits";
+                      type?: 'credits';
                     };
                     body: {
                       firstName: string;
@@ -731,24 +736,24 @@ const BoomSportsUserService = {
                       details?: string;
                     }) => void;
                     fallback?: (response?: unknown) => void;
-                  }
+                  },
                 ) => {
                   let finalURL =
-                    "https://development-api.boomfantasy.com:443/api/v1/users/:userId/wallets/:type/withdrawals";
+                    'https://development-api.boomfantasy.com:443/api/v1/users/:userId/wallets/:type/withdrawals';
                   Object.entries(request.params).forEach(([key, value]) => {
                     finalURL = finalURL.replaceAll(`{${key}}`, value);
                   });
                   if (!adapter) {
                     throw new Error(
-                      "Please initialize Fetcher before attempting to make any network calls"
+                      'Please initialize Fetcher before attempting to make any network calls',
                     );
                   }
 
                   try {
                     const response = await adapter(
                       finalURL,
-                      "post",
-                      request.body
+                      'post',
+                      request.body,
                     );
 
                     if (callbacks[response.statusCode]) {
@@ -757,7 +762,7 @@ const BoomSportsUserService = {
                     }
 
                     if (!callbacks.fallback) {
-                      throw new Error("Unexpected error occurred");
+                      throw new Error('Unexpected error occurred');
                     }
                     callbacks.fallback(response.data);
                   } catch (err: any) {
@@ -767,7 +772,7 @@ const BoomSportsUserService = {
                     }
 
                     if (!callbacks.fallback) {
-                      throw new Error("Unexpected error occurred");
+                      throw new Error('Unexpected error occurred');
                     }
                     callbacks.fallback(err.response.data);
                   }
@@ -791,21 +796,21 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/:userId/referral";
+                'https://development-api.boomfantasy.com:443/api/v1/users/:userId/referral';
               Object.entries(request.params).forEach(([key, value]) => {
                 finalURL = finalURL.replaceAll(`{${key}}`, value);
               });
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "get");
+                const response = await adapter(finalURL, 'get');
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -813,7 +818,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -823,7 +828,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -857,21 +862,21 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/:userId/verification";
+                'https://development-api.boomfantasy.com:443/api/v1/users/:userId/verification';
               Object.entries(request.params).forEach(([key, value]) => {
                 finalURL = finalURL.replaceAll(`{${key}}`, value);
               });
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "get");
+                const response = await adapter(finalURL, 'get');
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -879,7 +884,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -889,7 +894,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -920,21 +925,21 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/:userId/verification";
+                'https://development-api.boomfantasy.com:443/api/v1/users/:userId/verification';
               Object.entries(request.params).forEach(([key, value]) => {
                 finalURL = finalURL.replaceAll(`{${key}}`, value);
               });
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "post", request.body);
+                const response = await adapter(finalURL, 'post', request.body);
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -942,7 +947,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -952,7 +957,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -983,21 +988,21 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/:userId/verification";
+                'https://development-api.boomfantasy.com:443/api/v1/users/:userId/verification';
               Object.entries(request.params).forEach(([key, value]) => {
                 finalURL = finalURL.replaceAll(`{${key}}`, value);
               });
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "patch", request.body);
+                const response = await adapter(finalURL, 'patch', request.body);
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -1005,7 +1010,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -1015,7 +1020,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -1038,21 +1043,21 @@ const BoomSportsUserService = {
                     details?: string;
                   }) => void;
                   fallback?: (response?: unknown) => void;
-                }
+                },
               ) => {
                 let finalURL =
-                  "https://development-api.boomfantasy.com:443/api/v1/users/:userId/images/profile";
+                  'https://development-api.boomfantasy.com:443/api/v1/users/:userId/images/profile';
                 Object.entries(request.params).forEach(([key, value]) => {
                   finalURL = finalURL.replaceAll(`{${key}}`, value);
                 });
                 if (!adapter) {
                   throw new Error(
-                    "Please initialize Fetcher before attempting to make any network calls"
+                    'Please initialize Fetcher before attempting to make any network calls',
                   );
                 }
 
                 try {
-                  const response = await adapter(finalURL, "post");
+                  const response = await adapter(finalURL, 'post');
 
                   if (callbacks[response.statusCode]) {
                     callbacks[response.statusCode](response.data);
@@ -1060,7 +1065,7 @@ const BoomSportsUserService = {
                   }
 
                   if (!callbacks.fallback) {
-                    throw new Error("Unexpected error occurred");
+                    throw new Error('Unexpected error occurred');
                   }
                   callbacks.fallback(response.data);
                 } catch (err: any) {
@@ -1070,7 +1075,7 @@ const BoomSportsUserService = {
                   }
 
                   if (!callbacks.fallback) {
-                    throw new Error("Unexpected error occurred");
+                    throw new Error('Unexpected error occurred');
                   }
                   callbacks.fallback(err.response.data);
                 }
@@ -1100,21 +1105,21 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/:userId/groups";
+                'https://development-api.boomfantasy.com:443/api/v1/users/:userId/groups';
               Object.entries(request.params).forEach(([key, value]) => {
                 finalURL = finalURL.replaceAll(`{${key}}`, value);
               });
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "post", request.body);
+                const response = await adapter(finalURL, 'post', request.body);
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -1122,7 +1127,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -1132,7 +1137,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -1160,21 +1165,21 @@ const BoomSportsUserService = {
                     details?: string;
                   }) => void;
                   fallback?: (response?: unknown) => void;
-                }
+                },
               ) => {
                 let finalURL =
-                  "https://development-api.boomfantasy.com:443/api/v1/users/:userId/groups/:groupId";
+                  'https://development-api.boomfantasy.com:443/api/v1/users/:userId/groups/:groupId';
                 Object.entries(request.params).forEach(([key, value]) => {
                   finalURL = finalURL.replaceAll(`{${key}}`, value);
                 });
                 if (!adapter) {
                   throw new Error(
-                    "Please initialize Fetcher before attempting to make any network calls"
+                    'Please initialize Fetcher before attempting to make any network calls',
                   );
                 }
 
                 try {
-                  const response = await adapter(finalURL, "delete");
+                  const response = await adapter(finalURL, 'delete');
 
                   if (callbacks[response.statusCode]) {
                     callbacks[response.statusCode](response.data);
@@ -1182,7 +1187,7 @@ const BoomSportsUserService = {
                   }
 
                   if (!callbacks.fallback) {
-                    throw new Error("Unexpected error occurred");
+                    throw new Error('Unexpected error occurred');
                   }
                   callbacks.fallback(response.data);
                 } catch (err: any) {
@@ -1192,7 +1197,7 @@ const BoomSportsUserService = {
                   }
 
                   if (!callbacks.fallback) {
-                    throw new Error("Unexpected error occurred");
+                    throw new Error('Unexpected error occurred');
                   }
                   callbacks.fallback(err.response.data);
                 }
@@ -1200,7 +1205,7 @@ const BoomSportsUserService = {
             },
           },
         },
-        "self-exclude": {
+        'self-exclude': {
           post: async (
             request: {
               body: { limit: number };
@@ -1214,18 +1219,18 @@ const BoomSportsUserService = {
                 details?: string;
               }) => void;
               fallback?: (response?: unknown) => void;
-            }
+            },
           ) => {
             let finalURL =
-              "https://development-api.boomfantasy.com:443/api/v1/users/self-exclude";
+              'https://development-api.boomfantasy.com:443/api/v1/users/self-exclude';
             if (!adapter) {
               throw new Error(
-                "Please initialize Fetcher before attempting to make any network calls"
+                'Please initialize Fetcher before attempting to make any network calls',
               );
             }
 
             try {
-              const response = await adapter(finalURL, "post", request.body);
+              const response = await adapter(finalURL, 'post', request.body);
 
               if (callbacks[response.statusCode]) {
                 callbacks[response.statusCode](response.data);
@@ -1233,7 +1238,7 @@ const BoomSportsUserService = {
               }
 
               if (!callbacks.fallback) {
-                throw new Error("Unexpected error occurred");
+                throw new Error('Unexpected error occurred');
               }
               callbacks.fallback(response.data);
             } catch (err: any) {
@@ -1243,13 +1248,13 @@ const BoomSportsUserService = {
               }
 
               if (!callbacks.fallback) {
-                throw new Error("Unexpected error occurred");
+                throw new Error('Unexpected error occurred');
               }
               callbacks.fallback(err.response.data);
             }
           },
         },
-        "initial-location": {
+        'initial-location': {
           post: async (
             request: null,
             callbacks: Record<number, any> & {
@@ -1261,18 +1266,18 @@ const BoomSportsUserService = {
                 details?: string;
               }) => void;
               fallback?: (response?: unknown) => void;
-            }
+            },
           ) => {
             let finalURL =
-              "https://development-api.boomfantasy.com:443/api/v1/users/initial-location";
+              'https://development-api.boomfantasy.com:443/api/v1/users/initial-location';
             if (!adapter) {
               throw new Error(
-                "Please initialize Fetcher before attempting to make any network calls"
+                'Please initialize Fetcher before attempting to make any network calls',
               );
             }
 
             try {
-              const response = await adapter(finalURL, "post");
+              const response = await adapter(finalURL, 'post');
 
               if (callbacks[response.statusCode]) {
                 callbacks[response.statusCode](response.data);
@@ -1280,7 +1285,7 @@ const BoomSportsUserService = {
               }
 
               if (!callbacks.fallback) {
-                throw new Error("Unexpected error occurred");
+                throw new Error('Unexpected error occurred');
               }
               callbacks.fallback(response.data);
             } catch (err: any) {
@@ -1290,7 +1295,7 @@ const BoomSportsUserService = {
               }
 
               if (!callbacks.fallback) {
-                throw new Error("Unexpected error occurred");
+                throw new Error('Unexpected error occurred');
               }
               callbacks.fallback(err.response.data);
             }
@@ -1301,7 +1306,7 @@ const BoomSportsUserService = {
             post: async (
               request: {
                 body: {
-                  action: "updateBestScores";
+                  action: 'updateBestScores';
                   league: string;
                   contestId: string;
                   contestMaxPossiblePoints: number;
@@ -1323,18 +1328,18 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/bulk_update/bestScores";
+                'https://development-api.boomfantasy.com:443/api/v1/users/bulk_update/bestScores';
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "post", request.body);
+                const response = await adapter(finalURL, 'post', request.body);
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -1342,7 +1347,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -1352,7 +1357,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -1366,12 +1371,12 @@ const BoomSportsUserService = {
                 get: async (
                   request: {
                     params: {
-                      type?: "credits";
+                      type?: 'credits';
                       status?:
-                        | "pending"
-                        | "completed"
-                        | "rejected"
-                        | "cancelled";
+                        | 'pending'
+                        | 'completed'
+                        | 'rejected'
+                        | 'cancelled';
                     };
                   },
                   callbacks: Record<number, any> & {
@@ -1385,10 +1390,10 @@ const BoomSportsUserService = {
                         createdAt?: string;
                         completedAd?: string;
                         status?:
-                          | "pending"
-                          | "completed"
-                          | "rejected"
-                          | "cancelled";
+                          | 'pending'
+                          | 'completed'
+                          | 'rejected'
+                          | 'cancelled';
                         notes?: string;
                         hidden?: boolean;
                         amount?: number;
@@ -1402,21 +1407,21 @@ const BoomSportsUserService = {
                       details?: string;
                     }) => void;
                     fallback?: (response?: unknown) => void;
-                  }
+                  },
                 ) => {
                   let finalURL =
-                    "https://development-api.boomfantasy.com:443/api/v1/users/wallets/:type/withdrawals/:status";
+                    'https://development-api.boomfantasy.com:443/api/v1/users/wallets/:type/withdrawals/:status';
                   Object.entries(request.params).forEach(([key, value]) => {
                     finalURL = finalURL.replaceAll(`{${key}}`, value);
                   });
                   if (!adapter) {
                     throw new Error(
-                      "Please initialize Fetcher before attempting to make any network calls"
+                      'Please initialize Fetcher before attempting to make any network calls',
                     );
                   }
 
                   try {
-                    const response = await adapter(finalURL, "get");
+                    const response = await adapter(finalURL, 'get');
 
                     if (callbacks[response.statusCode]) {
                       callbacks[response.statusCode](response.data);
@@ -1424,7 +1429,7 @@ const BoomSportsUserService = {
                     }
 
                     if (!callbacks.fallback) {
-                      throw new Error("Unexpected error occurred");
+                      throw new Error('Unexpected error occurred');
                     }
                     callbacks.fallback(response.data);
                   } catch (err: any) {
@@ -1434,7 +1439,7 @@ const BoomSportsUserService = {
                     }
 
                     if (!callbacks.fallback) {
-                      throw new Error("Unexpected error occurred");
+                      throw new Error('Unexpected error occurred');
                     }
                     callbacks.fallback(err.response.data);
                   }
@@ -1466,18 +1471,18 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/wallets/bulk_update";
+                'https://development-api.boomfantasy.com:443/api/v1/users/wallets/bulk_update';
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "post", request.body);
+                const response = await adapter(finalURL, 'post', request.body);
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -1485,7 +1490,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -1495,7 +1500,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -1524,21 +1529,21 @@ const BoomSportsUserService = {
                     details?: string;
                   }) => void;
                   fallback?: (response?: unknown) => void;
-                }
+                },
               ) => {
                 let finalURL =
-                  "https://development-api.boomfantasy.com:443/api/v1/users/wallets/bulk_update/winnings";
+                  'https://development-api.boomfantasy.com:443/api/v1/users/wallets/bulk_update/winnings';
                 if (!adapter) {
                   throw new Error(
-                    "Please initialize Fetcher before attempting to make any network calls"
+                    'Please initialize Fetcher before attempting to make any network calls',
                   );
                 }
 
                 try {
                   const response = await adapter(
                     finalURL,
-                    "post",
-                    request.body
+                    'post',
+                    request.body,
                   );
 
                   if (callbacks[response.statusCode]) {
@@ -1547,7 +1552,7 @@ const BoomSportsUserService = {
                   }
 
                   if (!callbacks.fallback) {
-                    throw new Error("Unexpected error occurred");
+                    throw new Error('Unexpected error occurred');
                   }
                   callbacks.fallback(response.data);
                 } catch (err: any) {
@@ -1557,7 +1562,7 @@ const BoomSportsUserService = {
                   }
 
                   if (!callbacks.fallback) {
-                    throw new Error("Unexpected error occurred");
+                    throw new Error('Unexpected error occurred');
                   }
                   callbacks.fallback(err.response.data);
                 }
@@ -1567,7 +1572,7 @@ const BoomSportsUserService = {
               post: async (
                 request: {
                   body: {
-                    action: "complete";
+                    action: 'complete';
                     withdrawalRequestIds: Array<string>;
                   };
                 },
@@ -1586,21 +1591,21 @@ const BoomSportsUserService = {
                     details?: string;
                   }) => void;
                   fallback?: (response?: unknown) => void;
-                }
+                },
               ) => {
                 let finalURL =
-                  "https://development-api.boomfantasy.com:443/api/v1/users/wallets/bulk_update/withdrawals";
+                  'https://development-api.boomfantasy.com:443/api/v1/users/wallets/bulk_update/withdrawals';
                 if (!adapter) {
                   throw new Error(
-                    "Please initialize Fetcher before attempting to make any network calls"
+                    'Please initialize Fetcher before attempting to make any network calls',
                   );
                 }
 
                 try {
                   const response = await adapter(
                     finalURL,
-                    "post",
-                    request.body
+                    'post',
+                    request.body,
                   );
 
                   if (callbacks[response.statusCode]) {
@@ -1609,7 +1614,7 @@ const BoomSportsUserService = {
                   }
 
                   if (!callbacks.fallback) {
-                    throw new Error("Unexpected error occurred");
+                    throw new Error('Unexpected error occurred');
                   }
                   callbacks.fallback(response.data);
                 } catch (err: any) {
@@ -1619,7 +1624,7 @@ const BoomSportsUserService = {
                   }
 
                   if (!callbacks.fallback) {
-                    throw new Error("Unexpected error occurred");
+                    throw new Error('Unexpected error occurred');
                   }
                   callbacks.fallback(err.response.data);
                 }
@@ -1645,18 +1650,18 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/groups/bulk";
+                'https://development-api.boomfantasy.com:443/api/v1/users/groups/bulk';
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "post", request.body);
+                const response = await adapter(finalURL, 'post', request.body);
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -1664,7 +1669,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -1674,7 +1679,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -1698,21 +1703,21 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/names/:name";
+                'https://development-api.boomfantasy.com:443/api/v1/users/names/:name';
               Object.entries(request.params).forEach(([key, value]) => {
                 finalURL = finalURL.replaceAll(`{${key}}`, value);
               });
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "get");
+                const response = await adapter(finalURL, 'get');
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -1720,7 +1725,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -1730,7 +1735,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -1754,21 +1759,21 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/emails/:email";
+                'https://development-api.boomfantasy.com:443/api/v1/users/emails/:email';
               Object.entries(request.params).forEach(([key, value]) => {
                 finalURL = finalURL.replaceAll(`{${key}}`, value);
               });
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "get");
+                const response = await adapter(finalURL, 'get');
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -1776,7 +1781,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -1786,7 +1791,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -1807,18 +1812,18 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/devices/allowed";
+                'https://development-api.boomfantasy.com:443/api/v1/users/devices/allowed';
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "post", request.body);
+                const response = await adapter(finalURL, 'post', request.body);
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -1826,7 +1831,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -1836,7 +1841,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -1853,21 +1858,21 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/devices/allowed";
+                'https://development-api.boomfantasy.com:443/api/v1/users/devices/allowed';
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
                 const response = await adapter(
                   finalURL,
-                  "delete",
-                  request.body
+                  'delete',
+                  request.body,
                 );
 
                 if (callbacks[response.statusCode]) {
@@ -1876,7 +1881,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -1886,7 +1891,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -1906,21 +1911,21 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/devices/allowed";
+                'https://development-api.boomfantasy.com:443/api/v1/users/devices/allowed';
               finalURL += `?${Object.entries(request.query)
                 .map(([key, value]) => `${key}=${value}`)
-                .join("&")}`;
+                .join('&')}`;
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "get");
+                const response = await adapter(finalURL, 'get');
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -1928,7 +1933,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -1938,7 +1943,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -1957,18 +1962,18 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/devices/banned";
+                'https://development-api.boomfantasy.com:443/api/v1/users/devices/banned';
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "post", request.body);
+                const response = await adapter(finalURL, 'post', request.body);
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -1976,7 +1981,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -1986,7 +1991,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -2003,21 +2008,21 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/devices/banned";
+                'https://development-api.boomfantasy.com:443/api/v1/users/devices/banned';
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
                 const response = await adapter(
                   finalURL,
-                  "delete",
-                  request.body
+                  'delete',
+                  request.body,
                 );
 
                 if (callbacks[response.statusCode]) {
@@ -2026,7 +2031,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -2036,7 +2041,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -2056,21 +2061,21 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/users/devices/banned";
+                'https://development-api.boomfantasy.com:443/api/v1/users/devices/banned';
               finalURL += `?${Object.entries(request.query)
                 .map(([key, value]) => `${key}=${value}`)
-                .join("&")}`;
+                .join('&')}`;
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "get");
+                const response = await adapter(finalURL, 'get');
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -2078,7 +2083,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -2088,7 +2093,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -2104,7 +2109,7 @@ const BoomSportsUserService = {
                 params: {
                   number?: string;
                 };
-                body: { intent?: "authentication" | "addNumberToAccount" };
+                body: { intent?: 'authentication' | 'addNumberToAccount' };
               },
               callbacks: Record<number, any> & {
                 200?: (response: {
@@ -2120,21 +2125,21 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/phones/:number/verification";
+                'https://development-api.boomfantasy.com:443/api/v1/phones/:number/verification';
               Object.entries(request.params).forEach(([key, value]) => {
                 finalURL = finalURL.replaceAll(`{${key}}`, value);
               });
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "post", request.body);
+                const response = await adapter(finalURL, 'post', request.body);
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -2142,7 +2147,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -2152,7 +2157,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -2174,21 +2179,21 @@ const BoomSportsUserService = {
                     details?: string;
                   }) => void;
                   fallback?: (response?: unknown) => void;
-                }
+                },
               ) => {
                 let finalURL =
-                  "https://development-api.boomfantasy.com:443/api/v1/phones/:number/verification/:code";
+                  'https://development-api.boomfantasy.com:443/api/v1/phones/:number/verification/:code';
                 Object.entries(request.params).forEach(([key, value]) => {
                   finalURL = finalURL.replaceAll(`{${key}}`, value);
                 });
                 if (!adapter) {
                   throw new Error(
-                    "Please initialize Fetcher before attempting to make any network calls"
+                    'Please initialize Fetcher before attempting to make any network calls',
                   );
                 }
 
                 try {
-                  const response = await adapter(finalURL, "patch");
+                  const response = await adapter(finalURL, 'patch');
 
                   if (callbacks[response.statusCode]) {
                     callbacks[response.statusCode](response.data);
@@ -2196,7 +2201,7 @@ const BoomSportsUserService = {
                   }
 
                   if (!callbacks.fallback) {
-                    throw new Error("Unexpected error occurred");
+                    throw new Error('Unexpected error occurred');
                   }
                   callbacks.fallback(response.data);
                 } catch (err: any) {
@@ -2206,7 +2211,7 @@ const BoomSportsUserService = {
                   }
 
                   if (!callbacks.fallback) {
-                    throw new Error("Unexpected error occurred");
+                    throw new Error('Unexpected error occurred');
                   }
                   callbacks.fallback(err.response.data);
                 }
@@ -2221,15 +2226,15 @@ const BoomSportsUserService = {
             body: {
               authentication: {
                 type:
-                  | "email"
-                  | "google"
-                  | "facebook"
-                  | "apple"
-                  | "password"
-                  | "phone"
-                  | "refresh"
-                  | "invite"
-                  | "yesnetwork";
+                  | 'email'
+                  | 'google'
+                  | 'facebook'
+                  | 'apple'
+                  | 'password'
+                  | 'phone'
+                  | 'refresh'
+                  | 'invite'
+                  | 'yesnetwork';
                 credentials?: {};
               };
               locationServicesDenied?: boolean;
@@ -2257,18 +2262,18 @@ const BoomSportsUserService = {
               details?: string;
             }) => void;
             fallback?: (response?: unknown) => void;
-          }
+          },
         ) => {
           let finalURL =
-            "https://development-api.boomfantasy.com:443/api/v1/sessions";
+            'https://development-api.boomfantasy.com:443/api/v1/sessions';
           if (!adapter) {
             throw new Error(
-              "Please initialize Fetcher before attempting to make any network calls"
+              'Please initialize Fetcher before attempting to make any network calls',
             );
           }
 
           try {
-            const response = await adapter(finalURL, "post", request.body);
+            const response = await adapter(finalURL, 'post', request.body);
 
             if (callbacks[response.statusCode]) {
               callbacks[response.statusCode](response.data);
@@ -2276,7 +2281,7 @@ const BoomSportsUserService = {
             }
 
             if (!callbacks.fallback) {
-              throw new Error("Unexpected error occurred");
+              throw new Error('Unexpected error occurred');
             }
             callbacks.fallback(response.data);
           } catch (err: any) {
@@ -2286,7 +2291,7 @@ const BoomSportsUserService = {
             }
 
             if (!callbacks.fallback) {
-              throw new Error("Unexpected error occurred");
+              throw new Error('Unexpected error occurred');
             }
             callbacks.fallback(err.response.data);
           }
@@ -2298,7 +2303,7 @@ const BoomSportsUserService = {
             request: {
               body: {
                 options?: {
-                  format?: "kebab" | "camel" | "sentence" | "lower" | "title";
+                  format?: 'kebab' | 'camel' | 'sentence' | 'lower' | 'title';
                   categories?: { noun?: Array<any>; adjective?: Array<any> };
                   partsOfSpeech?: Array<any>;
                   appendNumber?: {
@@ -2318,18 +2323,18 @@ const BoomSportsUserService = {
                 details?: string;
               }) => void;
               fallback?: (response?: unknown) => void;
-            }
+            },
           ) => {
             let finalURL =
-              "https://development-api.boomfantasy.com:443/api/v1/usernames/randomUsername";
+              'https://development-api.boomfantasy.com:443/api/v1/usernames/randomUsername';
             if (!adapter) {
               throw new Error(
-                "Please initialize Fetcher before attempting to make any network calls"
+                'Please initialize Fetcher before attempting to make any network calls',
               );
             }
 
             try {
-              const response = await adapter(finalURL, "post", request.body);
+              const response = await adapter(finalURL, 'post', request.body);
 
               if (callbacks[response.statusCode]) {
                 callbacks[response.statusCode](response.data);
@@ -2337,7 +2342,7 @@ const BoomSportsUserService = {
               }
 
               if (!callbacks.fallback) {
-                throw new Error("Unexpected error occurred");
+                throw new Error('Unexpected error occurred');
               }
               callbacks.fallback(response.data);
             } catch (err: any) {
@@ -2347,7 +2352,7 @@ const BoomSportsUserService = {
               }
 
               if (!callbacks.fallback) {
-                throw new Error("Unexpected error occurred");
+                throw new Error('Unexpected error occurred');
               }
               callbacks.fallback(err.response.data);
             }
@@ -2369,21 +2374,21 @@ const BoomSportsUserService = {
                 details?: string;
               }) => void;
               fallback?: (response?: unknown) => void;
-            }
+            },
           ) => {
             let finalURL =
-              "https://development-api.boomfantasy.com:443/api/v1/usernames/:username";
+              'https://development-api.boomfantasy.com:443/api/v1/usernames/:username';
             Object.entries(request.params).forEach(([key, value]) => {
               finalURL = finalURL.replaceAll(`{${key}}`, value);
             });
             if (!adapter) {
               throw new Error(
-                "Please initialize Fetcher before attempting to make any network calls"
+                'Please initialize Fetcher before attempting to make any network calls',
               );
             }
 
             try {
-              const response = await adapter(finalURL, "get");
+              const response = await adapter(finalURL, 'get');
 
               if (callbacks[response.statusCode]) {
                 callbacks[response.statusCode](response.data);
@@ -2391,7 +2396,7 @@ const BoomSportsUserService = {
               }
 
               if (!callbacks.fallback) {
-                throw new Error("Unexpected error occurred");
+                throw new Error('Unexpected error occurred');
               }
               callbacks.fallback(response.data);
             } catch (err: any) {
@@ -2401,7 +2406,7 @@ const BoomSportsUserService = {
               }
 
               if (!callbacks.fallback) {
-                throw new Error("Unexpected error occurred");
+                throw new Error('Unexpected error occurred');
               }
               callbacks.fallback(err.response.data);
             }
@@ -2413,7 +2418,7 @@ const BoomSportsUserService = {
           request: {
             query: {
               groupIds?: Array<string>;
-              statuses?: Array<"active">;
+              statuses?: Array<'active'>;
               page?: number;
               count?: number;
             };
@@ -2423,11 +2428,11 @@ const BoomSportsUserService = {
               response: Array<{
                 _id?: string;
                 groupName: string;
-                accessLevel: "public" | "inviteOnly" | "restricted";
+                accessLevel: 'public' | 'inviteOnly' | 'restricted';
                 userIds: Array<string>;
-                type?: "public" | "inviteOnly" | "restricted";
+                type?: 'public' | 'inviteOnly' | 'restricted';
                 audit?: {};
-              }>
+              }>,
             ) => void;
             500?: (response: {
               code?: string;
@@ -2436,21 +2441,21 @@ const BoomSportsUserService = {
               details?: string;
             }) => void;
             fallback?: (response?: unknown) => void;
-          }
+          },
         ) => {
           let finalURL =
-            "https://development-api.boomfantasy.com:443/api/v1/groups";
+            'https://development-api.boomfantasy.com:443/api/v1/groups';
           finalURL += `?${Object.entries(request.query)
             .map(([key, value]) => `${key}=${value}`)
-            .join("&")}`;
+            .join('&')}`;
           if (!adapter) {
             throw new Error(
-              "Please initialize Fetcher before attempting to make any network calls"
+              'Please initialize Fetcher before attempting to make any network calls',
             );
           }
 
           try {
-            const response = await adapter(finalURL, "get");
+            const response = await adapter(finalURL, 'get');
 
             if (callbacks[response.statusCode]) {
               callbacks[response.statusCode](response.data);
@@ -2458,7 +2463,7 @@ const BoomSportsUserService = {
             }
 
             if (!callbacks.fallback) {
-              throw new Error("Unexpected error occurred");
+              throw new Error('Unexpected error occurred');
             }
             callbacks.fallback(response.data);
           } catch (err: any) {
@@ -2468,7 +2473,7 @@ const BoomSportsUserService = {
             }
 
             if (!callbacks.fallback) {
-              throw new Error("Unexpected error occurred");
+              throw new Error('Unexpected error occurred');
             }
             callbacks.fallback(err.response.data);
           }
@@ -2479,7 +2484,7 @@ const BoomSportsUserService = {
               userManaged?: boolean;
               group?: {
                 groupName: string;
-                accessLevel: "public" | "inviteOnly" | "restricted";
+                accessLevel: 'public' | 'inviteOnly' | 'restricted';
                 userIds?: any;
               };
             };
@@ -2489,9 +2494,9 @@ const BoomSportsUserService = {
               createdGroup?: {
                 _id?: string;
                 groupName: string;
-                accessLevel: "public" | "inviteOnly" | "restricted";
+                accessLevel: 'public' | 'inviteOnly' | 'restricted';
                 userIds: Array<string>;
-                type?: "public" | "inviteOnly" | "restricted";
+                type?: 'public' | 'inviteOnly' | 'restricted';
                 audit?: {};
               };
               invite?: { inviteId: string; branchLink?: string; code?: string };
@@ -2503,18 +2508,18 @@ const BoomSportsUserService = {
               details?: string;
             }) => void;
             fallback?: (response?: unknown) => void;
-          }
+          },
         ) => {
           let finalURL =
-            "https://development-api.boomfantasy.com:443/api/v1/groups";
+            'https://development-api.boomfantasy.com:443/api/v1/groups';
           if (!adapter) {
             throw new Error(
-              "Please initialize Fetcher before attempting to make any network calls"
+              'Please initialize Fetcher before attempting to make any network calls',
             );
           }
 
           try {
-            const response = await adapter(finalURL, "post", request.body);
+            const response = await adapter(finalURL, 'post', request.body);
 
             if (callbacks[response.statusCode]) {
               callbacks[response.statusCode](response.data);
@@ -2522,7 +2527,7 @@ const BoomSportsUserService = {
             }
 
             if (!callbacks.fallback) {
-              throw new Error("Unexpected error occurred");
+              throw new Error('Unexpected error occurred');
             }
             callbacks.fallback(response.data);
           } catch (err: any) {
@@ -2532,7 +2537,7 @@ const BoomSportsUserService = {
             }
 
             if (!callbacks.fallback) {
-              throw new Error("Unexpected error occurred");
+              throw new Error('Unexpected error occurred');
             }
             callbacks.fallback(err.response.data);
           }
@@ -2561,21 +2566,21 @@ const BoomSportsUserService = {
                   details?: string;
                 }) => void;
                 fallback?: (response?: unknown) => void;
-              }
+              },
             ) => {
               let finalURL =
-                "https://development-api.boomfantasy.com:443/api/v1/groups/:groupId/users";
+                'https://development-api.boomfantasy.com:443/api/v1/groups/:groupId/users';
               Object.entries(request.params).forEach(([key, value]) => {
                 finalURL = finalURL.replaceAll(`{${key}}`, value);
               });
               if (!adapter) {
                 throw new Error(
-                  "Please initialize Fetcher before attempting to make any network calls"
+                  'Please initialize Fetcher before attempting to make any network calls',
                 );
               }
 
               try {
-                const response = await adapter(finalURL, "put", request.body);
+                const response = await adapter(finalURL, 'put', request.body);
 
                 if (callbacks[response.statusCode]) {
                   callbacks[response.statusCode](response.data);
@@ -2583,7 +2588,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(response.data);
               } catch (err: any) {
@@ -2593,7 +2598,7 @@ const BoomSportsUserService = {
                 }
 
                 if (!callbacks.fallback) {
-                  throw new Error("Unexpected error occurred");
+                  throw new Error('Unexpected error occurred');
                 }
                 callbacks.fallback(err.response.data);
               }
@@ -2621,21 +2626,21 @@ const BoomSportsUserService = {
                     details?: string;
                   }) => void;
                   fallback?: (response?: unknown) => void;
-                }
+                },
               ) => {
                 let finalURL =
-                  "https://development-api.boomfantasy.com:443/api/v1/groups/:groupId/users/:userId";
+                  'https://development-api.boomfantasy.com:443/api/v1/groups/:groupId/users/:userId';
                 Object.entries(request.params).forEach(([key, value]) => {
                   finalURL = finalURL.replaceAll(`{${key}}`, value);
                 });
                 if (!adapter) {
                   throw new Error(
-                    "Please initialize Fetcher before attempting to make any network calls"
+                    'Please initialize Fetcher before attempting to make any network calls',
                   );
                 }
 
                 try {
-                  const response = await adapter(finalURL, "delete");
+                  const response = await adapter(finalURL, 'delete');
 
                   if (callbacks[response.statusCode]) {
                     callbacks[response.statusCode](response.data);
@@ -2643,7 +2648,7 @@ const BoomSportsUserService = {
                   }
 
                   if (!callbacks.fallback) {
-                    throw new Error("Unexpected error occurred");
+                    throw new Error('Unexpected error occurred');
                   }
                   callbacks.fallback(response.data);
                 } catch (err: any) {
@@ -2653,7 +2658,7 @@ const BoomSportsUserService = {
                   }
 
                   if (!callbacks.fallback) {
-                    throw new Error("Unexpected error occurred");
+                    throw new Error('Unexpected error occurred');
                   }
                   callbacks.fallback(err.response.data);
                 }
@@ -2677,21 +2682,21 @@ const BoomSportsUserService = {
                     details?: string;
                   }) => void;
                   fallback?: (response?: unknown) => void;
-                }
+                },
               ) => {
                 let finalURL =
-                  "https://development-api.boomfantasy.com:443/api/v1/groups/:groupId/images/logo";
+                  'https://development-api.boomfantasy.com:443/api/v1/groups/:groupId/images/logo';
                 Object.entries(request.params).forEach(([key, value]) => {
                   finalURL = finalURL.replaceAll(`{${key}}`, value);
                 });
                 if (!adapter) {
                   throw new Error(
-                    "Please initialize Fetcher before attempting to make any network calls"
+                    'Please initialize Fetcher before attempting to make any network calls',
                   );
                 }
 
                 try {
-                  const response = await adapter(finalURL, "post");
+                  const response = await adapter(finalURL, 'post');
 
                   if (callbacks[response.statusCode]) {
                     callbacks[response.statusCode](response.data);
@@ -2699,7 +2704,7 @@ const BoomSportsUserService = {
                   }
 
                   if (!callbacks.fallback) {
-                    throw new Error("Unexpected error occurred");
+                    throw new Error('Unexpected error occurred');
                   }
                   callbacks.fallback(response.data);
                 } catch (err: any) {
@@ -2709,7 +2714,7 @@ const BoomSportsUserService = {
                   }
 
                   if (!callbacks.fallback) {
-                    throw new Error("Unexpected error occurred");
+                    throw new Error('Unexpected error occurred');
                   }
                   callbacks.fallback(err.response.data);
                 }
@@ -2738,24 +2743,24 @@ const BoomSportsUserService = {
                     details?: string;
                   }) => void;
                   fallback?: (response?: unknown) => void;
-                }
+                },
               ) => {
                 let finalURL =
-                  "https://development-api.boomfantasy.com:443/api/v1/groups/users/:userId/access";
+                  'https://development-api.boomfantasy.com:443/api/v1/groups/users/:userId/access';
                 finalURL += `?${Object.entries(request.query)
                   .map(([key, value]) => `${key}=${value}`)
-                  .join("&")}`;
+                  .join('&')}`;
                 Object.entries(request.params).forEach(([key, value]) => {
                   finalURL = finalURL.replaceAll(`{${key}}`, value);
                 });
                 if (!adapter) {
                   throw new Error(
-                    "Please initialize Fetcher before attempting to make any network calls"
+                    'Please initialize Fetcher before attempting to make any network calls',
                   );
                 }
 
                 try {
-                  const response = await adapter(finalURL, "get");
+                  const response = await adapter(finalURL, 'get');
 
                   if (callbacks[response.statusCode]) {
                     callbacks[response.statusCode](response.data);
@@ -2763,7 +2768,7 @@ const BoomSportsUserService = {
                   }
 
                   if (!callbacks.fallback) {
-                    throw new Error("Unexpected error occurred");
+                    throw new Error('Unexpected error occurred');
                   }
                   callbacks.fallback(response.data);
                 } catch (err: any) {
@@ -2773,7 +2778,7 @@ const BoomSportsUserService = {
                   }
 
                   if (!callbacks.fallback) {
-                    throw new Error("Unexpected error occurred");
+                    throw new Error('Unexpected error occurred');
                   }
                   callbacks.fallback(err.response.data);
                 }
@@ -2794,7 +2799,7 @@ const BoomSportsUserService = {
               searchField?: string;
               page?: number;
               count?: number;
-              includeDeleted?: "true";
+              includeDeleted?: 'true';
             };
           },
           callbacks: Record<number, any> & {
@@ -2825,7 +2830,7 @@ const BoomSportsUserService = {
                 roles?: Array<number>;
                 events?: {};
                 wallets?: {};
-              }>
+              }>,
             ) => void;
             400?: (response?: unknown) => void;
             500?: (response: {
@@ -2835,21 +2840,21 @@ const BoomSportsUserService = {
               details?: string;
             }) => void;
             fallback?: (response?: unknown) => void;
-          }
+          },
         ) => {
           let finalURL =
-            "https://development-api.boomfantasy.com:443/api/v2/users";
+            'https://development-api.boomfantasy.com:443/api/v2/users';
           finalURL += `?${Object.entries(request.query)
             .map(([key, value]) => `${key}=${value}`)
-            .join("&")}`;
+            .join('&')}`;
           if (!adapter) {
             throw new Error(
-              "Please initialize Fetcher before attempting to make any network calls"
+              'Please initialize Fetcher before attempting to make any network calls',
             );
           }
 
           try {
-            const response = await adapter(finalURL, "get");
+            const response = await adapter(finalURL, 'get');
 
             if (callbacks[response.statusCode]) {
               callbacks[response.statusCode](response.data);
@@ -2857,7 +2862,7 @@ const BoomSportsUserService = {
             }
 
             if (!callbacks.fallback) {
-              throw new Error("Unexpected error occurred");
+              throw new Error('Unexpected error occurred');
             }
             callbacks.fallback(response.data);
           } catch (err: any) {
@@ -2867,7 +2872,7 @@ const BoomSportsUserService = {
             }
 
             if (!callbacks.fallback) {
-              throw new Error("Unexpected error occurred");
+              throw new Error('Unexpected error occurred');
             }
             callbacks.fallback(err.response.data);
           }
@@ -2891,14 +2896,14 @@ const BoomSportsUserService = {
               };
               authentication?: {
                 type:
-                  | "google"
-                  | "facebook"
-                  | "apple"
-                  | "password"
-                  | "phone"
-                  | "refresh"
-                  | "invite"
-                  | "yesnetwork";
+                  | 'google'
+                  | 'facebook'
+                  | 'apple'
+                  | 'password'
+                  | 'phone'
+                  | 'refresh'
+                  | 'invite'
+                  | 'yesnetwork';
                 credentials?: {
                   email?: string;
                   password?: string;
@@ -2909,7 +2914,7 @@ const BoomSportsUserService = {
                 };
               };
               fcmToken?: string;
-              acceptedTerms: "true";
+              acceptedTerms: 'true';
               eventInfo?: {};
               details?: {};
             };
@@ -2923,18 +2928,18 @@ const BoomSportsUserService = {
               details?: string;
             }) => void;
             fallback?: (response?: unknown) => void;
-          }
+          },
         ) => {
           let finalURL =
-            "https://development-api.boomfantasy.com:443/api/v2/users";
+            'https://development-api.boomfantasy.com:443/api/v2/users';
           if (!adapter) {
             throw new Error(
-              "Please initialize Fetcher before attempting to make any network calls"
+              'Please initialize Fetcher before attempting to make any network calls',
             );
           }
 
           try {
-            const response = await adapter(finalURL, "post", request.body);
+            const response = await adapter(finalURL, 'post', request.body);
 
             if (callbacks[response.statusCode]) {
               callbacks[response.statusCode](response.data);
@@ -2942,7 +2947,7 @@ const BoomSportsUserService = {
             }
 
             if (!callbacks.fallback) {
-              throw new Error("Unexpected error occurred");
+              throw new Error('Unexpected error occurred');
             }
             callbacks.fallback(response.data);
           } catch (err: any) {
@@ -2952,7 +2957,7 @@ const BoomSportsUserService = {
             }
 
             if (!callbacks.fallback) {
-              throw new Error("Unexpected error occurred");
+              throw new Error('Unexpected error occurred');
             }
             callbacks.fallback(err.response.data);
           }
@@ -2960,7 +2965,7 @@ const BoomSportsUserService = {
         bulk_search: {
           post: async (
             request: {
-              body: { userIds: Array<string>; includeDeleted?: "true" };
+              body: { userIds: Array<string>; includeDeleted?: 'true' };
             },
             callbacks: Record<number, any> & {
               200?: (
@@ -2990,7 +2995,7 @@ const BoomSportsUserService = {
                   roles?: Array<number>;
                   events?: {};
                   wallets?: {};
-                }>
+                }>,
               ) => void;
               400?: (response?: unknown) => void;
               500?: (response: {
@@ -3000,18 +3005,18 @@ const BoomSportsUserService = {
                 details?: string;
               }) => void;
               fallback?: (response?: unknown) => void;
-            }
+            },
           ) => {
             let finalURL =
-              "https://development-api.boomfantasy.com:443/api/v2/users/bulk_search";
+              'https://development-api.boomfantasy.com:443/api/v2/users/bulk_search';
             if (!adapter) {
               throw new Error(
-                "Please initialize Fetcher before attempting to make any network calls"
+                'Please initialize Fetcher before attempting to make any network calls',
               );
             }
 
             try {
-              const response = await adapter(finalURL, "post", request.body);
+              const response = await adapter(finalURL, 'post', request.body);
 
               if (callbacks[response.statusCode]) {
                 callbacks[response.statusCode](response.data);
@@ -3019,7 +3024,7 @@ const BoomSportsUserService = {
               }
 
               if (!callbacks.fallback) {
-                throw new Error("Unexpected error occurred");
+                throw new Error('Unexpected error occurred');
               }
               callbacks.fallback(response.data);
             } catch (err: any) {
@@ -3029,7 +3034,7 @@ const BoomSportsUserService = {
               }
 
               if (!callbacks.fallback) {
-                throw new Error("Unexpected error occurred");
+                throw new Error('Unexpected error occurred');
               }
               callbacks.fallback(err.response.data);
             }

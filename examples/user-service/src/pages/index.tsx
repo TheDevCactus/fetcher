@@ -2,6 +2,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
 import { UserService } from "../services";
+import { ResponseType } from "../services/UserService";
 import useUserStore from "../stores/user";
 
 const Home: NextPage = () => {
@@ -50,6 +51,8 @@ const Unauthorized = () => {
           alert(response.code);
         },
         fallback: (response: any) => {
+          // This is a place where if the backend schemas were better we could utilize different status call callbacks as well.
+          // But the schema does not specify the status codes for these responses so we can do this
           switch (response.code) {
             case "usr.7":
               setPasswordError("Password incorrect");
@@ -112,13 +115,8 @@ const Unauthorized = () => {
 
 const Authorized = () => {
   const { logout } = useUserStore();
-  const [roles, setRoles] = useState<
-    Array<{
-      id?: number | undefined;
-      default?: boolean | undefined;
-      permissions?: string[] | undefined;
-    }>
-  >();
+  const [roles, setRoles] =
+    useState<ResponseType<typeof UserService.api.v1.users.roles.get, 200>>();
 
   const getRoles = () => {
     UserService.api.v1.users.roles.get(null, {
@@ -135,25 +133,27 @@ const Authorized = () => {
   };
 
   const logRandomName = () => {
-    UserService.api.v2.users.get({
-      query: {
-        count: 10,
+    UserService.api.v2.users.get(
+      {
+        query: {
+          count: 10,
+        },
+      },
+      {
+        200(response) {
+          console.log("!!!", "200", response);
+        },
+        400(response?) {
+          console.log("!!!", "400", response);
+        },
+        500(response) {
+          console.error("!!!", "500", response);
+        },
+        fallback(response?) {
+          console.error("!!!", "fallback", response);
+        },
       }
-    }, {
-      200(response) {
-        console.log('!!!', '200', response)
-      },
-      400(response?) {
-        console.log('!!!', '400',  response)
-      },
-      500(response) {
-        console.error('!!!', '500', response)
-      },
-      fallback(response?) {
-        console.error('!!!', 'fallback', response)
-      },
-    })
-    
+    );
   };
 
   return (
