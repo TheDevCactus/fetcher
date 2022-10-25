@@ -27,7 +27,7 @@ const Unauthorized = () => {
       return;
     }
 
-    const res = await UserService.api.v1.sessions.post(
+    UserService.api.v1.sessions.post(
       {
         body: {
           authentication: {

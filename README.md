@@ -2,7 +2,7 @@
 
 <img title="what a good boy" src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fa%2Fa9%2FBearded_Collie.jpg&f=1&nofb=1&ipt=2a0d91e9f1a93764c1d7093fde17eeaa7cd9653df89b5e0b4d35e9f9ae7d3982&ipo=images" height="250px"></img>
 
-> Create typesafe, un-opinionated, client SDK's for your existing OpenAPI 3.0.0 compliant API's. 
+> Create typesafe, un-opinionated, client SDK's for your existing OpenAPI 3.0.0 compliant API's.
 
 ## About
 
@@ -12,9 +12,9 @@ This program generates client code which handles making network calls to our boo
 
 ## When To Reach For Fetcher
 
-* You have a OpenAPI 3.0.0 compliant API
-* You have multiple clients which will utilize the same API
-* Your API Updates frequently
+- You have a OpenAPI 3.0.0 compliant API
+- You have multiple clients which will utilize the same API
+- Your API Updates frequently
 
 ## How to use
 
@@ -36,23 +36,48 @@ This section is living, and highly likely to change, but as of now, here is how 
 ### Example of initializing a client library, and calling a network call
 
 ```ts
-const Petstore = initializePetstore(async (url, method, body) => {
-  // You don't have to use fetch here, you could use axios, you could use local storage, whatever.
-  const response = await fetch(url, {
+const adapter: ServiceCallAdapter = async function <T>(
+  url: string,
+  method: HTTPMethod,
+  body: unknown,
+) {
+  const res = await axiosInstance({
     method: method,
-    body: body ? JSON.stringify(body) : null,
+    url: url,
+    data: body ? body : null,
   });
-  const data = await response.json();
-  return { data: data, statusCode: response.status };
-});
+  return {
+    data: res.data as unknown as T,
+    statusCode: res.status,
+  };
+};
 
-const order = Petstore.store.order.byOrderId.get({ params: { orderId: 0 } })
+const DogsSDK = userServiceInitializer(adapter);
+
+DogsSDK.breeds.get(
+  {
+    query: {
+      pageCount: 10,
+      page: 2,
+    },
+  },
+  {
+    '200': (response) => {
+      setBreeds(response.breeds);
+    },
+    '500': (response) => {
+      alert(response.code);
+    },
+    fallback: (response: any) => {
+      console.log('Server responded with unexpected status code', response);
+    },
+  },
+);
 ```
 
 ## Why use an adapter instead of handling that internally within the library?
 
 Utilizing adapters allows for us to stay un-opinionated. Another pro of using adapters is that by moving the actual network call execution out of our libraries and back into the hands of the developers, our libraries are very simple functions which basically just provide typesaftey, and function arguments to your actual networking solution. They do not perform any logic. We aren't here to architect your applications networking solution for you, we just want to make it easier to build. Since our SDK's are just simple functions, You can easily move on, or off of our solution.
-
 
 ## Why Does This Exist
 
@@ -526,5 +551,4 @@ const initializeLib = (newAdapter: ServiceCallAdapter) => {
 };
 
 export default initializeLib;
-
 ```
