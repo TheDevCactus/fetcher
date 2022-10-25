@@ -5,7 +5,7 @@ import { UserService } from "../services";
 import useUserStore from "../stores/user";
 
 const Home: NextPage = () => {
-  const authorized = useUserStore((state) => !!state.authorizationToken.length);
+  const authorized = useUserStore((state) => !!state.accessToken.length);
   if (authorized) {
     return <Authorized />;
   }
@@ -14,31 +14,54 @@ const Home: NextPage = () => {
 
 const Unauthorized = () => {
   const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
+
   const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const { setTokens } = useUserStore();
 
   const handleSignIn: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    
-    const res = await UserService.api.v1.sessions.post({
-      body: {
-        authentication: {
-          type: "password",
-          credentials: {
-            email,
-            password,
+    if (emailError.length || passwordError.length) {
+      alert("Please resolve errors");
+      return;
+    }
+
+    const res = await UserService.api.v1.sessions.post(
+      {
+        body: {
+          authentication: {
+            type: "password",
+            credentials: {
+              email,
+              password,
+            },
           },
         },
       },
-    });
-    if ("userId" in res.data) {
-      setTokens({
-        authorizationToken: res.data.accessToken,
-        refreshToken: res.data.refreshToken,
-      });
-      return;
-    }
-    alert("An error occured: " + res.data.message);
+      {
+        "200": (response) => {
+          setTokens({
+            accessToken: response.accessToken,
+            refreshToken: response.refreshToken,
+          });
+        },
+        "500": (response) => {
+          alert(response.code);
+        },
+        fallback: (response: any) => {
+          switch (response.code) {
+            case "usr.7":
+              setPasswordError("Password incorrect");
+              return;
+            case "usr.6":
+              setEmailError("Email not found");
+              return;
+          }
+          alert(response.code);
+        },
+      }
+    );
   };
 
   return (
@@ -59,16 +82,24 @@ const Unauthorized = () => {
               placeholder="email"
               required
               name="email"
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmailError("");
+                setEmail(e.target.value);
+              }}
             />
+            {emailError.length ? <p>{emailError}</p> : null}
             <input
               className="m-1 rounded-sm p-2 outline outline-1 outline-slate-600"
               type="password"
               placeholder="password"
               required
               name="password"
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPasswordError("");
+                setPassword(e.target.value);
+              }}
             />
+            {passwordError.length ? <p>{passwordError}</p> : null}
             <button className="m-1" type="submit">
               Sign In
             </button>
@@ -81,7 +112,6 @@ const Unauthorized = () => {
 
 const Authorized = () => {
   const { logout } = useUserStore();
-
   const [roles, setRoles] = useState<
     Array<{
       id?: number | undefined;
@@ -89,24 +119,54 @@ const Authorized = () => {
       permissions?: string[] | undefined;
     }>
   >();
-  const getRoles = async () => {
-    const res = await UserService.api.v1.users.roles.get(null);
-    if ("roles" in res.data) {
-      setRoles(res.data.roles);
-      return;
-    }
-    if ("code" in res.data) {
-      alert(res.data.code);
-    }
+
+  const getRoles = () => {
+    UserService.api.v1.users.roles.get(null, {
+      "200": (response) => {
+        setRoles(response.roles);
+      },
+      "500": (response) => {
+        console.error(response);
+      },
+      fallback: (response) => {
+        console.log(response);
+      },
+    });
+  };
+
+  const logRandomName = () => {
+    UserService.api.v2.users.get({
+      query: {
+        count: 10,
+      }
+    }, {
+      200(response) {
+        console.log('!!!', '200', response)
+      },
+      400(response?) {
+        console.log('!!!', '400',  response)
+      },
+      500(response) {
+        console.error('!!!', '500', response)
+      },
+      fallback(response?) {
+        console.error('!!!', 'fallback', response)
+      },
+    })
+    
   };
 
   return (
     <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
       <h1>Hi mom</h1>
       <button onClick={logout}>Logout</button>
+      <button onClick={logRandomName}>Log Random Name</button>
       <button onClick={getRoles}>Get Roles</button>
       {roles?.map((role) => (
-        <div className="m-2 w-96 rounded-md bg-slate-100 p-5 outline outline-1 outline-stone-200">
+        <div
+          key={role.id}
+          className="m-2 w-96 rounded-md bg-slate-100 p-5 outline outline-1 outline-stone-200"
+        >
           <h6>Role: {role.id}</h6>
           <hr className="m-2" />
           <h6>Permissions: </h6>

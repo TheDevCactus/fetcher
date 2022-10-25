@@ -113,7 +113,7 @@ export const openApiTypeToTSType = (type: OpenApiType): string => {
     [OpenApiType.Object]: 'object',
     [OpenApiType.String]: 'string',
     [OpenApiType.boolean]: 'boolean',
-    [OpenApiType.Undefined]: 'undefined'
+    [OpenApiType.Undefined]: 'any'
   }[type];
 
   if (!found) {
@@ -157,7 +157,7 @@ export const makeStringUnsafe = (safeString: string): string => {
 };
 
 export const paramKeyToSemanticKey = (key: string) => {
-  if (!key.includes('{') && !key.includes('}')) {
+  if (!key.includes('{') && !key.includes('}') && !key.includes(':')) {
     return key;
   }
 
@@ -165,7 +165,7 @@ export const paramKeyToSemanticKey = (key: string) => {
   let shouldCapitalizeNext = true;
 
   for (let i = 0; i < key.length; i ++) {
-    if (key[i] === '{' || key[i] === '}') {
+    if (key[i] === '{' || key[i] === '}' || key[i] === ':') {
       continue;
     }
 

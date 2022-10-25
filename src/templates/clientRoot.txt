@@ -12,70 +12,20 @@
 /* eslint-disable max-lines */
 /* eslint-disable sort-keys */
 
-type HTTPMethod = 'get' | 'post' | 'put' | 'patch' | 'update' | 'delete';
+export type HTTPMethod = 'get' | 'post' | 'put' | 'patch' | 'update' | 'delete';
 
-type ServiceCallResponse<Response> = {
+export type ServiceCallResponse<Response> = {
   data: Response;
   statusCode: number;
 };
 
-type ServiceCallAdapter = <Response>(
+export type ServiceCallAdapter = <Response>(
   url: string,
   method: HTTPMethod,
-  body: unknown,
+  body?: unknown,
 ) => Promise<ServiceCallResponse<Response>>;
 
 let adapter: ServiceCallAdapter | null = null;
-
-const generateServiceCall = <
-  Request extends {
-    body?: Record<string, any>;
-    query?: Record<string, any>;
-    params?: Record<string, any>;
-  } | null,
-  Response,
->(
-  url: string,
-  method: HTTPMethod,
-  knownStatusCodes: Array<number>,
-) => {
-  return async (request: Request) => {
-    let finalURL = url;
-
-    if (request?.query) {
-      finalURL += `?${Object.entries(request.query)
-        .map(([key, value]) => `${key}=${value}`)
-        .join('&')}`;
-    }
-
-    if (request?.params) {
-      Object.entries(request.params).forEach(([key, value]) => {
-        finalURL = finalURL.replaceAll(`{${key}}`, value);
-      });
-    }
-
-    if (!adapter) {
-      throw new Error(
-        'Please initialize fetcher before attempting to make any network calls',
-      );
-    }
-
-    const response = await adapter<Response>(
-      finalURL,
-      method,
-      request?.body,
-    );
-
-    if (!knownStatusCodes.includes(response.statusCode)) {
-      throw new Error('Unexpected error occurred');
-    }
-
-    return {
-      data: response.data,
-      status: response.statusCode,
-    };
-  };
-};
 
 /**
  * @description {{schema.info.description}}
