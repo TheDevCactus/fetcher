@@ -4,13 +4,15 @@
 
 ## Chassis Service Client Lib Generator
 
+Create typesafe, un-opinionated, client SDK's for your existing OpenAPI 3.0.0 compliant API's. 
+
 ## About
 
 W.I.P! Missing a whole bunch of stuff like ability to deal with typed headers.
 
 This program generates client code which handles making network calls to our boom services using your existing client http solution. Writing, and maintaining network calls is a pain. Wether its the backend puts out a new api you need to utilize, or they update a response object, you now have to basically copy their work into your client codebase. There is little thought that goes into these functions most of the time. Most of the time you will look at the endpoint, request schema, and response schema, and implement a basic function wrapping it all up for use across your client. Why not just generate those functions?
 
-### How to use
+## How to use
 
 This section is living, and highly likely to change, but as of now, here is how to use this library.
 
@@ -27,7 +29,7 @@ This section is living, and highly likely to change, but as of now, here is how 
 3. Import the setup function from the library
 4. Pass your adapter to the setup function, in return for your initialized client library
 
-#### Example of initializing a client library, and calling a network call
+### Example of initializing a client library, and calling a network call
 
 ```ts
 const Petstore = initializePetstore(async (url, method, body) => {
@@ -42,6 +44,11 @@ const Petstore = initializePetstore(async (url, method, body) => {
 
 const order = Petstore.store.order.byOrderId.get({ params: { orderId: 0 } })
 ```
+
+## Why use an adapter instead of handling that internally within the library?
+
+Utilizing adapters allows for us to stay un-opinionated. Another pro of using adapters is that by moving the actual network call execution out of our libraries and back into the hands of the developers, our libraries are very simple functions which basically just provide typesaftey, and function arguments to your actual networking solution. They do not perform any logic. We aren't here to architect your applications networking solution for you, we just want to make it easier to build.
+
 
 ## Why Does This Exist
 
