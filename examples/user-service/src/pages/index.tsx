@@ -118,6 +118,11 @@ type RolesArray = ResponseType<
   200
 >["roles"];
 
+type BoomError = ResponseType<typeof UserService.api.v1.users.roles.get, 500>;
+
+type PatchPhoneNumber = typeof UserService.api.v1.phones.byNumber.verification.byCode.patch;
+type TestResponse = ResponseType<PatchPhoneNumber, 200>;
+
 const Authorized = () => {
   const { logout } = useUserStore();
   const [roles, setRoles] = useState<RolesArray>();
