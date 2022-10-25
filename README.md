@@ -51,7 +51,7 @@ const order = Petstore.store.order.byOrderId.get({ params: { orderId: 0 } })
 
 ## Why use an adapter instead of handling that internally within the library?
 
-Utilizing adapters allows for us to stay un-opinionated. Another pro of using adapters is that by moving the actual network call execution out of our libraries and back into the hands of the developers, our libraries are very simple functions which basically just provide typesaftey, and function arguments to your actual networking solution. They do not perform any logic. We aren't here to architect your applications networking solution for you, we just want to make it easier to build.
+Utilizing adapters allows for us to stay un-opinionated. Another pro of using adapters is that by moving the actual network call execution out of our libraries and back into the hands of the developers, our libraries are very simple functions which basically just provide typesaftey, and function arguments to your actual networking solution. They do not perform any logic. We aren't here to architect your applications networking solution for you, we just want to make it easier to build. Since our SDK's are just simple functions, You can easily move on, or off of our solution.
 
 
 ## Why Does This Exist
