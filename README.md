@@ -36,7 +36,7 @@ This section is living, and highly likely to change, but as of now, here is how 
 ### Example of initializing a client library, and calling a network call
 
 ```ts
-const adapter: ServiceCallAdapter = async function <ResponseType>(
+const adapter: ServiceCallAdapter = async function(
   url: string,
   method: HTTPMethod,
   body: unknown,
@@ -47,8 +47,7 @@ const adapter: ServiceCallAdapter = async function <ResponseType>(
     data: body ? body : null,
   });
   return {
-    // I know this is gross, gotta find something better i think
-    data: res.data as unknown as ResponseType,
+    data: res.data,
     statusCode: res.status,
   };
 };
