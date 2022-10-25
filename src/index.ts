@@ -268,7 +268,7 @@ const generateNetworkCalls = async (schema: OpenAPISpec) => {
           value: bodyType,
         });
       }
-
+      console.log('!!!', responsesType)
       generatorArguments.inner = generateGenerateServiceCallMethod({
         method: currentValue.method,
         request: requestProperties.length

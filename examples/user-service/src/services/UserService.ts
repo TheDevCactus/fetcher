@@ -12,7 +12,7 @@
 /* eslint-disable max-lines */
 /* eslint-disable sort-keys */
 
-export type HTTPMethod = "get" | "post" | "put" | "patch" | "update" | "delete";
+export type HTTPMethod = 'get' | 'post' | 'put' | 'patch' | 'update' | 'delete';
 
 export type ServiceCallResponse<Response> = {
   data: Response;
@@ -22,7 +22,7 @@ export type ServiceCallResponse<Response> = {
 export type ServiceCallAdapter = <Response>(
   url: string,
   method: HTTPMethod,
-  body: unknown
+  body: unknown,
 ) => Promise<ServiceCallResponse<Response>>;
 
 let adapter: ServiceCallAdapter | null = null;
@@ -33,11 +33,11 @@ const generateServiceCall = <
     query?: Record<string, any>;
     params?: Record<string, any>;
   } | null,
-  Response
+  Response,
 >(
   url: string,
   method: HTTPMethod,
-  knownStatusCodes: Array<number>
+  knownStatusCodes: Array<number>,
 ) => {
   return async (request: Request) => {
     let finalURL = url;
@@ -45,7 +45,7 @@ const generateServiceCall = <
     if (request?.query) {
       finalURL += `?${Object.entries(request.query)
         .map(([key, value]) => `${key}=${value}`)
-        .join("&")}`;
+        .join('&')}`;
     }
 
     if (request?.params) {
@@ -56,13 +56,14 @@ const generateServiceCall = <
 
     if (!adapter) {
       throw new Error(
-        "Please initialize fetcher before attempting to make any network calls"
+        'Please initialize fetcher before attempting to make any network calls',
       );
     }
 
     const response = await adapter<Response>(finalURL, method, request?.body);
+
     if (!knownStatusCodes.includes(response.statusCode)) {
-      throw new Error("Unexpected error occurred");
+      throw new Error('Unexpected error occurred');
     }
 
     return {
@@ -88,7 +89,7 @@ const BoomSportsUserService = {
               searchField?: string;
               page?: number;
               count?: number;
-              includeDeleted?: "true";
+              includeDeleted?: 'true';
             };
           },
           | Array<{
@@ -121,30 +122,32 @@ const BoomSportsUserService = {
           | null
           | { code?: string; id?: string; message?: string; details?: string }
         >(
-          "https://development-api.boomfantasy.com:443/api/v1/users",
-          "get",
-          [200, 400, 500]
+          'https://development-api.boomfantasy.com:443/api/v1/users',
+          'get',
+          [200, 400, 500],
         ),
         roles: {
           get: generateServiceCall<
             null,
-            | Array<{
-                id?: number;
-                default?: boolean;
-                permissions?: Array<string>;
-              }>
+            | {
+                roles?: Array<{
+                  id?: number;
+                  default?: boolean;
+                  permissions?: Array<string>;
+                }>;
+              }
             | { code?: string; id?: string; message?: string; details?: string }
           >(
-            "https://development-api.boomfantasy.com:443/api/v1/users/roles",
-            "get",
-            [200, 500]
+            'https://development-api.boomfantasy.com:443/api/v1/users/roles',
+            'get',
+            [200, 500],
           ),
         },
-        ":userId": {
+        ':userId': {
           get: generateServiceCall<
             {
               query: {
-                includeDeleted?: "true";
+                includeDeleted?: 'true';
               };
               params: {
                 userId?: string;
@@ -179,9 +182,9 @@ const BoomSportsUserService = {
               }
             | { code?: string; id?: string; message?: string; details?: string }
           >(
-            "https://development-api.boomfantasy.com:443/api/v1/users/:userId",
-            "get",
-            [200, 500]
+            'https://development-api.boomfantasy.com:443/api/v1/users/:userId',
+            'get',
+            [200, 500],
           ),
           patch: generateServiceCall<
             {
@@ -194,7 +197,7 @@ const BoomSportsUserService = {
                 imageId?: string;
                 adId?: string;
                 roles?: Array<number>;
-                removeProfilePic?: "true";
+                removeProfilePic?: 'true';
                 consent?: {
                   marketingEmail?: boolean;
                   marketingPhone?: boolean;
@@ -203,7 +206,7 @@ const BoomSportsUserService = {
                 fcmToken?: string;
                 eventInfo?: {};
                 details?: {};
-                w9Status?: "yes" | "no" | "requested";
+                w9Status?: 'yes' | 'no' | 'requested';
               };
             },
             null | {
@@ -213,9 +216,9 @@ const BoomSportsUserService = {
               details?: string;
             }
           >(
-            "https://development-api.boomfantasy.com:443/api/v1/users/:userId",
-            "patch",
-            [204, 500]
+            'https://development-api.boomfantasy.com:443/api/v1/users/:userId',
+            'patch',
+            [204, 500],
           ),
           location: {
             patch: generateServiceCall<
@@ -236,9 +239,9 @@ const BoomSportsUserService = {
                 details?: string;
               }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/:userId/location",
-              "patch",
-              [204, 500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/:userId/location',
+              'patch',
+              [204, 500],
             ),
           },
           status: {
@@ -249,11 +252,11 @@ const BoomSportsUserService = {
                 };
                 body: {
                   newStatus:
-                    | "banned"
-                    | "unbanned"
-                    | "closed"
-                    | "reopened"
-                    | "deleted";
+                    | 'banned'
+                    | 'unbanned'
+                    | 'closed'
+                    | 'reopened'
+                    | 'deleted';
                   reason?: string;
                   eventInfo?: {};
                 };
@@ -265,9 +268,9 @@ const BoomSportsUserService = {
                 details?: string;
               }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/:userId/status",
-              "patch",
-              [204, 500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/:userId/status',
+              'patch',
+              [204, 500],
             ),
           },
           manual_verify: {
@@ -285,9 +288,9 @@ const BoomSportsUserService = {
                 details?: string;
               }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/:userId/manual_verify",
-              "patch",
-              [204, 500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/:userId/manual_verify',
+              'patch',
+              [204, 500],
             ),
           },
           wallets: {
@@ -296,7 +299,7 @@ const BoomSportsUserService = {
                 params: {
                   userId?: string;
                 };
-                body: { walletType: "credits"; beginningValue?: number };
+                body: { walletType: 'credits'; beginningValue?: number };
               },
               null | {
                 code?: string;
@@ -305,14 +308,14 @@ const BoomSportsUserService = {
                 details?: string;
               }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/:userId/wallets",
-              "post",
-              [204, 500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/:userId/wallets',
+              'post',
+              [204, 500],
             ),
             get: generateServiceCall<
               {
                 query: {
-                  type?: "credits";
+                  type?: 'credits';
                 };
                 params: {
                   userId?: string;
@@ -326,16 +329,16 @@ const BoomSportsUserService = {
                   details?: string;
                 }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/:userId/wallets",
-              "get",
-              [200, 404, 500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/:userId/wallets',
+              'get',
+              [200, 404, 500],
             ),
-            ":type": {
+            ':type': {
               patch: generateServiceCall<
                 {
                   params: {
                     userId?: string;
-                    type?: "credits";
+                    type?: 'credits';
                   };
                   body: { delta: number };
                 },
@@ -347,16 +350,16 @@ const BoomSportsUserService = {
                     details?: string;
                   }
               >(
-                "https://development-api.boomfantasy.com:443/api/v1/users/:userId/wallets/:type",
-                "patch",
-                [200, 404, 500]
+                'https://development-api.boomfantasy.com:443/api/v1/users/:userId/wallets/:type',
+                'patch',
+                [200, 404, 500],
               ),
               withdrawals: {
                 post: generateServiceCall<
                   {
                     params: {
                       userId?: string;
-                      type?: "credits";
+                      type?: 'credits';
                     };
                     body: {
                       firstName: string;
@@ -375,9 +378,9 @@ const BoomSportsUserService = {
                     details?: string;
                   }
                 >(
-                  "https://development-api.boomfantasy.com:443/api/v1/users/:userId/wallets/:type/withdrawals",
-                  "post",
-                  [204, 400, 401, 404, 500]
+                  'https://development-api.boomfantasy.com:443/api/v1/users/:userId/wallets/:type/withdrawals',
+                  'post',
+                  [204, 400, 401, 404, 500],
                 ),
               },
             },
@@ -397,9 +400,9 @@ const BoomSportsUserService = {
                   details?: string;
                 }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/:userId/referral",
-              "get",
-              [200, 500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/:userId/referral',
+              'get',
+              [200, 500],
             ),
           },
           verification: {
@@ -423,9 +426,9 @@ const BoomSportsUserService = {
                   details?: string;
                 }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/:userId/verification",
-              "get",
-              [200, 404, 500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/:userId/verification',
+              'get',
+              [200, 404, 500],
             ),
             post: generateServiceCall<
               {
@@ -450,9 +453,9 @@ const BoomSportsUserService = {
                 details?: string;
               }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/:userId/verification",
-              "post",
-              [204, 400, 500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/:userId/verification',
+              'post',
+              [204, 400, 500],
             ),
             patch: generateServiceCall<
               {
@@ -477,9 +480,9 @@ const BoomSportsUserService = {
                 details?: string;
               }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/:userId/verification",
-              "patch",
-              [204, 400, 500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/:userId/verification',
+              'patch',
+              [204, 400, 500],
             ),
           },
           images: {
@@ -498,9 +501,9 @@ const BoomSportsUserService = {
                     details?: string;
                   }
               >(
-                "https://development-api.boomfantasy.com:443/api/v1/users/:userId/images/profile",
-                "post",
-                [200, 500]
+                'https://development-api.boomfantasy.com:443/api/v1/users/:userId/images/profile',
+                'post',
+                [200, 500],
               ),
             },
           },
@@ -519,11 +522,11 @@ const BoomSportsUserService = {
                 details?: string;
               }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/:userId/groups",
-              "post",
-              [200, 404, 500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/:userId/groups',
+              'post',
+              [200, 404, 500],
             ),
-            ":groupId": {
+            ':groupId': {
               delete: generateServiceCall<
                 {
                   params: {
@@ -538,14 +541,14 @@ const BoomSportsUserService = {
                   details?: string;
                 }
               >(
-                "https://development-api.boomfantasy.com:443/api/v1/users/:userId/groups/:groupId",
-                "delete",
-                [200, 404, 500]
+                'https://development-api.boomfantasy.com:443/api/v1/users/:userId/groups/:groupId',
+                'delete',
+                [200, 404, 500],
               ),
             },
           },
         },
-        "self-exclude": {
+        'self-exclude': {
           post: generateServiceCall<
             {
               body: { limit: number };
@@ -557,12 +560,12 @@ const BoomSportsUserService = {
               details?: string;
             }
           >(
-            "https://development-api.boomfantasy.com:443/api/v1/users/self-exclude",
-            "post",
-            [204, 500]
+            'https://development-api.boomfantasy.com:443/api/v1/users/self-exclude',
+            'post',
+            [204, 500],
           ),
         },
-        "initial-location": {
+        'initial-location': {
           post: generateServiceCall<
             null,
             null | {
@@ -572,9 +575,9 @@ const BoomSportsUserService = {
               details?: string;
             }
           >(
-            "https://development-api.boomfantasy.com:443/api/v1/users/initial-location",
-            "post",
-            [204, 500]
+            'https://development-api.boomfantasy.com:443/api/v1/users/initial-location',
+            'post',
+            [204, 500],
           ),
         },
         bulk_update: {
@@ -582,7 +585,7 @@ const BoomSportsUserService = {
             post: generateServiceCall<
               {
                 body: {
-                  action: "updateBestScores";
+                  action: 'updateBestScores';
                   league: string;
                   contestId: string;
                   contestMaxPossiblePoints: number;
@@ -600,25 +603,25 @@ const BoomSportsUserService = {
                   details?: string;
                 }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/bulk_update/bestScores",
-              "post",
-              [200, 500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/bulk_update/bestScores',
+              'post',
+              [200, 500],
             ),
           },
         },
         wallets: {
-          ":type": {
+          ':type': {
             withdrawals: {
-              ":status": {
+              ':status': {
                 get: generateServiceCall<
                   {
                     params: {
-                      type?: "credits";
+                      type?: 'credits';
                       status?:
-                        | "pending"
-                        | "completed"
-                        | "rejected"
-                        | "cancelled";
+                        | 'pending'
+                        | 'completed'
+                        | 'rejected'
+                        | 'cancelled';
                     };
                   },
                   | {
@@ -631,10 +634,10 @@ const BoomSportsUserService = {
                         createdAt?: string;
                         completedAd?: string;
                         status?:
-                          | "pending"
-                          | "completed"
-                          | "rejected"
-                          | "cancelled";
+                          | 'pending'
+                          | 'completed'
+                          | 'rejected'
+                          | 'cancelled';
                         notes?: string;
                         hidden?: boolean;
                         amount?: number;
@@ -648,9 +651,9 @@ const BoomSportsUserService = {
                       details?: string;
                     }
                 >(
-                  "https://development-api.boomfantasy.com:443/api/v1/users/wallets/:type/withdrawals/:status",
-                  "get",
-                  [200, 500]
+                  'https://development-api.boomfantasy.com:443/api/v1/users/wallets/:type/withdrawals/:status',
+                  'get',
+                  [200, 500],
                 ),
               },
             },
@@ -675,9 +678,9 @@ const BoomSportsUserService = {
                   details?: string;
                 }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/wallets/bulk_update",
-              "post",
-              [200, 500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/wallets/bulk_update',
+              'post',
+              [200, 500],
             ),
             winnings: {
               post: generateServiceCall<
@@ -699,16 +702,16 @@ const BoomSportsUserService = {
                     details?: string;
                   }
               >(
-                "https://development-api.boomfantasy.com:443/api/v1/users/wallets/bulk_update/winnings",
-                "post",
-                [200, 500]
+                'https://development-api.boomfantasy.com:443/api/v1/users/wallets/bulk_update/winnings',
+                'post',
+                [200, 500],
               ),
             },
             withdrawals: {
               post: generateServiceCall<
                 {
                   body: {
-                    action: "complete";
+                    action: 'complete';
                     withdrawalRequestIds: Array<string>;
                   };
                 },
@@ -726,9 +729,9 @@ const BoomSportsUserService = {
                     details?: string;
                   }
               >(
-                "https://development-api.boomfantasy.com:443/api/v1/users/wallets/bulk_update/withdrawals",
-                "post",
-                [200, 500]
+                'https://development-api.boomfantasy.com:443/api/v1/users/wallets/bulk_update/withdrawals',
+                'post',
+                [200, 500],
               ),
             },
           },
@@ -749,14 +752,14 @@ const BoomSportsUserService = {
                 details?: string;
               }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/groups/bulk",
-              "post",
-              [200, 500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/groups/bulk',
+              'post',
+              [200, 500],
             ),
           },
         },
         names: {
-          ":name": {
+          ':name': {
             get: generateServiceCall<
               {
                 params: {
@@ -771,14 +774,14 @@ const BoomSportsUserService = {
                   details?: string;
                 }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/names/:name",
-              "get",
-              [200, 500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/names/:name',
+              'get',
+              [200, 500],
             ),
           },
         },
         emails: {
-          ":email": {
+          ':email': {
             get: generateServiceCall<
               {
                 params: {
@@ -793,9 +796,9 @@ const BoomSportsUserService = {
                   details?: string;
                 }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/emails/:email",
-              "get",
-              [200, 500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/emails/:email',
+              'get',
+              [200, 500],
             ),
           },
         },
@@ -807,9 +810,9 @@ const BoomSportsUserService = {
               },
               { code?: string; id?: string; message?: string; details?: string }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/devices/allowed",
-              "post",
-              [500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/devices/allowed',
+              'post',
+              [500],
             ),
             delete: generateServiceCall<
               {
@@ -817,9 +820,9 @@ const BoomSportsUserService = {
               },
               { code?: string; id?: string; message?: string; details?: string }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/devices/allowed",
-              "delete",
-              [500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/devices/allowed',
+              'delete',
+              [500],
             ),
             get: generateServiceCall<
               {
@@ -830,9 +833,9 @@ const BoomSportsUserService = {
               },
               { code?: string; id?: string; message?: string; details?: string }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/devices/allowed",
-              "get",
-              [500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/devices/allowed',
+              'get',
+              [500],
             ),
           },
           banned: {
@@ -842,9 +845,9 @@ const BoomSportsUserService = {
               },
               { code?: string; id?: string; message?: string; details?: string }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/devices/banned",
-              "post",
-              [500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/devices/banned',
+              'post',
+              [500],
             ),
             delete: generateServiceCall<
               {
@@ -852,9 +855,9 @@ const BoomSportsUserService = {
               },
               { code?: string; id?: string; message?: string; details?: string }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/devices/banned",
-              "delete",
-              [500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/devices/banned',
+              'delete',
+              [500],
             ),
             get: generateServiceCall<
               {
@@ -865,22 +868,22 @@ const BoomSportsUserService = {
               },
               { code?: string; id?: string; message?: string; details?: string }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/users/devices/banned",
-              "get",
-              [500]
+              'https://development-api.boomfantasy.com:443/api/v1/users/devices/banned',
+              'get',
+              [500],
             ),
           },
         },
       },
       phones: {
-        ":number": {
+        ':number': {
           verification: {
             post: generateServiceCall<
               {
                 params: {
                   number?: string;
                 };
-                body: { intent?: "authentication" | "addNumberToAccount" };
+                body: { intent?: 'authentication' | 'addNumberToAccount' };
               },
               | { hasAccount?: boolean; message?: string; length?: number }
               | null
@@ -891,11 +894,11 @@ const BoomSportsUserService = {
                   details?: string;
                 }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/phones/:number/verification",
-              "post",
-              [200, 204, 500]
+              'https://development-api.boomfantasy.com:443/api/v1/phones/:number/verification',
+              'post',
+              [200, 204, 500],
             ),
-            ":code": {
+            ':code': {
               patch: generateServiceCall<
                 {
                   params: {
@@ -910,9 +913,9 @@ const BoomSportsUserService = {
                   details?: string;
                 }
               >(
-                "https://development-api.boomfantasy.com:443/api/v1/phones/:number/verification/:code",
-                "patch",
-                [204, 500]
+                'https://development-api.boomfantasy.com:443/api/v1/phones/:number/verification/:code',
+                'patch',
+                [204, 500],
               ),
             },
           },
@@ -924,15 +927,15 @@ const BoomSportsUserService = {
             body: {
               authentication: {
                 type:
-                  | "email"
-                  | "google"
-                  | "facebook"
-                  | "apple"
-                  | "password"
-                  | "phone"
-                  | "refresh"
-                  | "invite"
-                  | "yesnetwork";
+                  | 'email'
+                  | 'google'
+                  | 'facebook'
+                  | 'apple'
+                  | 'password'
+                  | 'phone'
+                  | 'refresh'
+                  | 'invite'
+                  | 'yesnetwork';
                 credentials?: {};
               };
               locationServicesDenied?: boolean;
@@ -942,7 +945,7 @@ const BoomSportsUserService = {
               eventInfo?: {};
             };
           },
-          {
+          | {
               userId: string;
               accessToken: string;
               refreshToken: string;
@@ -954,9 +957,9 @@ const BoomSportsUserService = {
             }
           | { code?: string; id?: string; message?: string; details?: string }
         >(
-          "https://development-api.boomfantasy.com:443/api/v1/sessions",
-          "post",
-          [200, 500]
+          'https://development-api.boomfantasy.com:443/api/v1/sessions',
+          'post',
+          [200, 500],
         ),
       },
       usernames: {
@@ -965,7 +968,7 @@ const BoomSportsUserService = {
             {
               body: {
                 options?: {
-                  format?: "kebab" | "camel" | "sentence" | "lower" | "title";
+                  format?: 'kebab' | 'camel' | 'sentence' | 'lower' | 'title';
                   categories?: {
                     noun?: Array<undefined>;
                     adjective?: Array<undefined>;
@@ -982,12 +985,12 @@ const BoomSportsUserService = {
             | { username?: string }
             | { code?: string; id?: string; message?: string; details?: string }
           >(
-            "https://development-api.boomfantasy.com:443/api/v1/usernames/randomUsername",
-            "post",
-            [200, 500]
+            'https://development-api.boomfantasy.com:443/api/v1/usernames/randomUsername',
+            'post',
+            [200, 500],
           ),
         },
-        ":username": {
+        ':username': {
           get: generateServiceCall<
             {
               params: {
@@ -997,9 +1000,9 @@ const BoomSportsUserService = {
             | { exists?: boolean; valid?: boolean }
             | { code?: string; id?: string; message?: string; details?: string }
           >(
-            "https://development-api.boomfantasy.com:443/api/v1/usernames/:username",
-            "get",
-            [200, 500]
+            'https://development-api.boomfantasy.com:443/api/v1/usernames/:username',
+            'get',
+            [200, 500],
           ),
         },
       },
@@ -1008,7 +1011,7 @@ const BoomSportsUserService = {
           {
             query: {
               groupIds?: Array<string>;
-              statuses?: Array<"active">;
+              statuses?: Array<'active'>;
               page?: number;
               count?: number;
             };
@@ -1016,16 +1019,16 @@ const BoomSportsUserService = {
           | Array<{
               _id?: string;
               groupName: string;
-              accessLevel: "public" | "inviteOnly" | "restricted";
+              accessLevel: 'public' | 'inviteOnly' | 'restricted';
               userIds: Array<string>;
-              type?: "public" | "inviteOnly" | "restricted";
+              type?: 'public' | 'inviteOnly' | 'restricted';
               audit?: {};
             }>
           | { code?: string; id?: string; message?: string; details?: string }
         >(
-          "https://development-api.boomfantasy.com:443/api/v1/groups",
-          "get",
-          [200, 500]
+          'https://development-api.boomfantasy.com:443/api/v1/groups',
+          'get',
+          [200, 500],
         ),
         post: generateServiceCall<
           {
@@ -1033,7 +1036,7 @@ const BoomSportsUserService = {
               userManaged?: boolean;
               group?: {
                 groupName: string;
-                accessLevel: "public" | "inviteOnly" | "restricted";
+                accessLevel: 'public' | 'inviteOnly' | 'restricted';
                 userIds?: undefined;
               };
             };
@@ -1042,20 +1045,20 @@ const BoomSportsUserService = {
               createdGroup?: {
                 _id?: string;
                 groupName: string;
-                accessLevel: "public" | "inviteOnly" | "restricted";
+                accessLevel: 'public' | 'inviteOnly' | 'restricted';
                 userIds: Array<string>;
-                type?: "public" | "inviteOnly" | "restricted";
+                type?: 'public' | 'inviteOnly' | 'restricted';
                 audit?: {};
               };
               invite?: { inviteId: string; branchLink?: string; code?: string };
             }
           | { code?: string; id?: string; message?: string; details?: string }
         >(
-          "https://development-api.boomfantasy.com:443/api/v1/groups",
-          "post",
-          [200, 500]
+          'https://development-api.boomfantasy.com:443/api/v1/groups',
+          'post',
+          [200, 500],
         ),
-        ":groupId": {
+        ':groupId': {
           users: {
             put: generateServiceCall<
               {
@@ -1071,11 +1074,11 @@ const BoomSportsUserService = {
                 details?: string;
               }
             >(
-              "https://development-api.boomfantasy.com:443/api/v1/groups/:groupId/users",
-              "put",
-              [204, 404, 500]
+              'https://development-api.boomfantasy.com:443/api/v1/groups/:groupId/users',
+              'put',
+              [204, 404, 500],
             ),
-            ":userId": {
+            ':userId': {
               delete: generateServiceCall<
                 {
                   params: {
@@ -1090,9 +1093,9 @@ const BoomSportsUserService = {
                   details?: string;
                 }
               >(
-                "https://development-api.boomfantasy.com:443/api/v1/groups/:groupId/users/:userId",
-                "delete",
-                [204, 404, 500]
+                'https://development-api.boomfantasy.com:443/api/v1/groups/:groupId/users/:userId',
+                'delete',
+                [204, 404, 500],
               ),
             },
           },
@@ -1112,15 +1115,15 @@ const BoomSportsUserService = {
                     details?: string;
                   }
               >(
-                "https://development-api.boomfantasy.com:443/api/v1/groups/:groupId/images/logo",
-                "post",
-                [200, 500]
+                'https://development-api.boomfantasy.com:443/api/v1/groups/:groupId/images/logo',
+                'post',
+                [200, 500],
               ),
             },
           },
         },
         users: {
-          ":userId": {
+          ':userId': {
             access: {
               get: generateServiceCall<
                 {
@@ -1138,9 +1141,9 @@ const BoomSportsUserService = {
                   details?: string;
                 }
               >(
-                "https://development-api.boomfantasy.com:443/api/v1/groups/users/:userId/access",
-                "get",
-                [200, 500]
+                'https://development-api.boomfantasy.com:443/api/v1/groups/users/:userId/access',
+                'get',
+                [200, 500],
               ),
             },
           },
@@ -1158,7 +1161,7 @@ const BoomSportsUserService = {
               searchField?: string;
               page?: number;
               count?: number;
-              includeDeleted?: "true";
+              includeDeleted?: 'true';
             };
           },
           | Array<{
@@ -1191,9 +1194,9 @@ const BoomSportsUserService = {
           | null
           | { code?: string; id?: string; message?: string; details?: string }
         >(
-          "https://development-api.boomfantasy.com:443/api/v2/users",
-          "get",
-          [200, 400, 500]
+          'https://development-api.boomfantasy.com:443/api/v2/users',
+          'get',
+          [200, 400, 500],
         ),
         post: generateServiceCall<
           {
@@ -1214,14 +1217,14 @@ const BoomSportsUserService = {
               };
               authentication?: {
                 type:
-                  | "google"
-                  | "facebook"
-                  | "apple"
-                  | "password"
-                  | "phone"
-                  | "refresh"
-                  | "invite"
-                  | "yesnetwork";
+                  | 'google'
+                  | 'facebook'
+                  | 'apple'
+                  | 'password'
+                  | 'phone'
+                  | 'refresh'
+                  | 'invite'
+                  | 'yesnetwork';
                 credentials?: {
                   email?: string;
                   password?: string;
@@ -1232,7 +1235,7 @@ const BoomSportsUserService = {
                 };
               };
               fcmToken?: string;
-              acceptedTerms: "true";
+              acceptedTerms: 'true';
               eventInfo?: {};
               details?: {};
             };
@@ -1240,14 +1243,14 @@ const BoomSportsUserService = {
           | string
           | { code?: string; id?: string; message?: string; details?: string }
         >(
-          "https://development-api.boomfantasy.com:443/api/v2/users",
-          "post",
-          [200, 500]
+          'https://development-api.boomfantasy.com:443/api/v2/users',
+          'post',
+          [200, 500],
         ),
         bulk_search: {
           post: generateServiceCall<
             {
-              body: { userIds: Array<string>; includeDeleted?: "true" };
+              body: { userIds: Array<string>; includeDeleted?: 'true' };
             },
             | Array<{
                 _id?: string;
@@ -1279,9 +1282,9 @@ const BoomSportsUserService = {
             | null
             | { code?: string; id?: string; message?: string; details?: string }
           >(
-            "https://development-api.boomfantasy.com:443/api/v2/users/bulk_search",
-            "post",
-            [200, 400, 500]
+            'https://development-api.boomfantasy.com:443/api/v2/users/bulk_search',
+            'post',
+            [200, 400, 500],
           ),
         },
       },

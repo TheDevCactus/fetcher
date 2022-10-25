@@ -12,7 +12,6 @@ export const buildTypeObjectFromSchema = (schema: Schema): string => {
     }
     return schema.required.includes(key);
   };
-
   switch (schema.type) {
     case OpenApiType.Array:
       if (!schema.items) {
@@ -23,6 +22,7 @@ export const buildTypeObjectFromSchema = (schema: Schema): string => {
     case OpenApiType.Number:
     case OpenApiType.boolean:
     case OpenApiType.String:
+    case undefined:
       if ((schema as any).enum) {
         return (schema as any).enum.map((item: any) => `"${item}"`).join(' | ');
       }
@@ -86,6 +86,10 @@ export const expandRefsOnObject = <T>(
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
     if (typeof currentRoot[key] === 'object') {
+      if (currentRoot[key] === null) {
+        currentRoot[key] = {};
+        continue;
+      }
       if (currentRoot[key].$ref) {
         try {
           currentRoot[key] = followObjectPath(currentRoot[key].$ref, base);
@@ -109,6 +113,7 @@ export const openApiTypeToTSType = (type: OpenApiType): string => {
     [OpenApiType.Object]: 'object',
     [OpenApiType.String]: 'string',
     [OpenApiType.boolean]: 'boolean',
+    [OpenApiType.Undefined]: 'undefined'
   }[type];
 
   if (!found) {

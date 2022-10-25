@@ -29,7 +29,4 @@ const useUserStore = create<UserStore>()(
   })
 );
 
-export const isAuthorized = () => {
-  return !!useUserStore.getState().authorizationToken.length
-}
 export default useUserStore;

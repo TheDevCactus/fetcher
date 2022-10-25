@@ -1,20 +1,20 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { UserService } from "../services";
-import useUserStore, { isAuthorized } from "../stores/user";
+import useUserStore from "../stores/user";
 
 const Home: NextPage = () => {
-  const authorized = useUserStore(state => !!state.authorizationToken.length);
+  const authorized = useUserStore((state) => !!state.authorizationToken.length);
   if (authorized) {
-    return <Authorized />
+    return <Authorized />;
   }
-  return <Unauthorized />
+  return <Unauthorized />;
 };
 
 const Unauthorized = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const { setTokens } = useUserStore();
 
   const handleSignIn: React.FormEventHandler<HTMLFormElement> = async (e) => {
@@ -22,22 +22,23 @@ const Unauthorized = () => {
     const res = await UserService.api.v1.sessions.post({
       body: {
         authentication: {
-          type: 'password',
+          type: "password",
           credentials: {
-            email, password
-          }
-        }
-      }
+            email,
+            password,
+          },
+        },
+      },
     });
-    if ('userId' in res.data) {
+    if ("userId" in res.data) {
       setTokens({
         authorizationToken: res.data.accessToken,
-        refreshToken: res.data.refreshToken
+        refreshToken: res.data.refreshToken,
       });
       return;
     }
-    alert('An error occured: ' + res.data.message);
-  }
+    alert("An error occured: " + res.data.message);
+  };
 
   return (
     <>
@@ -51,32 +52,69 @@ const Unauthorized = () => {
         <div>
           <h3 className="text-center">Login To YES</h3>
           <form onSubmit={handleSignIn} className="flex flex-col p-2">
-            <input className="m-1 outline outline-1 outline-slate-600 p-2 rounded-sm" type='text' placeholder='email' required name='email' onChange={e => setEmail(e.target.value)}/>
-            <input className="m-1 outline outline-1 outline-slate-600 p-2 rounded-sm" type='password' placeholder='password' required name='password' onChange={e => setPassword(e.target.value)}/>
-            <button className="m-1" type='submit'>Sign In</button>
+            <input
+              className="m-1 rounded-sm p-2 outline outline-1 outline-slate-600"
+              type="text"
+              placeholder="email"
+              required
+              name="email"
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <input
+              className="m-1 rounded-sm p-2 outline outline-1 outline-slate-600"
+              type="password"
+              placeholder="password"
+              required
+              name="password"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button className="m-1" type="submit">
+              Sign In
+            </button>
           </form>
         </div>
       </main>
     </>
   );
-}
+};
 
 const Authorized = () => {
   const { logout } = useUserStore();
 
-  const [roles, setRoles] = useState();
+  const [roles, setRoles] = useState<
+    Array<{
+      id?: number | undefined;
+      default?: boolean | undefined;
+      permissions?: string[] | undefined;
+    }>
+  >();
   const getRoles = async () => {
     const res = await UserService.api.v1.users.roles.get(null);
-    console.log('!!!', res)
-  }
+    if ("roles" in res.data) {
+      setRoles(res.data.roles);
+      return;
+    }
+    if ("code" in res.data) {
+      alert(res.data.code);
+    }
+  };
 
   return (
-      <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-        <h1>Hi mom</h1>
-        <button onClick={logout}>Logout</button>
-        <button onClick={getRoles}>Get Roles</button>
-      </main>
-  )
-}
+    <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
+      <h1>Hi mom</h1>
+      <button onClick={logout}>Logout</button>
+      <button onClick={getRoles}>Get Roles</button>
+      {roles?.map((role) => (
+        <div className="m-2 w-96 rounded-md bg-slate-100 p-5 outline outline-1 outline-stone-200">
+          <h6>Role: {role.id}</h6>
+          <hr className="m-2" />
+          <h6>Permissions: </h6>
+          <p>{role.default}</p>
+          <p>{role.permissions ? role.permissions.join("\n") : ""}</p>
+        </div>
+      ))}
+    </main>
+  );
+};
 
 export default Home;

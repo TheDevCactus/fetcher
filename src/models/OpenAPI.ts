@@ -7,6 +7,7 @@ export enum OpenApiType {
   boolean = 'boolean',
   Object = 'object',
   Array = 'array',
+  Undefined = 'undefined',
 }
 
 export enum OpenApiTypeFormat {
@@ -37,6 +38,7 @@ export const ValidOpenApiTypeFormatsForOpenApiType: Record<
     OpenApiTypeFormat.Date,
     OpenApiTypeFormat.DateTime,
   ],
+  [OpenApiType.Undefined]: []
 };
 
 export interface OpenAPIContact {

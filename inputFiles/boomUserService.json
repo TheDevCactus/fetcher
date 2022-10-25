@@ -1,0 +1,3957 @@
+{
+  "openapi": "3.0.0",
+  "info": { "title": "Boom Sports User Service", "version": "1.0.0" },
+  "servers": [
+    {
+      "url": "https://development-api.boomfantasy.com:443"
+    }
+  ],
+  "paths": {
+    "/api/v1/users/migrate": {
+      "post": {
+        "summary": "Migrate User",
+        "description": "Migrate a user from old boom (meteor) to the new DFS product.",
+        "tags": ["User"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_id": { "type": "string" },
+                  "createdAt": { "type": "string", "format": "date-time" },
+                  "username": { "type": "string" },
+                  "email": {
+                    "type": "object",
+                    "properties": {
+                      "address": {
+                        "type": "string",
+                        "example": "toms82@myspace.com"
+                      },
+                      "verified": { "type": "boolean" }
+                    },
+                    "required": ["address", "verified"]
+                  },
+                  "balance": { "type": "number", "format": "float" },
+                  "marketingConsent": { "type": "boolean" },
+                  "password": { "type": "string" },
+                  "phone": {
+                    "type": "string",
+                    "pattern": "^[0-9]+$",
+                    "length": 10
+                  },
+                  "deposited": { "type": "boolean" },
+                  "enteredPaidContest": { "type": "boolean" },
+                  "totalDeposited": { "type": "number", "format": "float" },
+                  "experience": { "type": "number", "format": "float" }
+                },
+                "required": [
+                  "_id",
+                  "createdAt",
+                  "username",
+                  "balance",
+                  "marketingConsent"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The user was successfully migrated",
+            "content": {
+              "application/json": {
+                "schema": { "type": "string" },
+                "example": { "message": "Successfully migrated user" }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/invites/bulkCreate": {
+      "post": {
+        "summary": "Bulk Create Invites",
+        "description": "Create invites in bulk by uploading a csv file with correct information",
+        "tags": ["Invite"],
+        "responses": {
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v2/users/invites/bulkCreate": {
+      "post": {
+        "summary": "Bulk Create Invites",
+        "description": "Create invites in bulk by uploading a csv file with correct information",
+        "tags": ["Invite"],
+        "responses": {
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/invites": {
+      "get": {
+        "summary": "Get Invites",
+        "description": "Get invites.",
+        "tags": ["Invite"],
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "title": "Group Id" }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["celebrity", "plebian", "public"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the invites",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["celebrity", "plebian", "public"]
+                      },
+                      "emailAddress": {
+                        "type": "string",
+                        "description": "The email address for a private invitation."
+                      },
+                      "username": {
+                        "type": "string",
+                        "description": "The username to set for this invited user.  Used with celebrity invites."
+                      },
+                      "groupId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "The groupId that this invite is valid for"
+                      },
+                      "code": {
+                        "type": "string",
+                        "description": "code for the an invite"
+                      },
+                      "maxAcceptance": {
+                        "type": "integer",
+                        "description": "The maximum number of times this invite can be accepted"
+                      },
+                      "expirationDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "The end date that this invite is valid"
+                      }
+                    },
+                    "required": ["type"]
+                  }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      },
+      "post": {
+        "summary": "Create Invite",
+        "description": "Create an invitation to allow people to join the app and/or groups",
+        "tags": ["Invite"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["celebrity", "plebian", "public"]
+                  },
+                  "emailAddress": {
+                    "type": "string",
+                    "description": "The email address for a private invitation."
+                  },
+                  "username": {
+                    "type": "string",
+                    "description": "The username to set for this invited user.  Used with celebrity invites."
+                  },
+                  "groupId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "The groupId that this invite is valid for"
+                  },
+                  "code": {
+                    "type": "string",
+                    "description": "code for the an invite"
+                  },
+                  "maxAcceptance": {
+                    "type": "integer",
+                    "description": "The maximum number of times this invite can be accepted"
+                  },
+                  "expirationDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The end date that this invite is valid"
+                  }
+                },
+                "required": ["type"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created invite",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "inviteId": { "type": "string", "format": "uuid" },
+                    "branchLink": {
+                      "type": "string",
+                      "description": "invite url"
+                    },
+                    "code": {
+                      "type": "string",
+                      "description": "code for signups"
+                    }
+                  }
+                },
+                "example": { "message": "code sent", "length": 6 }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v2/users/invites": {
+      "get": {
+        "summary": "Get Invites",
+        "description": "Get invites.",
+        "tags": ["Invite"],
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "title": "Group Id" }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["celebrity", "plebian", "public"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the invites",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["celebrity", "plebian", "public"]
+                      },
+                      "emailAddress": {
+                        "type": "string",
+                        "description": "The email address for a private invitation."
+                      },
+                      "username": {
+                        "type": "string",
+                        "description": "The username to set for this invited user.  Used with celebrity invites."
+                      },
+                      "groupId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "The groupId that this invite is valid for"
+                      },
+                      "code": {
+                        "type": "string",
+                        "description": "code for the an invite"
+                      },
+                      "maxAcceptance": {
+                        "type": "integer",
+                        "description": "The maximum number of times this invite can be accepted"
+                      },
+                      "expirationDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "The end date that this invite is valid"
+                      }
+                    },
+                    "required": ["type"]
+                  }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      },
+      "post": {
+        "summary": "Create Invite",
+        "description": "Create an invitation to allow people to join the app and/or groups",
+        "tags": ["Invite"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["celebrity", "plebian", "public"]
+                  },
+                  "emailAddress": {
+                    "type": "string",
+                    "description": "The email address for a private invitation."
+                  },
+                  "username": {
+                    "type": "string",
+                    "description": "The username to set for this invited user.  Used with celebrity invites."
+                  },
+                  "groupId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "The groupId that this invite is valid for"
+                  },
+                  "code": {
+                    "type": "string",
+                    "description": "code for the an invite"
+                  },
+                  "maxAcceptance": {
+                    "type": "integer",
+                    "description": "The maximum number of times this invite can be accepted"
+                  },
+                  "expirationDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The end date that this invite is valid"
+                  }
+                },
+                "required": ["type"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created invite",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "inviteId": { "type": "string", "format": "uuid" },
+                    "branchLink": {
+                      "type": "string",
+                      "description": "invite url"
+                    },
+                    "code": {
+                      "type": "string",
+                      "description": "code for signups"
+                    }
+                  }
+                },
+                "example": { "message": "code sent", "length": 6 }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/invites/:inviteId": {
+      "get": {
+        "summary": "Get Invite",
+        "description": "Get an invite.",
+        "tags": ["Invite"],
+        "parameters": [
+          {
+            "name": "inviteId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Invite Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved invite",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "New id of the new invite"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": ["celebrity", "plebian", "public"]
+                    },
+                    "groupId": { "type": "string", "format": "uuid" },
+                    "code": { "type": "string" },
+                    "details": {
+                      "type": "object",
+                      "properties": {
+                        "emailAddress": { "type": "string" },
+                        "username": { "type": "string" },
+                        "viewed": { "type": "boolean" },
+                        "used": { "type": "boolean" }
+                      }
+                    }
+                  }
+                },
+                "example": { "message": "code sent", "length": 6 }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v2/users/invites/:inviteId": {
+      "get": {
+        "summary": "Get Invite",
+        "description": "Get an invite.",
+        "tags": ["Invite"],
+        "parameters": [
+          {
+            "name": "inviteId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Invite Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved invite",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "New id of the new invite"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": ["celebrity", "plebian", "public"]
+                    },
+                    "groupId": { "type": "string", "format": "uuid" },
+                    "code": { "type": "string" },
+                    "details": {
+                      "type": "object",
+                      "properties": {
+                        "emailAddress": { "type": "string" },
+                        "username": { "type": "string" },
+                        "viewed": { "type": "boolean" },
+                        "used": { "type": "boolean" }
+                      }
+                    }
+                  }
+                },
+                "example": { "message": "code sent", "length": 6 }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/invites/accept": {
+      "post": {
+        "summary": "Accept Invite",
+        "description": "Accept a public or private invite",
+        "tags": ["Invite"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "inviteId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "86b844bc-193f-4f28-ba86-16ab8e6ad78b"
+                  },
+                  "code": { "type": "string", "example": "2548631" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully accepted invite",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["celebrity", "plebian", "public"]
+                    },
+                    "emailAddress": {
+                      "type": "string",
+                      "description": "The email address for a private invitation."
+                    },
+                    "username": {
+                      "type": "string",
+                      "description": "The username to set for this invited user.  Used with celebrity invites."
+                    },
+                    "groupId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "The groupId that this invite is valid for"
+                    },
+                    "code": {
+                      "type": "string",
+                      "description": "code for the an invite"
+                    },
+                    "maxAcceptance": {
+                      "type": "integer",
+                      "description": "The maximum number of times this invite can be accepted"
+                    },
+                    "expirationDate": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "The end date that this invite is valid"
+                    }
+                  },
+                  "required": ["type"]
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v2/users/invites/accept": {
+      "post": {
+        "summary": "Accept Invite",
+        "description": "Accept a public or private invite",
+        "tags": ["Invite"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "inviteId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "86b844bc-193f-4f28-ba86-16ab8e6ad78b"
+                  },
+                  "code": { "type": "string", "example": "2548631" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully accepted invite",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["celebrity", "plebian", "public"]
+                    },
+                    "emailAddress": {
+                      "type": "string",
+                      "description": "The email address for a private invitation."
+                    },
+                    "username": {
+                      "type": "string",
+                      "description": "The username to set for this invited user.  Used with celebrity invites."
+                    },
+                    "groupId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "The groupId that this invite is valid for"
+                    },
+                    "code": {
+                      "type": "string",
+                      "description": "code for the an invite"
+                    },
+                    "maxAcceptance": {
+                      "type": "integer",
+                      "description": "The maximum number of times this invite can be accepted"
+                    },
+                    "expirationDate": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "The end date that this invite is valid"
+                    }
+                  },
+                  "required": ["type"]
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/passwordReset": {
+      "post": {
+        "summary": "Request Password Reset",
+        "description": "Forgot password flow.  Request a code to be sent to the email address provide to reset password.",
+        "tags": ["User"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "emailAddress": { "type": "string" } },
+                "required": ["emailAddress"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "An email was sent to the user." },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/passwordReset/:code": {
+      "get": {
+        "summary": "Check Password Reset Code",
+        "description": "Check if the given code is valid.",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "example": "291992" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "The code was validated successfully" },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      },
+      "patch": {
+        "summary": "Reset Password",
+        "description": "Use a reset code to set a new password for the user.",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "example": "234382" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "newPassword": { "type": "string" },
+                  "emailAddress": {
+                    "type": "string",
+                    "description": "Not used and should be removed"
+                  }
+                },
+                "required": ["newPassword"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "The password was reset properly" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/phones/:number/verification": {
+      "post": {
+        "summary": "Send Phone Code",
+        "description": "Send a validation code to a given phone number. Used to validate that the number they are providing is accessible to the user.",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "number",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]+$",
+              "length": 10,
+              "title": "Phone Number",
+              "example": "9139272039"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "intent": {
+                    "type": "string",
+                    "enum": ["authentication", "addNumberToAccount"],
+                    "description": "The reason for requesting a code",
+                    "default": "authentication"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully sent phone code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hasAccount": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "length": {
+                      "type": "integer",
+                      "description": "The length of the code that was sent to the user"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "code sent",
+                  "length": 6,
+                  "hasAccount": false
+                }
+              }
+            }
+          },
+          "204": { "description": "the number already exists on the user" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/phones/:number/verification/:code": {
+      "patch": {
+        "summary": "Verify Phone Code",
+        "description": "Verify that the given phone code is what was sent to the phone number",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "number",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]+$",
+              "length": 10,
+              "description": "The number that requested the code",
+              "title": "Phone Number",
+              "example": "7857765577"
+            }
+          },
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The code that was sent to the phone number",
+              "example": "3827552"
+            }
+          }
+        ],
+        "responses": {
+          "204": { "description": "The code has been successfully validated" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/waitlist": {
+      "put": {
+        "summary": "Create Waitlist Entry",
+        "description": "Add a new entry to the waitlist",
+        "tags": ["Waitlist"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "emailAddress": { "type": "string" } },
+                "required": ["emailAddress"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/sessions": {
+      "post": {
+        "summary": "Create Session",
+        "description": "Create a session (aka Log In).",
+        "tags": ["User"],
+        "requestBody": {
+          "required": true,
+          "description": "Required information to properly log in a user using a given authentication schema.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "authentication": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "email",
+                          "google",
+                          "facebook",
+                          "apple",
+                          "password",
+                          "phone",
+                          "refresh",
+                          "invite",
+                          "yesnetwork"
+                        ]
+                      },
+                      "credentials": {
+                        "type": "object",
+                        "properties": {},
+                        "description": "The credentials used to log in and create the session"
+                      }
+                    },
+                    "required": ["type"]
+                  },
+                  "locationServicesDenied": { "type": "boolean" },
+                  "coordinates": {
+                    "type": "object",
+                    "properties": {
+                      "longitude": { "type": "number", "format": "float" },
+                      "latitude": { "type": "number", "format": "float" }
+                    }
+                  },
+                  "clientSessionId": { "type": "string" },
+                  "clientInfo": { "type": "object", "properties": {} },
+                  "eventInfo": { "type": "object", "properties": {} }
+                },
+                "required": ["authentication"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created session for user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userId": { "type": "string", "format": "uuid" },
+                    "accessToken": { "type": "string" },
+                    "refreshToken": { "type": "string" },
+                    "location": {
+                      "type": "object",
+                      "properties": {
+                        "latitude": { "type": "number", "format": "float" },
+                        "longitude": { "type": "number", "format": "float" },
+                        "zipCode": { "type": "string" }
+                      }
+                    }
+                  },
+                  "required": ["userId", "accessToken", "refreshToken"]
+                },
+                "example": {
+                  "userId": "4e6ff40a-e4d8-4806-b940-9e23c5d2b3bc",
+                  "accessToken": "eyJhcGdiOiJSUzI1NiIsInR5cCI6IkpXVCJ5.eyJ2ZXIiOjEsInR5cCI6ImF1dGgiLCJ1aWQiOiI0ZTZmZjQwYS1lNGQ4LTQ4MDYtYjk0MC05ZTIzYzVkMmIzYmMiLCJzaWQiOiI4NGY5M2I3Zi00ODFlLTRjNTUtYWZjNS0wZmMyZTczOWZjYzkiLCJ0aWQiOiJlaWdodGFtIiwicm9sZXMiOlsxLDIsMyw0LDUsNiw3LDgsOSwxMF0sImV4cCI6MTYyNDI4Mjg3NiwibGF0Ijo0MC43NTQxMzksImxvbiI6LTc0LCJpYXQiOjE1ODgyODI4NzZ9.ggTP1vMoj9r6PX8059LyJYQuGD-_4V1qzDOdSFJ2Vu4Au2Srx6SZxSLHFlpDtFcokhINaHxGfvtQ4sjrr4XxB_A50G0AcQdbB1xR731eiMubeurkyjbtyOEMpJsEb9iGbpRSdrZpGkFPxS6wajtcgXGObnqcz-XEBozRPoVZFydFSg4TviegDcWKo7vDZQs7yw1C7Dx6pxZVB9afhElqtKKASyOjHbYyUTLCamZoX35K79XHzo-AdTv_sO3oseilsSD3F3rbrYmpKi4Yledv9Q2fjCuvmLddt4NXh8lQ-h4TiZEXP6hk32HBP21aUeZmP3EBbp2QO_JFM5HuSsOmabKtfxa3jzd5EfHkXuJ9VdFfNKBotIVu-T5slUivKG7NJeJolLLwaAUQKEdJmdBfpWfvm1Hnlby0pwX5TFvBuojQEWnJ6mr3XEq-0Hl3LPoJ_hE0koNFgj8vqTr2fPZUpBPOIghn1V6CbZReoE1kZPn9fGf5hEfg_t9rmeoZZ8-pGygDzsAQ5aQkqT9x3zxFUIbNcNNSWpqbca4fNpqUDzFfYkmYNy96U8mnVoULyLAv_Kl2b_e-8K_PvFc2rBJ2zEZ_frDZslMXXQimIEcoZnAjBCyVAJp_7poeyCY5yxdr7Wgyat9ZctBQXhDXZRV9VdPGx_DzrV5ayXLQ31aG9t4",
+                  "refreshToken": "180e853f7453e54632a05381b692ee03d49e1f766e396aa86930b0c4e5caf7e1c0830c11f7ef0c735fb039cdf3bbc7af0ae4c89cd2a81b5924b7db86b8a51f71",
+                  "location": {
+                    "latitude": 40.754139,
+                    "longitude": -74,
+                    "zipCode": "10001"
+                  }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/usernames/randomUsername": {
+      "post": {
+        "summary": "Random Username",
+        "description": "Generate a unique username.  This can be used to suggest a username during the registration process.",
+        "tags": ["User"],
+        "requestBody": {
+          "required": true,
+          "description": "Optional option configuration to use for generating a random username.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "format": {
+                        "type": "string",
+                        "enum": ["kebab", "camel", "sentence", "lower", "title"]
+                      },
+                      "categories": {
+                        "type": "object",
+                        "properties": {
+                          "noun": {
+                            "type": "array",
+                            "items": {
+                              "oneOf": [
+                                { "oneOf": [], "enum": ["animals"] },
+                                { "oneOf": [], "enum": ["business"] },
+                                { "oneOf": [], "enum": ["education"] },
+                                { "oneOf": [], "enum": ["family"] },
+                                { "oneOf": [], "enum": ["food"] },
+                                { "oneOf": [], "enum": ["health"] },
+                                { "oneOf": [], "enum": ["media"] },
+                                { "oneOf": [], "enum": ["people"] },
+                                { "oneOf": [], "enum": ["place"] },
+                                { "oneOf": [], "enum": ["profession"] },
+                                { "oneOf": [], "enum": ["religion"] },
+                                { "oneOf": [], "enum": ["science"] },
+                                { "oneOf": [], "enum": ["sports"] },
+                                { "oneOf": [], "enum": ["technology"] },
+                                { "oneOf": [], "enum": ["thing"] },
+                                { "oneOf": [], "enum": ["time"] },
+                                { "oneOf": [], "enum": ["transportation"] }
+                              ]
+                            }
+                          },
+                          "adjective": {
+                            "type": "array",
+                            "items": {
+                              "oneOf": [
+                                { "oneOf": [], "enum": ["appearance"] },
+                                { "oneOf": [], "enum": ["color"] },
+                                { "oneOf": [], "enum": ["condition"] },
+                                { "oneOf": [], "enum": ["personality"] },
+                                { "oneOf": [], "enum": ["quantity"] },
+                                { "oneOf": [], "enum": ["shapes"] },
+                                { "oneOf": [], "enum": ["size"] },
+                                { "oneOf": [], "enum": ["sounds"] },
+                                { "oneOf": [], "enum": ["taste"] },
+                                { "oneOf": [], "enum": ["time"] },
+                                { "oneOf": [], "enum": ["touch"] }
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "partsOfSpeech": {
+                        "type": "array",
+                        "items": {
+                          "oneOf": [
+                            { "oneOf": [], "enum": ["adjective"] },
+                            { "oneOf": [], "enum": ["noun"] }
+                          ]
+                        }
+                      },
+                      "appendNumber": {
+                        "type": "object",
+                        "properties": {
+                          "minValue": {
+                            "type": "number",
+                            "format": "float",
+                            "minimum": 0
+                          },
+                          "maxValue": {
+                            "type": "number",
+                            "format": "float",
+                            "minimum": 0
+                          },
+                          "zeroPad": { "type": "boolean" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A randomly generated username that is not currently in use.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "username": { "type": "string" } }
+                },
+                "example": { "username": "excitedTitan1369" }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/usernames/:username": {
+      "get": {
+        "summary": "Check Username",
+        "description": "Check to see if the given username exists and is valid.  Typically used by the client to check the username before registration.",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The username the user wants to check.",
+              "example": "TerrySmalls492"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved validation results for username.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "exists": { "type": "boolean" },
+                    "valid": { "type": "boolean" }
+                  }
+                },
+                "example": { "exists": false, "valid": true }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "summary": "Get Users V1",
+        "description": "Get multiple users in a given array of userIds as well as by username and email address",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "userIds",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": { "type": "string", "format": "uuid" }
+            }
+          },
+          {
+            "name": "emailAddress",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          { "name": "username", "in": "query", "schema": { "type": "string" } },
+          {
+            "name": "searchField",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "number", "format": "float" }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "schema": { "type": "number", "format": "float" }
+          },
+          {
+            "name": "includeDeleted",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "enum": [true],
+              "description": "Include any deleted users that are filtered out by default. Not allowed when searching by emailAddress or username."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved users data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": { "type": "string", "format": "uuid" },
+                      "profile": {
+                        "type": "object",
+                        "properties": {
+                          "username": { "type": "string" },
+                          "displayName": { "type": "string" },
+                          "email": {
+                            "type": "object",
+                            "properties": {
+                              "address": {
+                                "type": "string",
+                                "format": "email"
+                              },
+                              "verified": { "type": "boolean" }
+                            }
+                          },
+                          "age": {
+                            "type": "number",
+                            "format": "float",
+                            "minimum": 1
+                          },
+                          "consent": {
+                            "type": "object",
+                            "properties": {
+                              "marketingEmail": { "type": "boolean" },
+                              "marketingPhone": { "type": "boolean" },
+                              "marketingPush": { "type": "boolean" }
+                            }
+                          },
+                          "communication": {
+                            "type": "object",
+                            "properties": {
+                              "fcmTokens": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "array",
+                                  "items": { "type": "string" }
+                                }
+                              },
+                              "idfa": {
+                                "type": "object",
+                                "additionalProperties": { "type": "string" }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "authenticationProviders": {
+                        "type": "object",
+                        "properties": {
+                          "refreshToken": {
+                            "type": "object",
+                            "properties": { "token": { "type": "string" } }
+                          },
+                          "password": {
+                            "type": "object",
+                            "properties": { "password": { "type": "string" } }
+                          },
+                          "google": {
+                            "type": "object",
+                            "properties": { "profileId": { "type": "string" } }
+                          },
+                          "facebook": {
+                            "type": "object",
+                            "properties": { "profileId": { "type": "string" } }
+                          },
+                          "apple": {
+                            "type": "object",
+                            "properties": { "profileId": { "type": "string" } }
+                          },
+                          "phone": {
+                            "type": "object",
+                            "properties": { "number": { "type": "string" } }
+                          },
+                          "yesnetwork": {
+                            "type": "object",
+                            "properties": { "profileId": { "type": "string" } }
+                          }
+                        },
+                        "description": "The available ways the user can authenticate. "
+                      },
+                      "roles": {
+                        "type": "array",
+                        "items": { "type": "number", "format": "float" },
+                        "description": "The ids of the roles the user has been assigned.  These are defined per tenant"
+                      },
+                      "events": {
+                        "type": "object",
+                        "properties": {},
+                        "description": "The events that happen to a user.  Examples include \"signUp\", \"lastLogin\", \"identityVerification\".",
+                        "example": {
+                          "signUp": {
+                            "timestamp": "2020-01-08T18:27:51.177Z",
+                            "location": { "zipCode": "55022" }
+                          }
+                        }
+                      },
+                      "wallets": {
+                        "type": "object",
+                        "properties": {},
+                        "description": "Wallets and balances for the user."
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  [
+                    {
+                      "_id": "4e6ff40a-e4d8-4806-b940-9e23c5d2b3bc",
+                      "profile": {
+                        "username": "scottatboom",
+                        "displayName": "scottdisplay",
+                        "email": {
+                          "address": "ssmith@playboomsports.com",
+                          "verified": false
+                        },
+                        "age": 149,
+                        "consent": { "marketingEmail": true },
+                        "image": {
+                          "source": "eightam_user_content",
+                          "path": "/profile/4e6ff40a-e4d8-4806-b940-9e23c5d2b3bc_1589923586021.jpg",
+                          "status": "visible"
+                        }
+                      },
+                      "wallets": { "credits": { "currentBalance": 0 } },
+                      "details": { "scott": "is cool" }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Something wrong with the request. Likely no userIds, email address or username provided"
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v2/users": {
+      "get": {
+        "summary": "Get Users V2",
+        "description": "Get multiple users in a given array of userIds as well as by username and email address",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "userIds",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": { "type": "string", "format": "uuid" }
+            }
+          },
+          {
+            "name": "emailAddress",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          { "name": "username", "in": "query", "schema": { "type": "string" } },
+          {
+            "name": "searchField",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "minimum": 1 }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "schema": { "type": "integer", "minimum": 1 }
+          },
+          {
+            "name": "includeDeleted",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "enum": [true],
+              "description": "Include any deleted users that are filtered out by default. Not allowed when searching by emailAddress or username."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved users data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": { "type": "string", "format": "uuid" },
+                      "profile": {
+                        "type": "object",
+                        "properties": {
+                          "username": { "type": "string" },
+                          "displayName": { "type": "string" },
+                          "email": {
+                            "type": "object",
+                            "properties": {
+                              "address": {
+                                "type": "string",
+                                "format": "email"
+                              },
+                              "verified": { "type": "boolean" }
+                            }
+                          },
+                          "age": {
+                            "type": "number",
+                            "format": "float",
+                            "minimum": 1
+                          },
+                          "consent": {
+                            "type": "object",
+                            "properties": {
+                              "marketingEmail": { "type": "boolean" },
+                              "marketingPhone": { "type": "boolean" },
+                              "marketingPush": { "type": "boolean" }
+                            }
+                          },
+                          "communication": {
+                            "type": "object",
+                            "properties": {
+                              "fcmTokens": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "array",
+                                  "items": { "type": "string" }
+                                }
+                              },
+                              "idfa": {
+                                "type": "object",
+                                "additionalProperties": { "type": "string" }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "authenticationProviders": {
+                        "type": "object",
+                        "properties": {
+                          "refreshToken": {
+                            "type": "object",
+                            "properties": { "token": { "type": "string" } }
+                          },
+                          "password": {
+                            "type": "object",
+                            "properties": { "password": { "type": "string" } }
+                          },
+                          "google": {
+                            "type": "object",
+                            "properties": { "profileId": { "type": "string" } }
+                          },
+                          "facebook": {
+                            "type": "object",
+                            "properties": { "profileId": { "type": "string" } }
+                          },
+                          "apple": {
+                            "type": "object",
+                            "properties": { "profileId": { "type": "string" } }
+                          },
+                          "phone": {
+                            "type": "object",
+                            "properties": { "number": { "type": "string" } }
+                          },
+                          "yesnetwork": {
+                            "type": "object",
+                            "properties": { "profileId": { "type": "string" } }
+                          }
+                        },
+                        "description": "The available ways the user can authenticate. "
+                      },
+                      "roles": {
+                        "type": "array",
+                        "items": { "type": "number", "format": "float" },
+                        "description": "The ids of the roles the user has been assigned.  These are defined per tenant"
+                      },
+                      "events": {
+                        "type": "object",
+                        "properties": {},
+                        "description": "The events that happen to a user.  Examples include \"signUp\", \"lastLogin\", \"identityVerification\".",
+                        "example": {
+                          "signUp": {
+                            "timestamp": "2020-01-08T18:27:51.177Z",
+                            "location": { "zipCode": "55022" }
+                          }
+                        }
+                      },
+                      "wallets": {
+                        "type": "object",
+                        "properties": {},
+                        "description": "Wallets and balances for the user."
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "users": [
+                      {
+                        "_id": "4e6ff40a-e4d8-4806-b940-9e23c5d2b3bc",
+                        "profile": {
+                          "username": "scottatboom",
+                          "displayName": "scottdisplay",
+                          "email": {
+                            "address": "ssmith@playboomsports.com",
+                            "verified": false
+                          },
+                          "age": 149,
+                          "consent": { "marketingEmail": true },
+                          "image": {
+                            "source": "eightam_user_content",
+                            "path": "/profile/4e6ff40a-e4d8-4806-b940-9e23c5d2b3bc_1589923586021.jpg",
+                            "status": "visible"
+                          }
+                        },
+                        "wallets": { "credits": { "currentBalance": 0 } },
+                        "details": { "scott": "is cool" }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Something wrong with the request. Likely no userIds, email address or username provided"
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      },
+      "post": {
+        "summary": "Create User",
+        "description": "Create a new user",
+        "tags": ["User"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": { "type": "string" },
+                  "emailAddress": {
+                    "type": "string",
+                    "example": "toms82@myspace.com"
+                  },
+                  "location": {
+                    "type": "object",
+                    "properties": {
+                      "ipAddress": { "type": "string" },
+                      "longitude": { "type": "number", "format": "float" },
+                      "latitude": { "type": "number", "format": "float" },
+                      "zipCode": { "type": "string" }
+                    }
+                  },
+                  "age": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 150,
+                    "example": 52
+                  },
+                  "consent": {
+                    "type": "object",
+                    "properties": {
+                      "marketingEmail": { "type": "boolean" },
+                      "marketingPhone": { "type": "boolean" },
+                      "marketingPush": { "type": "boolean" }
+                    },
+                    "description": "The users choices on giving consent for marketing"
+                  },
+                  "authentication": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "google",
+                          "facebook",
+                          "apple",
+                          "password",
+                          "phone",
+                          "refresh",
+                          "invite",
+                          "yesnetwork"
+                        ]
+                      },
+                      "credentials": {
+                        "type": "object",
+                        "properties": {
+                          "email": { "type": "string" },
+                          "password": { "type": "string" },
+                          "providerToken": { "type": "string" },
+                          "phone": { "type": "string" },
+                          "code": { "type": "string" },
+                          "inviteId": { "type": "string" }
+                        },
+                        "description": "The authentication method this user will use to login.  Only one allowed and is dependent upon the type"
+                      }
+                    },
+                    "required": ["type"],
+                    "example": {
+                      "type": "email",
+                      "credentials": { "password": "notagoodpassword" }
+                    }
+                  },
+                  "fcmToken": {
+                    "type": "string",
+                    "description": "The Firebase Cloud Messaging (fcm) token for the device the user is on."
+                  },
+                  "acceptedTerms": {
+                    "type": "boolean",
+                    "enum": [true],
+                    "description": "Has the user accepted the terms and conditions of using the app."
+                  },
+                  "eventInfo": {
+                    "type": "object",
+                    "properties": {},
+                    "description": "Data sent about this event for analytics purposes"
+                  },
+                  "details": {
+                    "type": "object",
+                    "properties": {},
+                    "description": "Extra information per app that is stored and does impact user creation"
+                  }
+                },
+                "required": ["acceptedTerms"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The user was successfully created",
+            "content": {
+              "application/json": {
+                "schema": { "type": "string" },
+                "example": { "message": "Successfully created user" }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v2/users/bulk_search": {
+      "post": {
+        "summary": "Get Users in Bulk",
+        "description": "Get bulk multiple users in a given array of userIds as well as by username and email address",
+        "tags": ["User"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userIds": {
+                    "type": "array",
+                    "items": { "type": "string", "format": "uuid" }
+                  },
+                  "includeDeleted": {
+                    "type": "boolean",
+                    "enum": [true],
+                    "description": "Include any deleted users that are filtered out by default."
+                  }
+                },
+                "required": ["userIds"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved users data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": { "type": "string", "format": "uuid" },
+                      "profile": {
+                        "type": "object",
+                        "properties": {
+                          "username": { "type": "string" },
+                          "displayName": { "type": "string" },
+                          "email": {
+                            "type": "object",
+                            "properties": {
+                              "address": {
+                                "type": "string",
+                                "format": "email"
+                              },
+                              "verified": { "type": "boolean" }
+                            }
+                          },
+                          "age": {
+                            "type": "number",
+                            "format": "float",
+                            "minimum": 1
+                          },
+                          "consent": {
+                            "type": "object",
+                            "properties": {
+                              "marketingEmail": { "type": "boolean" },
+                              "marketingPhone": { "type": "boolean" },
+                              "marketingPush": { "type": "boolean" }
+                            }
+                          },
+                          "communication": {
+                            "type": "object",
+                            "properties": {
+                              "fcmTokens": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "array",
+                                  "items": { "type": "string" }
+                                }
+                              },
+                              "idfa": {
+                                "type": "object",
+                                "additionalProperties": { "type": "string" }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "authenticationProviders": {
+                        "type": "object",
+                        "properties": {
+                          "refreshToken": {
+                            "type": "object",
+                            "properties": { "token": { "type": "string" } }
+                          },
+                          "password": {
+                            "type": "object",
+                            "properties": { "password": { "type": "string" } }
+                          },
+                          "google": {
+                            "type": "object",
+                            "properties": { "profileId": { "type": "string" } }
+                          },
+                          "facebook": {
+                            "type": "object",
+                            "properties": { "profileId": { "type": "string" } }
+                          },
+                          "apple": {
+                            "type": "object",
+                            "properties": { "profileId": { "type": "string" } }
+                          },
+                          "phone": {
+                            "type": "object",
+                            "properties": { "number": { "type": "string" } }
+                          },
+                          "yesnetwork": {
+                            "type": "object",
+                            "properties": { "profileId": { "type": "string" } }
+                          }
+                        },
+                        "description": "The available ways the user can authenticate. "
+                      },
+                      "roles": {
+                        "type": "array",
+                        "items": { "type": "number", "format": "float" },
+                        "description": "The ids of the roles the user has been assigned.  These are defined per tenant"
+                      },
+                      "events": {
+                        "type": "object",
+                        "properties": {},
+                        "description": "The events that happen to a user.  Examples include \"signUp\", \"lastLogin\", \"identityVerification\".",
+                        "example": {
+                          "signUp": {
+                            "timestamp": "2020-01-08T18:27:51.177Z",
+                            "location": { "zipCode": "55022" }
+                          }
+                        }
+                      },
+                      "wallets": {
+                        "type": "object",
+                        "properties": {},
+                        "description": "Wallets and balances for the user."
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "users": [
+                      {
+                        "_id": "4e6ff40a-e4d8-4806-b940-9e23c5d2b3bc",
+                        "profile": {
+                          "username": "scottatboom",
+                          "displayName": "scottdisplay",
+                          "email": {
+                            "address": "ssmith@playboomsports.com",
+                            "verified": false
+                          },
+                          "age": 149,
+                          "consent": { "marketingEmail": true },
+                          "image": {
+                            "source": "eightam_user_content",
+                            "path": "/profile/4e6ff40a-e4d8-4806-b940-9e23c5d2b3bc_1589923586021.jpg",
+                            "status": "visible"
+                          }
+                        },
+                        "wallets": { "credits": { "currentBalance": 0 } },
+                        "details": { "scott": "is cool" }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Something wrong with the request. Likely no userIds, email address or username provided"
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/roles": {
+      "get": {
+        "summary": "Get available roles for user",
+        "description": "Get roles that pertain to the tenant the user belongs to",
+        "tags": ["User"],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved user roles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "roles": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "number", "format": "float" },
+                          "default": { "type": "boolean" },
+                          "permissions": {
+                            "type": "array",
+                            "items": { "type": "string" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/:userId": {
+      "get": {
+        "summary": "Get User",
+        "description": "Get a specific user by userId",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "2eb5081c-55f4-4bf8-9c42-a5c3cf07b23b"
+            }
+          },
+          {
+            "name": "includeDeleted",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "enum": [true],
+              "description": "Include deleted user that is filtered out by default."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved users data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": { "type": "string", "format": "uuid" },
+                    "profile": {
+                      "type": "object",
+                      "properties": {
+                        "username": { "type": "string" },
+                        "displayName": { "type": "string" },
+                        "email": {
+                          "type": "object",
+                          "properties": {
+                            "address": { "type": "string", "format": "email" },
+                            "verified": { "type": "boolean" }
+                          }
+                        },
+                        "age": {
+                          "type": "number",
+                          "format": "float",
+                          "minimum": 1
+                        },
+                        "consent": {
+                          "type": "object",
+                          "properties": {
+                            "marketingEmail": { "type": "boolean" },
+                            "marketingPhone": { "type": "boolean" },
+                            "marketingPush": { "type": "boolean" }
+                          }
+                        },
+                        "communication": {
+                          "type": "object",
+                          "properties": {
+                            "fcmTokens": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "array",
+                                "items": { "type": "string" }
+                              }
+                            },
+                            "idfa": {
+                              "type": "object",
+                              "additionalProperties": { "type": "string" }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "authenticationProviders": {
+                      "type": "object",
+                      "properties": {
+                        "refreshToken": {
+                          "type": "object",
+                          "properties": { "token": { "type": "string" } }
+                        },
+                        "password": {
+                          "type": "object",
+                          "properties": { "password": { "type": "string" } }
+                        },
+                        "google": {
+                          "type": "object",
+                          "properties": { "profileId": { "type": "string" } }
+                        },
+                        "facebook": {
+                          "type": "object",
+                          "properties": { "profileId": { "type": "string" } }
+                        },
+                        "apple": {
+                          "type": "object",
+                          "properties": { "profileId": { "type": "string" } }
+                        },
+                        "phone": {
+                          "type": "object",
+                          "properties": { "number": { "type": "string" } }
+                        },
+                        "yesnetwork": {
+                          "type": "object",
+                          "properties": { "profileId": { "type": "string" } }
+                        }
+                      },
+                      "description": "The available ways the user can authenticate. "
+                    },
+                    "roles": {
+                      "type": "array",
+                      "items": { "type": "number", "format": "float" },
+                      "description": "The ids of the roles the user has been assigned.  These are defined per tenant"
+                    },
+                    "events": {
+                      "type": "object",
+                      "properties": {},
+                      "description": "The events that happen to a user.  Examples include \"signUp\", \"lastLogin\", \"identityVerification\".",
+                      "example": {
+                        "signUp": {
+                          "timestamp": "2020-01-08T18:27:51.177Z",
+                          "location": { "zipCode": "55022" }
+                        }
+                      }
+                    },
+                    "wallets": {
+                      "type": "object",
+                      "properties": {},
+                      "description": "Wallets and balances for the user."
+                    }
+                  }
+                },
+                "example": {
+                  "_id": "4e6ff40a-e4d8-4806-b940-9e23c5d2b3bc",
+                  "profile": {
+                    "username": "scottatboom",
+                    "displayName": "scottdisplay",
+                    "email": {
+                      "address": "ssmith@playboomsports.com",
+                      "verified": false
+                    },
+                    "age": 149,
+                    "consent": { "marketingEmail": true }
+                  },
+                  "authenticationProviders": {
+                    "refreshToken": {
+                      "token": "180e853d7453e59685a05381b242ee03d49e1f766e396aa86930b0c4e5caf7e1c0830c11f7ef0c735fb039cdf3bbc7af0ae4d24cd2a81b5924b7db86b8a51f71"
+                    },
+                    "password": {
+                      "password": "$2b$10$hgVKjN.w4Lh3qFD2BmANH.nfZZP0H1GP5EW5lcfbpqekyVJn0DS7e"
+                    }
+                  },
+                  "roles": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                  "events": {
+                    "signUp": {
+                      "timestamp": "2020-03-06T21:56:27.428Z",
+                      "location": { "zipCode": "66565" }
+                    },
+                    "lastLogin": {
+                      "location": {
+                        "latitude": 40.754139,
+                        "longitude": -74,
+                        "zipCode": "10001"
+                      },
+                      "sessionId": "aaf2e4ab-ebd3-4273-85c0-3fd0816c2b20",
+                      "timestamp": "2020-05-04T16:39:55.370Z"
+                    }
+                  },
+                  "wallets": { "credits": { "currentBalance": 0 } }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      },
+      "patch": {
+        "summary": "Update User",
+        "description": "Update a user with new values",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "A subset of user fields that can be updated",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": { "type": "string" },
+                  "email": { "type": "string", "format": "email" },
+                  "imageId": { "type": "string" },
+                  "adId": { "type": "string" },
+                  "roles": {
+                    "type": "array",
+                    "items": { "type": "number", "format": "float" }
+                  },
+                  "removeProfilePic": { "type": "boolean", "enum": [true] },
+                  "consent": {
+                    "type": "object",
+                    "properties": {
+                      "marketingEmail": { "type": "boolean" },
+                      "marketingPhone": { "type": "boolean" },
+                      "marketingPush": { "type": "boolean" }
+                    },
+                    "description": "The users choices on giving consent for marketing"
+                  },
+                  "fcmToken": {
+                    "type": "string",
+                    "description": "The Firebase Cloud Messaging (fcm) token for the device the user is on."
+                  },
+                  "eventInfo": {
+                    "type": "object",
+                    "properties": {},
+                    "description": "Data sent about this event for analytics purposes"
+                  },
+                  "details": {
+                    "type": "object",
+                    "properties": {},
+                    "description": "Extra information per app that is stored and does impact user creation"
+                  },
+                  "w9Status": {
+                    "type": "string",
+                    "enum": ["yes", "no", "requested"],
+                    "description": "W9 Tax Status of yes, no, or requested"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "Successfully updated user" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/:userId/location": {
+      "patch": {
+        "summary": "Update User Location",
+        "description": "Updates the location of a user with new values",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "The files that can be used to update the users location",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": { "type": "number", "format": "float" },
+                  "longitude": { "type": "number", "format": "float" },
+                  "ipAddress": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "Successfully updated user location" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/:userId/status": {
+      "patch": {
+        "summary": "Update User Status",
+        "description": "Update the status of a user. Deleted accounts clear user data and cannot be recovered.",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "newStatus": {
+                    "type": "string",
+                    "enum": [
+                      "banned",
+                      "unbanned",
+                      "closed",
+                      "reopened",
+                      "deleted"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string",
+                    "description": "The reason for the status update. Defaults to 'user requested'.",
+                    "default": "user requested"
+                  },
+                  "eventInfo": {
+                    "type": "object",
+                    "properties": {},
+                    "description": "Data sent about this event for analytics purposes."
+                  }
+                },
+                "required": ["newStatus"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "Successfully updated the user status" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/self-exclude": {
+      "post": {
+        "summary": "Self Exclude User",
+        "description": "Self exclude a user by updating their status to self-excluded for a set period of time.",
+        "tags": ["User"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "The length in years of the limit."
+                  }
+                },
+                "required": ["limit"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "Successfully self excluded the user" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/initial-location": {
+      "post": {
+        "summary": "Set Initial Location",
+        "description": "Save the location of the user when location is first enabled",
+        "tags": ["User"],
+        "responses": {
+          "204": { "description": "Successfully set initial location" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/:userId/manual_verify": {
+      "patch": {
+        "summary": "Manually verify User",
+        "description": "Manually verify a user",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Whether the user should be verified or not",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "verified": { "type": "boolean" },
+                  "eventInfo": {
+                    "type": "object",
+                    "properties": {},
+                    "description": "Data sent about this event for analytics purposes"
+                  }
+                },
+                "required": ["verified"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "Successfully verified user" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/:userId/wallets": {
+      "post": {
+        "summary": "Create Wallet",
+        "description": "Create a wallet for a user",
+        "tags": ["Wallet"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "walletType": {
+                    "type": "string",
+                    "enum": ["credits"],
+                    "description": "The type of wallet to create for the user"
+                  },
+                  "beginningValue": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "The initial balance of the wallet",
+                    "example": 500
+                  }
+                },
+                "required": ["walletType"]
+              },
+              "example": { "walletType": "credits", "beginningValue": 500 }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "Wallet was successfully created" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      },
+      "get": {
+        "summary": "Get Wallets",
+        "description": "Get a users wallets",
+        "tags": ["Wallet"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["credits"],
+              "description": "A wallet type to filter on"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Wallets were found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "filtered": {
+                      "type": "object",
+                      "properties": { "currentBalance": { "type": "integer" } }
+                    },
+                    "unfiltered": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "currentBalance": { "type": "integer" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "filtered": {
+                    "summary": "Filtered",
+                    "value": { "currentBalance": 300 }
+                  },
+                  "unfiltered": {
+                    "summary": "Unfiltered",
+                    "value": { "credits": { "currentBalance": 2000 } }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/:userId/wallets/:type": {
+      "patch": {
+        "summary": "Update Wallet",
+        "description": "Update a specific wallet value for a user",
+        "tags": ["Wallet"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["credits"],
+              "description": "The type of wallet to update."
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "delta": {
+                    "type": "integer",
+                    "description": "The amount to raise or lower the wallet value."
+                  }
+                },
+                "required": ["delta"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Wallet was successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "currentBalance": { "type": "integer" } }
+                },
+                "example": { "currentBalance": 300 }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/bulk_update/bestScores": {
+      "post": {
+        "summary": "Bulk Update Best Scores",
+        "description": "Bulk Update contest best scores",
+        "tags": ["Contest"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": { "type": "string", "enum": ["updateBestScores"] },
+                  "league": { "type": "string" },
+                  "contestId": { "type": "string", "format": "uuid" },
+                  "contestMaxPossiblePoints": {
+                    "type": "number",
+                    "format": "float",
+                    "description": "The maximum possible points in the contest"
+                  },
+                  "scheduled": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Time the contest was scheduled to go live"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Description of the contest"
+                  },
+                  "reason": { "type": "object", "properties": {} },
+                  "improvedUsers": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "userId": { "type": "string", "format": "uuid" },
+                        "newScore": { "type": "number", "format": "float" }
+                      },
+                      "required": ["userId", "newScore"]
+                    },
+                    "description": "An array of users who updated their scores in this contest"
+                  }
+                },
+                "required": [
+                  "action",
+                  "league",
+                  "contestId",
+                  "contestMaxPossiblePoints",
+                  "scheduled",
+                  "description",
+                  "improvedUsers"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully bulk updated best scores",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "recordsReceived": { "type": "integer" },
+                    "recordsModified": { "type": "integer" }
+                  }
+                },
+                "example": { "recordsReceived": 233, "recordsModified": 233 }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/:userId/wallets/:type/withdrawals": {
+      "post": {
+        "summary": "Request Withdrawal",
+        "description": "Request a withdrawal of funds",
+        "tags": ["Wallet"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["credits"],
+              "description": "The type of wallet to update."
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": { "type": "string", "maxLength": 50 },
+                  "lastName": { "type": "string", "maxLength": 50 },
+                  "emailAddress": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 50
+                  },
+                  "address": { "type": "string", "maxLength": 50 },
+                  "region": { "type": "string", "maxLength": 2 },
+                  "zipCode": { "type": "string", "maxLength": 10 },
+                  "city": { "type": "string", "maxLength": 50 }
+                },
+                "required": ["firstName", "lastName", "emailAddress"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "Successfully requested a withdrawal" },
+          "400": {
+            "description": "There was something wrong with the request.  Maybe the user does not have enough funds?"
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/wallets/:type/withdrawals/:status": {
+      "get": {
+        "summary": "Get Withdrawals",
+        "description": "Get all withdrawals matching a given type and status",
+        "tags": ["Wallet"],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "enum": ["credits"] }
+          },
+          {
+            "name": "status",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["pending", "completed", "rejected", "cancelled"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Withdrawals queried",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "withdrawals": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": { "type": "string", "format": "uuid" },
+                          "userId": { "type": "string", "format": "uuid" },
+                          "emailAddress": {
+                            "type": "string",
+                            "format": "email"
+                          },
+                          "firstName": { "type": "string" },
+                          "lastName": { "type": "string" },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "completedAd": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "pending",
+                              "completed",
+                              "rejected",
+                              "cancelled"
+                            ]
+                          },
+                          "notes": { "type": "string" },
+                          "hidden": { "type": "boolean" },
+                          "amount": { "type": "integer", "minimum": 1 },
+                          "eligibleForMassPayment": {
+                            "type": "boolean",
+                            "description": "Flag to determine if this user can be paid out in batch"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "withdrawals": [
+                    {
+                      "USER": {
+                        "_id": "4e6ff40a-e4d8-4806-b940-9e23c5d2b3bc",
+                        "profile": {
+                          "username": "scottatboom",
+                          "displayName": "scottdisplay",
+                          "email": {
+                            "address": "ssmith@playboomsports.com",
+                            "verified": false
+                          },
+                          "age": 149,
+                          "consent": { "marketingEmail": true }
+                        },
+                        "authenticationProviders": {
+                          "refreshToken": {
+                            "token": "180e853d7453e59685a05381b242ee03d49e1f766e396aa86930b0c4e5caf7e1c0830c11f7ef0c735fb039cdf3bbc7af0ae4d24cd2a81b5924b7db86b8a51f71"
+                          },
+                          "password": {
+                            "password": "$2b$10$hgVKjN.w4Lh3qFD2BmANH.nfZZP0H1GP5EW5lcfbpqekyVJn0DS7e"
+                          }
+                        },
+                        "roles": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                        "events": {
+                          "signUp": {
+                            "timestamp": "2020-03-06T21:56:27.428Z",
+                            "location": { "zipCode": "66565" }
+                          },
+                          "lastLogin": {
+                            "location": {
+                              "latitude": 40.754139,
+                              "longitude": -74,
+                              "zipCode": "10001"
+                            },
+                            "sessionId": "aaf2e4ab-ebd3-4273-85c0-3fd0816c2b20",
+                            "timestamp": "2020-05-04T16:39:55.370Z"
+                          }
+                        },
+                        "wallets": { "credits": { "currentBalance": 0 } }
+                      },
+                      "USERS_V1": [
+                        {
+                          "_id": "4e6ff40a-e4d8-4806-b940-9e23c5d2b3bc",
+                          "profile": {
+                            "username": "scottatboom",
+                            "displayName": "scottdisplay",
+                            "email": {
+                              "address": "ssmith@playboomsports.com",
+                              "verified": false
+                            },
+                            "age": 149,
+                            "consent": { "marketingEmail": true },
+                            "image": {
+                              "source": "eightam_user_content",
+                              "path": "/profile/4e6ff40a-e4d8-4806-b940-9e23c5d2b3bc_1589923586021.jpg",
+                              "status": "visible"
+                            }
+                          },
+                          "wallets": { "credits": { "currentBalance": 0 } },
+                          "details": { "scott": "is cool" }
+                        }
+                      ],
+                      "USERS_V2": {
+                        "users": [
+                          {
+                            "_id": "4e6ff40a-e4d8-4806-b940-9e23c5d2b3bc",
+                            "profile": {
+                              "username": "scottatboom",
+                              "displayName": "scottdisplay",
+                              "email": {
+                                "address": "ssmith@playboomsports.com",
+                                "verified": false
+                              },
+                              "age": 149,
+                              "consent": { "marketingEmail": true },
+                              "image": {
+                                "source": "eightam_user_content",
+                                "path": "/profile/4e6ff40a-e4d8-4806-b940-9e23c5d2b3bc_1589923586021.jpg",
+                                "status": "visible"
+                              }
+                            },
+                            "wallets": { "credits": { "currentBalance": 0 } },
+                            "details": { "scott": "is cool" }
+                          }
+                        ]
+                      },
+                      "CREATE_GROUP": {
+                        "createdGroup": {
+                          "_id": "23acbb15-fa75-4fce-9780-3096bb7837cc",
+                          "groupName": "country_club1291",
+                          "accessLevel": "inviteOnly",
+                          "userIds": ["2eb5081c-55f4-4bf8-9c42-a5c3cf07b23b"],
+                          "type": "inviteOnly",
+                          "audit": {
+                            "createdDate": "2020-05-04T21:32:35.341Z",
+                            "updatedDate": null,
+                            "deletedDate": null
+                          }
+                        },
+                        "invite": {
+                          "inviteId": "b5d0535b-8d4b-47f6-b724-e215599ef53b",
+                          "branchLink": "https://9s436.test-app.link/ODUjHAUs38",
+                          "code": "626747"
+                        }
+                      },
+                      "GROUP": {
+                        "_id": "23acbb15-fa75-4fce-9780-3096bb7837cc",
+                        "groupName": "country_club1291",
+                        "accessLevel": "inviteOnly",
+                        "userIds": ["2eb5081c-55f4-4bf8-9c42-a5c3cf07b23b"],
+                        "type": "inviteOnly",
+                        "audit": {
+                          "createdDate": "2020-05-04T21:32:35.341Z",
+                          "updatedDate": null,
+                          "deletedDate": null
+                        }
+                      },
+                      "WALLET": { "currentBalance": 300 },
+                      "WALLETS": { "credits": { "currentBalance": 2000 } },
+                      "BULK_UPDATE_WALLET": {
+                        "expectedUserUpdates": 150,
+                        "modifiedRecords": 150
+                      },
+                      "BULK_UPDATE_WITHDRAWALS": {
+                        "batchId": "2eb5081c-55f4-4bf8-9c42-a5c3cf07b23b",
+                        "expectedUpdateCount": 500,
+                        "userWalletsUpdated": 500,
+                        "withdrawalRequestsUpdated": 500
+                      },
+                      "BULK_UPDATE_BEST_SCORES": {
+                        "recordsReceived": 233,
+                        "recordsModified": 233
+                      },
+                      "WITHDRAWAL": {
+                        "_id": "563a0013-f34f-4ed2-bced-b1deba1fdf1b",
+                        "userId": "35f1b2da-31dc-4092-a509-a4fffe57d0bc",
+                        "emailAddress": "scott@iscool.com",
+                        "firstName": "scott",
+                        "lastName": "smith",
+                        "createdAt": "2020-01-08T18:27:51.177Z",
+                        "completedAt": null,
+                        "status": "pending",
+                        "notes": "",
+                        "hidden": false,
+                        "amount": 100,
+                        "eligibleForMassPayment": true
+                      },
+                      "IDENTITY_VERIFICATION": {
+                        "identityVerification": {
+                          "idologyId": "a5c3cf07b23b",
+                          "verified": true,
+                          "timestamp": "2020-01-08T18:27:51.177Z"
+                        }
+                      },
+                      "CREATE_SESSION_EXAMPLE": {
+                        "userId": "4e6ff40a-e4d8-4806-b940-9e23c5d2b3bc",
+                        "accessToken": "eyJhcGdiOiJSUzI1NiIsInR5cCI6IkpXVCJ5.eyJ2ZXIiOjEsInR5cCI6ImF1dGgiLCJ1aWQiOiI0ZTZmZjQwYS1lNGQ4LTQ4MDYtYjk0MC05ZTIzYzVkMmIzYmMiLCJzaWQiOiI4NGY5M2I3Zi00ODFlLTRjNTUtYWZjNS0wZmMyZTczOWZjYzkiLCJ0aWQiOiJlaWdodGFtIiwicm9sZXMiOlsxLDIsMyw0LDUsNiw3LDgsOSwxMF0sImV4cCI6MTYyNDI4Mjg3NiwibGF0Ijo0MC43NTQxMzksImxvbiI6LTc0LCJpYXQiOjE1ODgyODI4NzZ9.ggTP1vMoj9r6PX8059LyJYQuGD-_4V1qzDOdSFJ2Vu4Au2Srx6SZxSLHFlpDtFcokhINaHxGfvtQ4sjrr4XxB_A50G0AcQdbB1xR731eiMubeurkyjbtyOEMpJsEb9iGbpRSdrZpGkFPxS6wajtcgXGObnqcz-XEBozRPoVZFydFSg4TviegDcWKo7vDZQs7yw1C7Dx6pxZVB9afhElqtKKASyOjHbYyUTLCamZoX35K79XHzo-AdTv_sO3oseilsSD3F3rbrYmpKi4Yledv9Q2fjCuvmLddt4NXh8lQ-h4TiZEXP6hk32HBP21aUeZmP3EBbp2QO_JFM5HuSsOmabKtfxa3jzd5EfHkXuJ9VdFfNKBotIVu-T5slUivKG7NJeJolLLwaAUQKEdJmdBfpWfvm1Hnlby0pwX5TFvBuojQEWnJ6mr3XEq-0Hl3LPoJ_hE0koNFgj8vqTr2fPZUpBPOIghn1V6CbZReoE1kZPn9fGf5hEfg_t9rmeoZZ8-pGygDzsAQ5aQkqT9x3zxFUIbNcNNSWpqbca4fNpqUDzFfYkmYNy96U8mnVoULyLAv_Kl2b_e-8K_PvFc2rBJ2zEZ_frDZslMXXQimIEcoZnAjBCyVAJp_7poeyCY5yxdr7Wgyat9ZctBQXhDXZRV9VdPGx_DzrV5ayXLQ31aG9t4",
+                        "refreshToken": "180e853f7453e54632a05381b692ee03d49e1f766e396aa86930b0c4e5caf7e1c0830c11f7ef0c735fb039cdf3bbc7af0ae4c89cd2a81b5924b7db86b8a51f71",
+                        "location": {
+                          "latitude": 40.754139,
+                          "longitude": -74,
+                          "zipCode": "10001"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/wallets/bulk_update": {
+      "post": {
+        "summary": "Bulk Update Winnings",
+        "description": "Bulk update winnings.  Used by contest service to pay out winners on contest close.",
+        "tags": ["Wallet"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "updates": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "walletType": { "type": "string" },
+                        "userIds": {
+                          "type": "array",
+                          "items": { "type": "string" }
+                        },
+                        "delta": { "type": "number", "format": "float" }
+                      },
+                      "required": ["walletType", "delta"]
+                    }
+                  },
+                  "reason": { "type": "object", "properties": {} }
+                },
+                "required": ["updates"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Wallets were updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "expectedUserUpdates": { "type": "integer" },
+                    "modifiedRecords": { "type": "integer" }
+                  }
+                },
+                "example": {
+                  "expectedUserUpdates": 150,
+                  "modifiedRecords": 150
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/wallets/bulk_update/winnings": {
+      "post": {
+        "summary": "Bulk Update Winnings",
+        "description": "Bulk update winnings.  Used by contest service to pay out winners on contest close.",
+        "tags": ["Wallet"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "updates": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "walletType": { "type": "string" },
+                        "userIds": {
+                          "type": "array",
+                          "items": { "type": "string" }
+                        },
+                        "delta": { "type": "number", "format": "float" }
+                      },
+                      "required": ["walletType", "delta"]
+                    }
+                  },
+                  "reason": { "type": "object", "properties": {} }
+                },
+                "required": ["updates"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Wallets were updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "expectedUserUpdates": { "type": "integer" },
+                    "modifiedRecords": { "type": "integer" }
+                  }
+                },
+                "example": {
+                  "expectedUserUpdates": 150,
+                  "modifiedRecords": 150
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/wallets/bulk_update/withdrawals": {
+      "post": {
+        "summary": "Bulk Update Withdrawals",
+        "description": "Bulk update withdrawals.  Used by admins to update historical records and wallets that these users have been paid.",
+        "tags": ["Wallet"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": { "type": "string", "enum": ["complete"] },
+                  "withdrawalRequestIds": {
+                    "type": "array",
+                    "items": { "type": "string", "format": "uuid" },
+                    "description": "The withdrawal request ids to take action on"
+                  }
+                },
+                "required": ["action", "withdrawalRequestIds"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Withdrawals were successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "batchId": { "type": "string", "format": "uuid" },
+                    "expectedUpdateCount": { "type": "integer" },
+                    "attemptedUpdateCount": { "type": "integer" },
+                    "userWalletsUpdated": { "type": "integer" },
+                    "withdrawalRequestsUpdated": { "type": "integer" }
+                  }
+                },
+                "example": {
+                  "batchId": "2eb5081c-55f4-4bf8-9c42-a5c3cf07b23b",
+                  "expectedUpdateCount": 500,
+                  "userWalletsUpdated": 500,
+                  "withdrawalRequestsUpdated": 500
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/:userId/referral": {
+      "get": {
+        "summary": "Generate Referral",
+        "description": "Generate a referral link for the given user to give out.",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully generated a referral link",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "link": {
+                      "type": "string",
+                      "description": "The link the user can share to invite others to join."
+                    }
+                  }
+                },
+                "example": { "link": "https://some.short.url?referralId=23322" }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/:userId/verification": {
+      "get": {
+        "summary": "Get Identity Verification",
+        "description": "Check to see if the given user has had their identity verified.",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The identity verification was found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "identityVerification": {
+                      "type": "object",
+                      "properties": {
+                        "idologyId": { "type": "string" },
+                        "verified": { "type": "boolean" },
+                        "timestamp": { "type": "string", "format": "date-time" }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "identityVerification": {
+                    "idologyId": "a5c3cf07b23b",
+                    "verified": true,
+                    "timestamp": "2020-01-08T18:27:51.177Z"
+                  }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      },
+      "post": {
+        "summary": "Verify Identity",
+        "description": "Provide information to verify a users identity.",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": { "type": "string" },
+                  "lastName": { "type": "string" },
+                  "address": { "type": "string" },
+                  "zip": { "type": "string" },
+                  "ssnLast4": { "type": "string" },
+                  "dobYear": { "type": "integer", "minimum": 1 },
+                  "dobMonth": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
+                  },
+                  "dobDay": { "type": "integer", "minimum": 1, "maximum": 31 }
+                },
+                "required": [
+                  "firstName",
+                  "lastName",
+                  "address",
+                  "zip",
+                  "ssnLast4",
+                  "dobYear",
+                  "dobMonth",
+                  "dobDay"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "The users identity has been verified" },
+          "400": {
+            "description": "There was something wrong with the data or the user has not been verified"
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      },
+      "patch": {
+        "summary": "Update Verification Information",
+        "description": "Allows an admin to update the verification information of a user",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": { "type": "string" },
+                  "lastName": { "type": "string" },
+                  "address": { "type": "string" },
+                  "zip": { "type": "string" },
+                  "ssnLast4": { "type": "string" },
+                  "dobYear": { "type": "integer", "minimum": 1 },
+                  "dobMonth": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
+                  },
+                  "dobDay": { "type": "integer", "minimum": 1, "maximum": 31 }
+                },
+                "required": [
+                  "firstName",
+                  "lastName",
+                  "address",
+                  "zip",
+                  "ssnLast4",
+                  "dobYear",
+                  "dobMonth",
+                  "dobDay"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "The users verification information has been updated"
+          },
+          "400": { "description": "There was something wrong with the data" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/:userId/images/profile": {
+      "post": {
+        "summary": "Upload Profile Picture",
+        "description": "Upload a user profile picture.  Body must be form-data and an image needs to be uploaded with the key : photo",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The profile picture was uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "publicUrl": { "type": "string" } }
+                },
+                "example": { "publicUrl": "/some/path/profile.jpg" }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/groups/:groupId": {
+      "get": {
+        "summary": "Get Group",
+        "description": "Get a specific group by groupId",
+        "tags": ["Group"],
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The group was found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": { "type": "string", "format": "uuid" },
+                    "groupName": { "type": "string" },
+                    "accessLevel": {
+                      "type": "string",
+                      "enum": ["public", "inviteOnly", "restricted"]
+                    },
+                    "userIds": {
+                      "type": "array",
+                      "items": { "type": "string", "format": "uuid" },
+                      "description": "Array of userIds to be in the non-public group."
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": ["public", "inviteOnly", "restricted"]
+                    },
+                    "audit": {
+                      "type": "object",
+                      "properties": {},
+                      "description": "Audit fields used by the server"
+                    }
+                  },
+                  "required": ["groupName", "accessLevel", "userIds"]
+                },
+                "example": {
+                  "_id": "23acbb15-fa75-4fce-9780-3096bb7837cc",
+                  "groupName": "country_club1291",
+                  "accessLevel": "inviteOnly",
+                  "userIds": ["2eb5081c-55f4-4bf8-9c42-a5c3cf07b23b"],
+                  "type": "inviteOnly",
+                  "audit": {
+                    "createdDate": "2020-05-04T21:32:35.341Z",
+                    "updatedDate": null,
+                    "deletedDate": null
+                  }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      },
+      "patch": {
+        "summary": "Update Group",
+        "description": "Update a group with new values",
+        "tags": ["Group"],
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "2eb5081c-55f4-4bf8-9c42-a5c3cf07b23b"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "groupName": {
+                    "type": "string",
+                    "description": "The new name for the group",
+                    "example": "HillshireClub-CedarRapids"
+                  },
+                  "userIds": { "oneOf": [] },
+                  "manager": { "type": "string", "format": "uuid" },
+                  "registrationSettings": {
+                    "type": "object",
+                    "properties": {
+                      "joinable": {
+                        "type": "boolean",
+                        "description": "group joinable status"
+                      }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "groupId": "2eb5081c-55f4-4bf8-9c42-a5c3cf07b23b",
+                "accessLevel": "restricted",
+                "userIds": [
+                  "2eb5081c-55f4-4bf8-9c42-a5c3cf07b23b",
+                  "23acbb15-fa75-4fce-9780-3096bb7837cc"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "The group was successfully patched" },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/groups": {
+      "get": {
+        "summary": "Get Groups",
+        "description": "Get groups matching the given groupIds",
+        "tags": ["Group"],
+        "parameters": [
+          {
+            "name": "groupIds",
+            "in": "query",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          },
+          {
+            "name": "statuses",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": { "oneOf": [], "enum": ["active"] },
+              "description": "the statuses to use for searching"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "minimum": 1 }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "schema": { "type": "integer", "minimum": 1 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The groups were successfully searched for",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": { "type": "string", "format": "uuid" },
+                      "groupName": { "type": "string" },
+                      "accessLevel": {
+                        "type": "string",
+                        "enum": ["public", "inviteOnly", "restricted"]
+                      },
+                      "userIds": {
+                        "type": "array",
+                        "items": { "type": "string", "format": "uuid" },
+                        "description": "Array of userIds to be in the non-public group."
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": ["public", "inviteOnly", "restricted"]
+                      },
+                      "audit": {
+                        "type": "object",
+                        "properties": {},
+                        "description": "Audit fields used by the server"
+                      }
+                    },
+                    "required": ["groupName", "accessLevel", "userIds"]
+                  }
+                },
+                "example": [
+                  {
+                    "_id": "23acbb15-fa75-4fce-9780-3096bb7837cc",
+                    "groupName": "country_club1291",
+                    "accessLevel": "inviteOnly",
+                    "userIds": ["2eb5081c-55f4-4bf8-9c42-a5c3cf07b23b"],
+                    "type": "inviteOnly",
+                    "audit": {
+                      "createdDate": "2020-05-04T21:32:35.341Z",
+                      "updatedDate": null,
+                      "deletedDate": null
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      },
+      "post": {
+        "summary": "Create Group",
+        "description": "Create a group",
+        "tags": ["Group"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userManaged": { "type": "boolean" },
+                  "group": {
+                    "type": "object",
+                    "properties": {
+                      "groupName": {
+                        "type": "string",
+                        "description": "The new name for the group",
+                        "example": "HillshireClub-CedarRapids"
+                      },
+                      "accessLevel": {
+                        "type": "string",
+                        "enum": ["public", "inviteOnly", "restricted"]
+                      },
+                      "userIds": {
+                        "oneOf": [
+                          {
+                            "type": "array",
+                            "items": { "type": "string", "format": "uuid" },
+                            "description": "Array of userIds to be in the non-public group.",
+                            "title": "userIds"
+                          }
+                        ],
+                        "description": "The userIds for this group.  Only valid when access level is not \"public\""
+                      }
+                    },
+                    "required": ["groupName", "accessLevel"]
+                  }
+                }
+              },
+              "example": {
+                "group": {
+                  "groupId": "2eb5081c-55f4-4bf8-9c42-a5c3cf07b23b",
+                  "accessLevel": "restricted",
+                  "userIds": [
+                    "2eb5081c-55f4-4bf8-9c42-a5c3cf07b23b",
+                    "23acbb15-fa75-4fce-9780-3096bb7837cc"
+                  ]
+                },
+                "userManaged": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The group was created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "createdGroup": {
+                      "type": "object",
+                      "properties": {
+                        "_id": { "type": "string", "format": "uuid" },
+                        "groupName": { "type": "string" },
+                        "accessLevel": {
+                          "type": "string",
+                          "enum": ["public", "inviteOnly", "restricted"]
+                        },
+                        "userIds": {
+                          "type": "array",
+                          "items": { "type": "string", "format": "uuid" },
+                          "description": "Array of userIds to be in the non-public group."
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": ["public", "inviteOnly", "restricted"]
+                        },
+                        "audit": {
+                          "type": "object",
+                          "properties": {},
+                          "description": "Audit fields used by the server"
+                        }
+                      },
+                      "required": ["groupName", "accessLevel", "userIds"]
+                    },
+                    "invite": {
+                      "type": "object",
+                      "properties": {
+                        "inviteId": { "type": "string", "format": "uuid" },
+                        "branchLink": { "type": "string" },
+                        "code": { "type": "string" }
+                      },
+                      "required": ["inviteId"]
+                    }
+                  }
+                },
+                "example": {
+                  "createdGroup": {
+                    "_id": "23acbb15-fa75-4fce-9780-3096bb7837cc",
+                    "groupName": "country_club1291",
+                    "accessLevel": "inviteOnly",
+                    "userIds": ["2eb5081c-55f4-4bf8-9c42-a5c3cf07b23b"],
+                    "type": "inviteOnly",
+                    "audit": {
+                      "createdDate": "2020-05-04T21:32:35.341Z",
+                      "updatedDate": null,
+                      "deletedDate": null
+                    }
+                  },
+                  "invite": {
+                    "inviteId": "b5d0535b-8d4b-47f6-b724-e215599ef53b",
+                    "branchLink": "https://9s436.test-app.link/ODUjHAUs38",
+                    "code": "626747"
+                  }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/groups/:groupId/users": {
+      "put": {
+        "summary": "Add Users To Group",
+        "description": "Add one or more users to a group",
+        "tags": ["Group"],
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userIds": {
+                    "type": "array",
+                    "items": { "type": "string", "format": "uuid" }
+                  }
+                },
+                "required": ["userIds"]
+              },
+              "example": { "userIds": ["2eb5081c-55f4-4bf8-9c42-a5c3cf07b23b"] }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "The users were successfully added to the group"
+          },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/groups/users/:userId/access": {
+      "get": {
+        "summary": "Get Group Access For User",
+        "description": "Get details about a users access for given groups",
+        "tags": ["Group"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "groupIds",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "array", "items": { "type": "string" } }
+          }
+        ],
+        "responses": {
+          "200": { "description": "The data was successfully retrieved" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/groups/:groupId/users/:userId": {
+      "delete": {
+        "summary": "Leave Group",
+        "description": "Leave a group or remove a user from the group.",
+        "tags": ["Group"],
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The user was successfully removed from the group"
+          },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/groups/:groupId/images/logo": {
+      "post": {
+        "summary": "Upload Group Image",
+        "description": "Upload an image for a group.  Body must be form-data and an image needs to be uploaded with the key : photo",
+        "tags": ["Group"],
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The id of the group"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The group image was uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "publicUrl": { "type": "string" } }
+                },
+                "example": { "publicUrl": "/some/path/logo.jpg" }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/:userId/groups": {
+      "post": {
+        "summary": "Add Group to User",
+        "description": "Add group to user. Called by group service",
+        "tags": ["Group"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "groupId": { "type": "string", "format": "uuid" }
+                },
+                "required": ["groupId"]
+              },
+              "example": { "groupId": "2eb5081c-55f4-4bf8-9c42-a5c3cf07b23b" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The group was successfully added to the user"
+          },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/groups/bulk": {
+      "post": {
+        "summary": "Update Users Groups Bulk",
+        "description": "Add/remove groups to users in bulk. Called by group service.",
+        "tags": ["Group"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "updates": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "userId": { "type": "string", "format": "uuid" },
+                        "groupId": { "type": "string", "format": "uuid" }
+                      },
+                      "required": ["userId", "groupId"]
+                    },
+                    "description": "update objects containing userId and groupId pairs"
+                  },
+                  "remove": {
+                    "type": "boolean",
+                    "description": "optional boolean whether to remove groups"
+                  }
+                },
+                "required": ["updates"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "The users were successfully updated" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/:userId/groups/:groupId": {
+      "delete": {
+        "summary": "Remove Group From User",
+        "description": "Remove group from user. Called by group-service.",
+        "tags": ["Group"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The group was successfully removed from the user"
+          },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/names/:name": {
+      "get": {
+        "summary": "Check Name For Profanity",
+        "description": "Check to see if the name contains profanity",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The name the user wants to check.",
+              "example": "some super crazy name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved validation results for name.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "hasProfanity": { "type": "boolean" } }
+                },
+                "example": { "hasProfanity": false }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/emails/:email": {
+      "get": {
+        "summary": "Check Email",
+        "description": "Check to see if the given email exists.  Typically used by the client to check the email before registration.",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The email the user wants to check.",
+              "example": "billybob123@gmail.com"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved validation results for email.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "exists": { "type": "boolean" } }
+                },
+                "example": { "exists": false }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/devices/allowed": {
+      "post": {
+        "summary": "Add device to allowed devices",
+        "description": "Add user device to allowed devices",
+        "tags": ["Device"],
+        "requestBody": {
+          "required": true,
+          "description": "Device to allow",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "deviceId": { "type": "string" } },
+                "required": ["deviceId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      },
+      "delete": {
+        "summary": "Remove device from allowed devices",
+        "description": "Remove user device from allowed devices",
+        "tags": ["Device"],
+        "requestBody": {
+          "required": true,
+          "description": "Device to remove",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "deviceId": { "type": "string" } },
+                "required": ["deviceId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      },
+      "get": {
+        "summary": "Get allowed devices",
+        "description": "Get all allowed devices with pagination",
+        "tags": ["Device"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "minimum": 1 }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "schema": { "type": "integer", "minimum": 1 }
+          }
+        ],
+        "responses": {
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    },
+    "/api/v1/users/devices/banned": {
+      "post": {
+        "summary": "Add device to banned devices",
+        "description": "Add user device to banned devices",
+        "tags": ["Device"],
+        "requestBody": {
+          "required": true,
+          "description": "Device to ban",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "deviceId": { "type": "string" },
+                  "reason": { "type": "string" }
+                },
+                "required": ["deviceId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      },
+      "delete": {
+        "summary": "Remove device from banned devices",
+        "description": "Remove user device from banned devices",
+        "tags": ["Device"],
+        "requestBody": {
+          "required": true,
+          "description": "Device to remove",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "deviceId": { "type": "string" } },
+                "required": ["deviceId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      },
+      "get": {
+        "summary": "Get banned devices",
+        "description": "Get all banned devices with pagination",
+        "tags": ["Device"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "minimum": 1 }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "schema": { "type": "integer", "minimum": 1 }
+          }
+        ],
+        "responses": {
+          "500": { "$ref": "#/components/responses/InternalServerError" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Authorization": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Authenticated or Anonymous access token."
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "There is a problem with the request",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/BoomError" }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Caller is not permitted to make the request",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/BoomError" }
+          }
+        }
+      },
+      "ResourceNotFound": {
+        "description": "The requested resource was not found",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/BoomError" }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "There was an error",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/BoomError" }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "BoomError": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "string" },
+          "id": { "type": "string", "format": "uuid" },
+          "message": { "type": "string" },
+          "details": { "type": "string" }
+        }
+      }
+    }
+  },
+  "security": [{ "Authorization": [] }]
+}
