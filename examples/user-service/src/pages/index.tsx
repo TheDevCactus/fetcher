@@ -19,6 +19,7 @@ const Unauthorized = () => {
 
   const handleSignIn: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
+    
     const res = await UserService.api.v1.sessions.post({
       body: {
         authentication: {
