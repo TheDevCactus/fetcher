@@ -52,7 +52,7 @@ const adapter: ServiceCallAdapter = async function(
   };
 };
 
-const DogsSDK = userServiceInitializer(adapter);
+const DogsSDK = createDogSDK(adapter);
 
 DogsSDK.breeds.get(
   {
