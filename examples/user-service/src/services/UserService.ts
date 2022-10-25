@@ -15,7 +15,11 @@
 export type ResponseType<
   Func extends (argA: any, argB: Record<string, any>) => any,
   StatusCode extends keyof Parameters<Func>[1],
-> = Parameters<Parameters<Func>[1][StatusCode]>[0];
+> = (
+  Parameters<
+    Parameters<Func>[1][StatusCode]
+  >[0]
+);
 
 export type HTTPMethod = 'get' | 'post' | 'put' | 'patch' | 'update' | 'delete';
 

@@ -113,10 +113,14 @@ const Unauthorized = () => {
   );
 };
 
+type RolesArray = ResponseType<
+  typeof UserService.api.v1.users.roles.get,
+  200
+>["roles"];
+
 const Authorized = () => {
   const { logout } = useUserStore();
-  const [roles, setRoles] =
-    useState<ResponseType<typeof UserService.api.v1.users.roles.get, 200>>();
+  const [roles, setRoles] = useState<RolesArray>();
 
   const getRoles = () => {
     UserService.api.v1.users.roles.get(null, {
