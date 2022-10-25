@@ -50,17 +50,6 @@ const createNetworkCallSpecMap = (
 /**
  * @name nestPathsObject
  * @description Take in a OpenApiSchema Paths object, and convert the url keys into a nested object
- * {
- *  /dog/cat/bird: {}
- * }
- * becomes
- * {
- *  dog: {
- *    cat: {
- *      bird: {}
- *    }
- *  }
- * }
  */
 const nestPathsObject = (
   pathsObject: Record<string, OpenApiPathItemObject>,
@@ -82,36 +71,30 @@ const nestPathsObject = (
   return out;
 };
 
-/**
- * @name makeResponsesTypeFromNetworkCallSpec
- * @description Create a Typescript type for the response of a NetworkCallSpec
- */
-const makeResponsesTypeFromNetworkCallSpec = ({
+const makeCallbacksTypeFromNetworkCallSpec = async ({
   pathObj,
-}: NetworkCallSpec): string => {
-  const responses: Set<any> = new Set();
-  const responseObjects = Object.values(pathObj.responses);
+}: NetworkCallSpec): Promise<string> => {
+  const objectGenerator = await useHandlebarsTemplateFromFile(
+    './src/templates/object.txt',
+  );
 
-  for (let i = 0; i < responseObjects.length; i++) {
-    const currentResponse = responseObjects[i];
+  const propertiesArray = Object.entries(pathObj.responses).map(([statusCode, response]) => {
+    return {
+      key: statusCode,
+      value: response.content?.['application/json']?.schema
+        ? `(response: ${buildTypeObjectFromSchema(response.content['application/json'].schema)}) => void`
+        : `(response?: unknown) => void`
+    };
+  });
+  propertiesArray.push({
+    key: 'fallback',
+    value: '(response?: unknown) => void'
+  });
 
-    if (
-      !currentResponse.content ||
-      !currentResponse.content?.['application/json']?.schema
-    ) {
-      responses.add('null');
-      continue;
-    }
-
-    responses.add(
-      buildTypeObjectFromSchema(
-        currentResponse.content['application/json'].schema,
-      ),
-    );
-  }
-
-  return [...responses].join(' | ');
-};
+  return objectGenerator({
+    properties: propertiesArray
+  });
+}
 
 /**
  * @name makeBodyTypeFromNetworkCallSpec
@@ -168,27 +151,8 @@ const makeTypeFromNetworkCallSpecParams = async (
 };
 
 /**
- * @name makeValidStatusCodesFromNetworkCallSpec
- * @description Returns an array of valid status codes for a given Network call spec
- */
-const makeValidStatusCodesFromNetworkCallSpec = ({
-  pathObj,
-}: NetworkCallSpec): Array<number> => {
-  const responses = Object.keys(pathObj.responses);
-  const statusCodes = new Set<number>();
-
-  for (let i = 0; i < responses.length; i++) {
-    const codeToAdd = responses[i] === 'default' ? 200 : Number(responses[i]);
-    statusCodes.add(codeToAdd);
-  }
-
-  return [...statusCodes];
-};
-
-/**
  * @name generateNetworkCalls
  * @description Generates the actual network calls and object properties of the output lib
- * @returns
  */
 const generateNetworkCalls = async (schema: OpenAPISpec) => {
   const [objectGenerator, pathGenerator, generateGenerateServiceCallMethod] =
@@ -225,10 +189,6 @@ const generateNetworkCalls = async (schema: OpenAPISpec) => {
       }
 
       // We are at the end of our nested path as of now
-
-      const responsesType = makeResponsesTypeFromNetworkCallSpec(
-        currentValue as NetworkCallSpec,
-      );
       const bodyType = makeBodyTypeFromNetworkCallSpec(
         currentValue as NetworkCallSpec,
       );
@@ -268,17 +228,17 @@ const generateNetworkCalls = async (schema: OpenAPISpec) => {
           value: bodyType,
         });
       }
-      console.log('!!!', responsesType)
+      const callbacksType = await makeCallbacksTypeFromNetworkCallSpec(currentValue as NetworkCallSpec);
       generatorArguments.inner = generateGenerateServiceCallMethod({
-        method: currentValue.method,
+        bodyRequired: bodyType.length,
+        callbacks: callbacksType,
+        method: `'${currentValue.method}'`,
+        paramsRequired: paramsType.length,
+        queryRequired: queryType.length,
         request: requestProperties.length
           ? objectGenerator({ properties: requestProperties })
           : 'null',
-        response: responsesType,
         url: `${schema.servers?.[0].url}${currentValue.url}`,
-        validResponseStatuses: makeValidStatusCodesFromNetworkCallSpec(
-          currentValue as NetworkCallSpec,
-        ),
       });
 
       networkCallGeneratorArguments.push(generatorArguments);
@@ -296,8 +256,6 @@ const generateNetworkCalls = async (schema: OpenAPISpec) => {
 /**
  * @name buildLib
  * @description Entry point to generating a lib from a provided OpenAPI 3.0.0 spec schema
- * @param schemaFilePath File path of the schema to build from
- * @param outFile File path to write the lib to
  */
 const buildLib = async (schemaFilePath: string, outFile: string) => {
   const [generator, file] = await Promise.all([
