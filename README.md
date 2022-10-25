@@ -2,15 +2,19 @@
 
 <img title="what a good boy" src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fa%2Fa9%2FBearded_Collie.jpg&f=1&nofb=1&ipt=2a0d91e9f1a93764c1d7093fde17eeaa7cd9653df89b5e0b4d35e9f9ae7d3982&ipo=images" height="250px"></img>
 
-## Chassis Service Client Lib Generator
-
-Create typesafe, un-opinionated, client SDK's for your existing OpenAPI 3.0.0 compliant API's. 
+> Create typesafe, un-opinionated, client SDK's for your existing OpenAPI 3.0.0 compliant API's. 
 
 ## About
 
 W.I.P! Missing a whole bunch of stuff like ability to deal with typed headers.
 
 This program generates client code which handles making network calls to our boom services using your existing client http solution. Writing, and maintaining network calls is a pain. Wether its the backend puts out a new api you need to utilize, or they update a response object, you now have to basically copy their work into your client codebase. There is little thought that goes into these functions most of the time. Most of the time you will look at the endpoint, request schema, and response schema, and implement a basic function wrapping it all up for use across your client. Why not just generate those functions?
+
+## When To Reach For Fetcher
+
+* You have a OpenAPI 3.0.0 compliant API
+* You have multiple clients which will utilize the same API
+* Your API Updates frequently
 
 ## How to use
 
