@@ -24,7 +24,7 @@ const Button: React.FC<React.PropsWithChildren<ButtonProps>> = ({
 };
 
 const Authorized: NextPage = () => {
-  const { logout } = useUserStore();
+  const { logout, uid } = useUserStore();
   const router = useRouter();
 
   const [jsonToDisplay, setJsonToDisplay] = useState<string>("");
@@ -36,20 +36,29 @@ const Authorized: NextPage = () => {
 
   const getRoles = () => {
     UserService.getRolesForActiveUser(null, {
-      "200": (response) => {
-        setJsonToDisplay(JSON.stringify(response.roles, null, 4));
+      200(response) {
+
       },
-      "500": (response) => {
-        console.error(response);
-      },
-      fallback: (response) => {
-        console.log(response);
+      500(response) {
+        alert(response);
       },
     });
   };
 
   const getMe = () => {
-    
+    UserService.getUserV1({
+      params: {
+        userId: uid
+      },
+      query: {}
+    }, {
+      200(response) {
+        setJsonToDisplay(JSON.stringify(response.user?.profile, null, 4));
+      },
+      fallback(response) {
+        alert(response)
+      }
+    })
   };
 
   return (

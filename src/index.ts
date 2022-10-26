@@ -247,9 +247,11 @@ commander.program
   .argument('schema', 'File path to the schema you would like to use.')
   .argument('output', 'File path to output your client lib to.')
   .action(async (...args) => {
+    const startTime = Date.now();
     buildLib(args[0], args[1]).then(() => {
       console.log(`
         LIB GENERATED!
+        Generation Time: ${Date.now() - startTime}ms
       `);
     });
   });

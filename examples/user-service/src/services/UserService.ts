@@ -1358,20 +1358,22 @@ const BoomSportsUserService = {
     },
     callbacks: Record<number, any> & {
       200?: (response: {
-        _id?: string;
-        profile?: {
-          username?: string;
-          displayName?: string;
-          email?: { address?: string; verified?: boolean };
-          age?: number;
-          consent?: {
-            marketingEmail?: boolean;
-            marketingPhone?: boolean;
-            marketingPush?: boolean;
-          };
-          communication?: {
-            fcmTokens?: Record<string, unknown>;
-            idfa?: Record<string, unknown>;
+        user?: {
+          _id?: string;
+          profile?: {
+            username?: string;
+            displayName?: string;
+            email?: { address?: string; verified?: boolean };
+            age?: number;
+            consent?: {
+              marketingEmail?: boolean;
+              marketingPhone?: boolean;
+              marketingPush?: boolean;
+            };
+            communication?: {
+              fcmTokens?: Record<string, unknown>;
+              idfa?: Record<string, unknown>;
+            };
           };
         };
         authenticationProviders?: {

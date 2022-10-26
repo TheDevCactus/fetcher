@@ -31,11 +31,12 @@ export const buildTypeObjectFromSchema = (schema: Schema): string => {
       if (!schema.properties && !schema.additionalProperties) {
         throw new Error(`Schema type object must have a properties property`);
       }
-
-      /*
-       * Idk what to do about additional properties...
-       * console.log('!!!', schema.additionalProperties)
-       */
+      if (schema.additionalProperties) {
+        /*
+         * Do something here
+         * console.log('!!!', schema, schema.additionalProperties);
+         */
+      }
 
       // eslint-disable-next-line no-case-declarations
       const properties = {

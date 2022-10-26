@@ -1853,45 +1853,53 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "_id": { "type": "string", "format": "uuid" },
-                    "profile": {
+                    "user": {
                       "type": "object",
                       "properties": {
-                        "username": { "type": "string" },
-                        "displayName": { "type": "string" },
-                        "email": {
+                        "_id": { "type": "string", "format": "uuid" },
+                        "profile": {
                           "type": "object",
                           "properties": {
-                            "address": { "type": "string", "format": "email" },
-                            "verified": { "type": "boolean" }
-                          }
-                        },
-                        "age": {
-                          "type": "number",
-                          "format": "float",
-                          "minimum": 1
-                        },
-                        "consent": {
-                          "type": "object",
-                          "properties": {
-                            "marketingEmail": { "type": "boolean" },
-                            "marketingPhone": { "type": "boolean" },
-                            "marketingPush": { "type": "boolean" }
-                          }
-                        },
-                        "communication": {
-                          "type": "object",
-                          "properties": {
-                            "fcmTokens": {
+                            "username": { "type": "string" },
+                            "displayName": { "type": "string" },
+                            "email": {
                               "type": "object",
-                              "additionalProperties": {
-                                "type": "array",
-                                "items": { "type": "string" }
+                              "properties": {
+                                "address": {
+                                  "type": "string",
+                                  "format": "email"
+                                },
+                                "verified": { "type": "boolean" }
                               }
                             },
-                            "idfa": {
+                            "age": {
+                              "type": "number",
+                              "format": "float",
+                              "minimum": 1
+                            },
+                            "consent": {
                               "type": "object",
-                              "additionalProperties": { "type": "string" }
+                              "properties": {
+                                "marketingEmail": { "type": "boolean" },
+                                "marketingPhone": { "type": "boolean" },
+                                "marketingPush": { "type": "boolean" }
+                              }
+                            },
+                            "communication": {
+                              "type": "object",
+                              "properties": {
+                                "fcmTokens": {
+                                  "type": "object",
+                                  "additionalProperties": {
+                                    "type": "array",
+                                    "items": { "type": "string" }
+                                  }
+                                },
+                                "idfa": {
+                                  "type": "object",
+                                  "additionalProperties": { "type": "string" }
+                                }
+                              }
                             }
                           }
                         }
