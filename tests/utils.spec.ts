@@ -9,13 +9,11 @@ import mockFS from 'mock-fs';
 
 import { OpenApiType, Schema } from '../src/models/OpenAPI';
 import {
-  buildNestedObject,
   buildTypeObjectFromSchema,
   expandRefsOnObject,
   followObjectPath,
   openApiTypeToTSType,
   paramKeyToSemanticKey,
-  setDeepParam,
   useHandlebarsTemplateFromFile,
 } from '../src/utils';
 
@@ -265,58 +263,6 @@ describe('Utils', () => {
       expect(paramKeyToSemanticKey(testData.cleanKey)).to.equal(
         testData.cleanKeyCleaned,
       );
-    });
-  });
-  describe('buildNestedObject', () => {
-    const testData = {
-      nestedKeys: ['dog', 'cat', 'bird', 'fish'],
-      nestedObject: {
-        dog: {
-          cat: {
-            bird: {
-              fish: {},
-            },
-          },
-        },
-      },
-    };
-    it('Should nest keys within a provided object', () => {
-      expect(buildNestedObject(testData.nestedKeys, {})).to.deep.include(
-        testData.nestedObject,
-      );
-    });
-  });
-  describe('setDeepParam', () => {
-    const testData = {
-      validNestedKeys: ['dog', 'cat', 'bird', 'fish'],
-      invalidNestedKeys: ['dog', 'cat', 'worm', 'fish'],
-      nestedObject: {
-        dog: {
-          cat: {
-            bird: {},
-          },
-        },
-      },
-      valueToSet: 'hi mom',
-    };
-    it('Should deeply set a property on a nested object', () => {
-      setDeepParam(
-        testData.nestedObject,
-        testData.validNestedKeys,
-        testData.valueToSet,
-      );
-      expect(testData.nestedObject.dog.cat.bird).to.deep.include({
-        fish: testData.valueToSet,
-      });
-    });
-    it('Should throw an error if an invalid path is provided', () => {
-      expect(() =>
-        setDeepParam(
-          testData.nestedObject,
-          testData.invalidNestedKeys,
-          testData.valueToSet,
-        ),
-      ).to.throw('Invalid path to param');
     });
   });
   describe('useHandlebarsTemplateFromFile', () => {

@@ -168,6 +168,7 @@
         }
       },
       "post": {
+        "operationId": "createInviteV1",
         "summary": "Create Invite",
         "description": "Create an invitation to allow people to join the app and/or groups",
         "tags": ["Invite"],

@@ -32,6 +32,9 @@ export type ServiceCallAdapter = <Response>(
 
 let adapter: ServiceCallAdapter | null = null;
 
+const initializeFetcherWarning = 'Please initialize Fetcher before attempting to make any network calls';
+const unexpectedErrorWarning = 'Unexpected error occurred';
+
 /**
  * @description {{schema.info.description}}
  */

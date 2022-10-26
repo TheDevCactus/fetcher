@@ -271,6 +271,7 @@ export interface OpenApiPathItemObject {
   delete?: OpenApiOperation;
   options?: OpenApiOperation;
   head?: OpenApiOperation;
+  update?: OpenApiOperation;
   patch?: OpenApiOperation;
   trace?: OpenApiOperation;
 }
