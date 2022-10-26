@@ -1,4 +1,5 @@
 import { NextPage } from "next";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { UserService } from "../services";
 import { ResponseType } from "../services/UserService";
@@ -24,7 +25,14 @@ const Button: React.FC<React.PropsWithChildren<ButtonProps>> = ({
 
 const Authorized: NextPage = () => {
   const { logout } = useUserStore();
+  const router = useRouter();
+
   const [jsonToDisplay, setJsonToDisplay] = useState<string>("");
+
+  const handleLogout = () => {
+    logout();
+    router.push('/');
+  }
 
   const getRoles = () => {
     UserService.getRolesForActiveUser(null, {
@@ -47,7 +55,7 @@ const Authorized: NextPage = () => {
   return (
     <div className="flex h-screen flex-row">
       <div className="flex h-full w-96 flex-col bg-slate-100">
-        <Button onClick={logout}>Logout</Button>
+        <Button onClick={handleLogout}>Logout</Button>
         <hr />
         <Button onClick={getMe}>Get Me</Button>
         <Button onClick={getRoles}>Get My Roles</Button>
