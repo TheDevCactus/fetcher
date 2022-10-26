@@ -40,6 +40,9 @@ const unexpectedErrorWarning = "Unexpected error occurred";
  * @description
  */
 const BoomSportsUserService = {
+  /**
+   * @description Migrate a user from old boom (meteor) to the new DFS product.
+   */
   migrateUser: async (
     request: {
       body: {
@@ -88,6 +91,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Create invites in bulk by uploading a csv file with correct information
+   */
   bulkCreateInvitesV1: async (
     request: null,
     callbacks: Record<number, any> & {
@@ -120,6 +126,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Create invites in bulk by uploading a csv file with correct information
+   */
   bulkCreateInvitesV2: async (
     request: null,
     callbacks: Record<number, any> & {
@@ -152,6 +161,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Get invites.
+   */
   getInvitesV1: async (
     request: {
       query: {
@@ -203,6 +215,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Create an invitation to allow people to join the app and/or groups
+   */
   createInviteV1: async (
     request: {
       body: {
@@ -250,6 +265,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Get invites.
+   */
   getInvitesV2: async (
     request: {
       query: {
@@ -301,6 +319,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Create an invitation to allow people to join the app and/or groups
+   */
   createInvite: async (
     request: {
       body: {
@@ -348,6 +369,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Get an invite.
+   */
   getInviteV1: async (
     request: {
       params: {
@@ -400,6 +424,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Get an invite.
+   */
   getInviteV2: async (
     request: {
       params: {
@@ -452,6 +479,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Accept a public or private invite
+   */
   acceptInviteV1: async (
     request: {
       body: { inviteId?: string; code?: string };
@@ -495,6 +525,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Accept a public or private invite
+   */
   acceptInviteV2: async (
     request: {
       body: { inviteId?: string; code?: string };
@@ -538,6 +571,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Forgot password flow.  Request a code to be sent to the email address provide to reset password.
+   */
   requestPasswordReset: async (
     request: {
       body: { emailAddress: string };
@@ -579,6 +615,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Check if the given code is valid.
+   */
   checkPasswordResetCode: async (
     request: {
       params: {
@@ -626,6 +665,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Use a reset code to set a new password for the user.
+   */
   resetPassword: async (
     request: {
       params: {
@@ -668,6 +710,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Send a validation code to a given phone number. Used to validate that the number they are providing is accessible to the user.
+   */
   sendPhoneCode: async (
     request: {
       params: {
@@ -715,6 +760,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Verify that the given phone code is what was sent to the phone number
+   */
   verifyPhoneCode: async (
     request: {
       params: {
@@ -757,6 +805,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Add a new entry to the waitlist
+   */
   createWaitlistEntry: async (
     request: {
       body: { emailAddress: string };
@@ -791,6 +842,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Create a session (aka Log In).
+   */
   createSession: async (
     request: {
       body: {
@@ -850,6 +904,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Generate a unique username.  This can be used to suggest a username during the registration process.
+   */
   createRandomUsername: async (
     request: {
       body: {
@@ -896,6 +953,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Check to see if the given username exists and is valid.  Typically used by the client to check the username before registration.
+   */
   checkUsername: async (
     request: {
       params: {
@@ -937,6 +997,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Get multiple users in a given array of userIds as well as by username and email address
+   */
   getUsersV1: async (
     request: {
       query: {
@@ -1014,6 +1077,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Get multiple users in a given array of userIds as well as by username and email address
+   */
   getUsersV2: async (
     request: {
       query: {
@@ -1091,6 +1157,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Create a new user
+   */
   createUser: async (
     request: {
       body: {
@@ -1163,6 +1232,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Get bulk multiple users in a given array of userIds as well as by username and email address
+   */
   getUsersInBulk: async (
     request: {
       body: { userIds: Array<string>; includeDeleted?: "true" };
@@ -1230,6 +1302,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Get roles that pertain to the tenant the user belongs to
+   */
   getRolesForActiveUser: async (
     request: null,
     callbacks: Record<number, any> & {
@@ -1269,6 +1344,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Get a specific user by userId
+   */
   getUserV1: async (
     request: {
       query: {
@@ -1345,6 +1423,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Update a user with new values
+   */
   updateUserV1: async (
     request: {
       params: {
@@ -1403,6 +1484,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Updates the location of a user with new values
+   */
   updateUserLocation: async (
     request: {
       params: {
@@ -1445,6 +1529,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Update the status of a user. Deleted accounts clear user data and cannot be recovered.
+   */
   updateUserStatus: async (
     request: {
       params: {
@@ -1491,6 +1578,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Self exclude a user by updating their status to self-excluded for a set period of time.
+   */
   selfExcludeUser: async (
     request: {
       body: { limit: number };
@@ -1526,6 +1616,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Save the location of the user when location is first enabled
+   */
   setInitialLocation: async (
     request: null,
     callbacks: Record<number, any> & {
@@ -1559,6 +1652,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Manually verify a user
+   */
   manuallyVerifyUser: async (
     request: {
       params: {
@@ -1601,6 +1697,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Get a users wallets
+   */
   getWallets: async (
     request: {
       query: {
@@ -1657,6 +1756,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Create a wallet for a user
+   */
   createWallet: async (
     request: {
       params: {
@@ -1699,6 +1801,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Update a specific wallet value for a user
+   */
   updateWallet: async (
     request: {
       params: {
@@ -1748,6 +1853,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Bulk Update contest best scores
+   */
   bulkUpdateBestScores: async (
     request: {
       body: {
@@ -1795,6 +1903,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Request a withdrawal of funds
+   */
   requestWithdrawal: async (
     request: {
       params: {
@@ -1859,6 +1970,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Get all withdrawals matching a given type and status
+   */
   getWithdrawals: async (
     request: {
       params: {
@@ -1916,6 +2030,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Bulk update winnings.  Used by contest service to pay out winners on contest close.
+   */
   bulkUpdateWinnings: async (
     request: {
       body: {
@@ -1961,6 +2078,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Bulk update winnings.  Used by contest service to pay out winners on contest close.
+   */
   alsoBulkUpdateWinningsLol: async (
     request: {
       body: {
@@ -2006,6 +2126,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Bulk update withdrawals.  Used by admins to update historical records and wallets that these users have been paid.
+   */
   bulkUpdateWithdrawals: async (
     request: {
       body: { action: "complete"; withdrawalRequestIds: Array<string> };
@@ -2047,6 +2170,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Generate a referral link for the given user to give out.
+   */
   generateReferral: async (
     request: {
       params: {
@@ -2088,6 +2214,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Check to see if the given user has had their identity verified.
+   */
   getIdentityVerification: async (
     request: {
       params: {
@@ -2141,6 +2270,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Provide information to verify a users identity.
+   */
   verifyIdentity: async (
     request: {
       params: {
@@ -2193,6 +2325,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Allows an admin to update the verification information of a user
+   */
   updateVerificationInformation: async (
     request: {
       params: {
@@ -2245,6 +2380,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Upload a user profile picture.  Body must be form-data and an image needs to be uploaded with the key : photo
+   */
   uploadProfilePicture: async (
     request: {
       params: {
@@ -2286,6 +2424,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Get a specific group by groupId
+   */
   getGroup: async (
     request: {
       params: {
@@ -2340,6 +2481,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Update a group with new values
+   */
   updateGroup: async (
     request: {
       params: {
@@ -2393,6 +2537,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Get groups matching the given groupIds
+   */
   getGroups: async (
     request: {
       query: {
@@ -2444,6 +2591,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Create a group
+   */
   createGroup: async (
     request: {
       body: {
@@ -2496,6 +2646,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Add one or more users to a group
+   */
   addUsersToGroup: async (
     request: {
       params: {
@@ -2544,6 +2697,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Get details about a users access for given groups
+   */
   getGroupAccessForUser: async (
     request: {
       query: {
@@ -2591,6 +2747,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Leave a group or remove a user from the group.
+   */
   leaveGroup: async (
     request: {
       params: {
@@ -2639,6 +2798,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Upload an image for a group.  Body must be form-data and an image needs to be uploaded with the key : photo
+   */
   uploadGroupImage: async (
     request: {
       params: {
@@ -2680,6 +2842,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Add group to user. Called by group service
+   */
   addGroupToUser: async (
     request: {
       params: {
@@ -2728,6 +2893,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Add/remove groups to users in bulk. Called by group service.
+   */
   updateUsersGroupBulk: async (
     request: {
       body: {
@@ -2766,6 +2934,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Remove group from user. Called by group-service.
+   */
   removeGroupFromUser: async (
     request: {
       params: {
@@ -2814,6 +2985,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Check to see if the name contains profanity
+   */
   checkNameForProfanity: async (
     request: {
       params: {
@@ -2855,6 +3029,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Check to see if the given email exists.  Typically used by the client to check the email before registration.
+   */
   checkEmail: async (
     request: {
       params: {
@@ -2896,6 +3073,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Get all allowed devices with pagination
+   */
   getAllowedDevices: async (
     request: {
       query: {
@@ -2936,6 +3116,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Add user device to allowed devices
+   */
   allowDevice: async (
     request: {
       body: { deviceId: string };
@@ -2970,6 +3153,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Remove user device from allowed devices
+   */
   unallowDevice: async (
     request: {
       body: { deviceId: string };
@@ -3004,6 +3190,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Get all banned devices with pagination
+   */
   getBannedDevices: async (
     request: {
       query: {
@@ -3044,6 +3233,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Add user device to banned devices
+   */
   banDevice: async (
     request: {
       body: { deviceId: string; reason?: string };
@@ -3078,6 +3270,9 @@ const BoomSportsUserService = {
     }
     callbacks.fallback(response.data);
   },
+  /**
+   * @description Remove user device from banned devices
+   */
   unbanDevice: async (
     request: {
       body: { deviceId: string };

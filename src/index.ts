@@ -113,7 +113,7 @@ const generateNetworkCalls = async (schema: OpenAPISpec) => {
       ),
     ]);
 
-  const operations: Array<{ key: string; inner: string }> = [];
+  const operations: Array<{ key: string; inner: string, description?: string; }> = [];
   const pathEntries = Object.entries(schema.paths);
 
   for (let i = 0; i < pathEntries.length; i++) {
@@ -184,7 +184,11 @@ const generateNetworkCalls = async (schema: OpenAPISpec) => {
       const callbacksType = await makeCallbacksTypeFromNetworkCallSpec({
         pathObj: operation,
       } as NetworkCallSpec);
-      operations.push({
+      const operationArgs: {
+        description?: string
+        inner: string,
+        key: string,
+      } = {
         inner: generateGenerateServiceCallMethod({
           bodyRequired: bodyType.length,
           callbacks: callbacksType,
@@ -197,7 +201,11 @@ const generateNetworkCalls = async (schema: OpenAPISpec) => {
           url: `${schema.servers?.[0].url}${endpoint}`,
         }),
         key: operation.operationId,
-      });
+      }
+      if (operation.description) {
+        operationArgs.description = operation.description;
+      }
+      operations.push(operationArgs);
     }
   }
   return pathGenerator({

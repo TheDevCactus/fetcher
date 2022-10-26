@@ -25,7 +25,7 @@ const Button: React.FC<React.PropsWithChildren<ButtonProps>> = ({
 const Authorized: NextPage = () => {
   const { logout } = useUserStore();
   const [jsonToDisplay, setJsonToDisplay] = useState<string>("");
-  const uid = useUserStore((state) => state.uid);
+
   const getRoles = () => {
     UserService.getRolesForActiveUser(null, {
       "200": (response) => {
@@ -41,22 +41,7 @@ const Authorized: NextPage = () => {
   };
 
   const getMe = () => {
-    // Implement ban device
-    UserService.getUserV1(
-      {
-        params: {
-          userId: uid,
-        },
-        query: {},
-      },
-      {
-        200(response) {
-          setJsonToDisplay(JSON.stringify(response, null, 4));
-        },
-        500: alert,
-        fallback: alert,
-      }
-    );
+    
   };
 
   return (
