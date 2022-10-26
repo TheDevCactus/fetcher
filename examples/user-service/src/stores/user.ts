@@ -4,7 +4,9 @@ import { axiosInstance } from "../services";
 interface UserStore {
   accessToken: string;
   refreshToken: string;
+  uid: string;
   setTokens: ({accessToken, refreshToken}: {accessToken: string, refreshToken: string}) => void;
+  setUid: (uid: string) => void;
   logout: () => void;
 }
 
@@ -12,9 +14,15 @@ const useUserStore = create<UserStore>()(
   (set) => ({
     accessToken: '',
     refreshToken: '',
+    uid: '',
+    setUid: (uid: string) => {
+      set({
+        uid
+      })
+    },
     setTokens: ({ accessToken, refreshToken }) => {
       set({
-        accessToken: accessToken,
+        accessToken,
         refreshToken
       });
       axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;

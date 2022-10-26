@@ -41,6 +41,9 @@ export const buildTypeObjectFromSchema = (schema: Schema): string => {
       const properties = {
         ...schema.properties,
       };
+      if (!Object.keys(properties).length) {
+        return `Record<string, unknown>`
+      }
       return `{${Object.entries(properties).map(
         ([key, value]) =>
           `${key}${
@@ -179,33 +182,4 @@ export const paramKeyToSemanticKey = (key: string) => {
   }
 
   return out;
-};
-
-export const buildNestedObject = (pathToNest: Array<string>, obj: Record<string, any>): Record<string, any> => {
-  const workingPathToNest = [...pathToNest];
-  const firstKey = workingPathToNest.splice(0, 1)[0];
-
-  if (!firstKey) {
-    return obj;
-  }
-
-  if (!obj[firstKey]) {
-    obj[firstKey] = {};
-  }
-
-  obj[firstKey] = buildNestedObject(workingPathToNest, obj[firstKey]);
-  return obj;
-};
-
-export const setDeepParam = <T>(obj: Record<string, any>, pathToParam: Array<string>, value: T) => {
-  const workingPathToParam = [...pathToParam];
-
-  while (workingPathToParam.length > 1) {
-    obj = obj[workingPathToParam.splice(0, 1)[0]];
-    if (!obj) {
-      throw new Error('Invalid path to param');
-    }
-  }
-
-  obj[workingPathToParam[0]] = value;
 };

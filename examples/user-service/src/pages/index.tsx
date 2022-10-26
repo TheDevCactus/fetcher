@@ -1,25 +1,17 @@
 import type { NextPage } from "next";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { UserService } from "../services";
-import { ResponseType } from "../services/UserService";
 import useUserStore from "../stores/user";
 
-const Home: NextPage = () => {
-  const authorized = useUserStore((state) => !!state.accessToken.length);
-  if (authorized) {
-    return <Authorized />;
-  }
-  return <Unauthorized />;
-};
-
-const Unauthorized = () => {
+const SignIn = () => {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
 
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const { setTokens } = useUserStore();
+  const { setTokens, setUid } = useUserStore();
 
   const handleSignIn: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -28,7 +20,7 @@ const Unauthorized = () => {
       return;
     }
 
-    UserService.api.v1.sessions.post(
+    UserService.createSession(
       {
         body: {
           authentication: {
@@ -42,6 +34,7 @@ const Unauthorized = () => {
       },
       {
         "200": (response) => {
+          setUid(response.userId);
           setTokens({
             accessToken: response.accessToken,
             refreshToken: response.refreshToken,
@@ -51,8 +44,7 @@ const Unauthorized = () => {
           alert(response.code);
         },
         fallback: (response: any) => {
-          // This is a place where if the backend schemas were better we could utilize different status call callbacks as well.
-          // But the schema does not specify the status codes for these responses so we can do this
+          // This is a place where if the backend schemas were correct we could utilize different status code callbacks as well.
           switch (response.code) {
             case "usr.7":
               setPasswordError("Password incorrect");
@@ -76,34 +68,40 @@ const Unauthorized = () => {
       </Head>
 
       <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-        <div>
-          <h3 className="text-center">Login To YES</h3>
-          <form onSubmit={handleSignIn} className="flex flex-col p-2">
-            <input
-              className="m-1 rounded-sm p-2 outline outline-1 outline-slate-600"
-              type="text"
-              placeholder="email"
-              required
-              name="email"
-              onChange={(e) => {
-                setEmailError("");
-                setEmail(e.target.value);
-              }}
-            />
-            {emailError.length ? <p>{emailError}</p> : null}
-            <input
-              className="m-1 rounded-sm p-2 outline outline-1 outline-slate-600"
-              type="password"
-              placeholder="password"
-              required
-              name="password"
-              onChange={(e) => {
-                setPasswordError("");
-                setPassword(e.target.value);
-              }}
-            />
-            {passwordError.length ? <p>{passwordError}</p> : null}
-            <button className="m-1" type="submit">
+        <div className="rounded-md shadow-xl outline outline-1 m-0 p-0">
+          <form onSubmit={handleSignIn} className="flex flex-col space-y-5">
+            <div className="p-6 flex flex-col space-y-5 pb-2">
+              <h3 className="font-bold">Login To YES Dev</h3>
+              <input
+                className="rounded-sm p-2 outline outline-1 outline-slate-600"
+                type="text"
+                placeholder="email"
+                required
+                name="email"
+                onChange={(e) => {
+                  setEmailError("");
+                  setEmail(e.target.value);
+                }}
+              />
+              {emailError.length ? <p className="text-red-500">{emailError}</p> : null}
+              <input
+                className="rounded-sm p-2 outline outline-1 outline-slate-600"
+                type="password"
+                placeholder="password"
+                required
+                name="password"
+                onChange={(e) => {
+                  setPasswordError("");
+                  setPassword(e.target.value);
+                }}
+              />
+              {passwordError.length ? <p className="text-red-500">{passwordError}</p> : null}
+            </div>
+            <button
+              disabled={!!passwordError.length || !!emailError.length}
+              className="rounded-b-md bg-green-500 p-2 text-white disabled:bg-slate-200 disabled:text-slate-500 hover:bg-green-400 transition-all"
+              type="submit"
+            >
               Sign In
             </button>
           </form>
@@ -113,78 +111,16 @@ const Unauthorized = () => {
   );
 };
 
-type RolesArray = ResponseType<
-  typeof UserService.api.v1.users.roles.get,
-  200
->["roles"];
+const Home: NextPage = () => {
+  const authorized = useUserStore((state) => !!state.accessToken.length);
+  const router = useRouter();
 
-type BoomError = ResponseType<typeof UserService.api.v1.users.roles.get, 500>;
+  if (authorized) {
+    router.push('/dashboard');
+    return null;
+  }
 
-type PatchPhoneNumber = typeof UserService.api.v1.phones.byNumber.verification.byCode.patch;
-type TestResponse = ResponseType<PatchPhoneNumber, 200>;
-
-const Authorized = () => {
-  const { logout } = useUserStore();
-  const [roles, setRoles] = useState<RolesArray>();
-
-  const getRoles = () => {
-    UserService.api.v1.users.roles.get(null, {
-      "200": (response) => {
-        setRoles(response.roles);
-      },
-      "500": (response) => {
-        console.error(response);
-      },
-      fallback: (response) => {
-        console.log(response);
-      },
-    });
-  };
-
-  const logRandomName = () => {
-    UserService.api.v2.users.get(
-      {
-        query: {
-          count: 10,
-        },
-      },
-      {
-        200(response) {
-          console.log("!!!", "200", response);
-        },
-        400(response?) {
-          console.log("!!!", "400", response);
-        },
-        500(response) {
-          console.error("!!!", "500", response);
-        },
-        fallback(response?) {
-          console.error("!!!", "fallback", response);
-        },
-      }
-    );
-  };
-
-  return (
-    <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-      <h1>Hi mom</h1>
-      <button onClick={logout}>Logout</button>
-      <button onClick={logRandomName}>Log Random Name</button>
-      <button onClick={getRoles}>Get Roles</button>
-      {roles?.map((role) => (
-        <div
-          key={role.id}
-          className="m-2 w-96 rounded-md bg-slate-100 p-5 outline outline-1 outline-stone-200"
-        >
-          <h6>Role: {role.id}</h6>
-          <hr className="m-2" />
-          <h6>Permissions: </h6>
-          <p>{role.default}</p>
-          <p>{role.permissions ? role.permissions.join("\n") : ""}</p>
-        </div>
-      ))}
-    </main>
-  );
+  return <SignIn />;
 };
 
 export default Home;

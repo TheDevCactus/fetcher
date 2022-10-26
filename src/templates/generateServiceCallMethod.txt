@@ -1,49 +1,36 @@
 async (request: {{request}}, callbacks: Record<number, any> & {{callbacks}}) => {
-    let finalURL = '{{url}}';
     {{#if queryRequired}}
-      finalURL += `?${Object.entries(request.query)
-        .map(([key, value]) => `${key}=${value}`)
-        .join('&')}`;
+      let
+    {{else}}{{#if paramsRequired}}
+      let
+    {{else}}
+      const
+    {{/if}}
+    {{/if}} finalURL = '{{url}}';
+    {{#if queryRequired}}
+      finalURL += `?${Object.entries(request.query).map(([key, value]) => `${key}=${value}`).join('&')}`;
     {{/if}}
     {{#if paramsRequired}}
       Object.entries(request.params).forEach(([key, value]) => {
+        finalURL = finalURL.replaceAll(`:${key}`, value);
         finalURL = finalURL.replaceAll(`{${key}}`, value);
       });
     {{/if}}
     if (!adapter) {
-      throw new Error(
-        'Please initialize Fetcher before attempting to make any network calls',
-      );
+      throw new Error(initializeFetcherWarning);
     }
-
+    let response;
     try {
-      const response = await adapter(
-        finalURL, 
-        {{method}},
-        {{#if bodyRequired}}
-          request.body
-        {{/if}}
-      );
-      
-      if (callbacks[response.statusCode] ) {
-        callbacks[response.statusCode](response.data);
-        return;
-      }
-      
-      if (!callbacks.fallback) {
-        throw new Error('Unexpected error occurred');
-      }
-      callbacks.fallback(response.data);
+      response = await adapter(finalURL, {{method}}, {{#if bodyRequired}}request.body{{/if}});
     } catch (err: any) {
-      
-      if (callbacks[err.response.statusCode] ) {
-        callbacks[err.response.statusCode](err.response.data);
-        return;
-      }
-      
-      if (!callbacks.fallback) {
-        throw new Error('Unexpected error occurred');
-      }
-      callbacks.fallback(err.response.data);
+      response = err.response;
     }
+    if (callbacks[response.statusCode]) {
+      callbacks[response.statusCode](response.data);
+      return;
+    }
+    if (!callbacks.fallback) {
+      throw new Error(unexpectedErrorWarning);
+    }
+    callbacks.fallback(response.data);
   }
