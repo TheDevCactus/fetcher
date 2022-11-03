@@ -103,7 +103,7 @@ const createFetcherQueries = <
   return queries;
 };
 
-const useUserQueries = createFetcherQueries(
+export const useUserQueries = createFetcherQueries(
   UserService,
   BoomSportsUserServiceMetaData
 );
