@@ -12,9 +12,23 @@
 /* eslint-disable max-lines */
 /* eslint-disable sort-keys */
 
+export type FetcherService = <
+Request extends {body: any, query: any, params: any}, Response
+>(
+  request: Request & null,
+  callbacks: Record<string, (response: Response) => void>
+) => any;
+
+export type RequestType<F extends FetcherService> = Parameters<F>[0];
+export type RequestBodyType<F extends FetcherService> = RequestType<F> extends null ? null : RequestType<F>['body'];
+export type RequestQueryType<F extends FetcherService> = RequestType<F>['query'];
+export type RequestParamsType<F extends FetcherService> = RequestType<F>['params'];
+
+export type RequestStatusCodes<F extends FetcherService> = keyof Parameters<F>[1];
+
 export type ResponseType<
   Func extends (argA: any, argB: Record<string, any>) => any,
-  StatusCode extends keyof Parameters<Func>[1]
+  StatusCode extends keyof Parameters<Func>[1],
 > = Parameters<Parameters<Func>[1][StatusCode]>[0];
 
 export type HTTPMethod = 'get' | 'post' | 'put' | 'patch' | 'update' | 'delete';
@@ -32,7 +46,8 @@ export type ServiceCallAdapter = <Response>(
 
 let adapter: ServiceCallAdapter | null = null;
 
-const initializeFetcherWarning = 'Please initialize Fetcher before attempting to make any network calls';
+const initializeFetcherWarning =
+  'Please initialize Fetcher before attempting to make any network calls';
 const unexpectedErrorWarning = 'Unexpected error occurred';
 
 export const {{schema.info.title}}MetaData = {

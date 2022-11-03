@@ -213,6 +213,79 @@ const generateNetworkCalls = async (schema: OpenAPISpec) => {
   });
 };
 
+const generateMetaData = async (schema: OpenAPISpec) => {
+  const [objectGenerator, pathGenerator] =
+    await Promise.all([
+      useHandlebarsTemplateFromFile('./src/templates/object.txt'),
+      useHandlebarsTemplateFromFile('./src/templates/path.txt'),
+    ]);
+
+  const operations: Array<{ key: string; inner: string, description?: string; }> = [];
+  const pathEntries = Object.entries(schema.paths);
+
+  for (let i = 0; i < pathEntries.length; i++) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [endpoint, pathObj] = pathEntries[i];
+    const validMethods: Array<
+      keyof Omit<
+        OpenApiPathItemObject,
+        '$ref' | 'description' | 'summary' | 'servers' | 'parameters'
+      >
+    > = [
+      'get',
+      'put',
+      'post',
+      'update',
+      'delete',
+      'options',
+      'head',
+      'patch',
+      'trace',
+    ];
+
+    for (let j = 0; j < validMethods.length; j++) {
+      const method = validMethods[j];
+      const operation = pathObj[method];
+      if (!operation || !operation.operationId) {
+        continue;
+      }
+
+      const successStatusCodes = Object.keys(operation.responses).filter(statusCode => Number(statusCode) >= 200 && Number(statusCode) <= 299).join(' | ');
+      const errorStatusCodes = Object.keys(operation.responses).filter(statusCode => Number(statusCode) >= 400 && Number(statusCode) <= 599).join(' | ');
+
+      const operationArgs: {
+        description?: string
+        inner: string,
+        key: string,
+      } = {
+        inner: objectGenerator({
+          properties: [{
+            key: 'successStatusCodes',
+            required: true,
+            value: successStatusCodes.length ? successStatusCodes : 'null'
+          },{
+            key: 'errorStatusCodes',
+            required: true,
+            value: errorStatusCodes.length ? errorStatusCodes : 'null'
+          },{
+            key: 'method',
+            required: true,
+            value: `"${method}" as HTTPMethod`
+          }]
+        }),
+        key: operation.operationId,
+      }
+      if (operation.description) {
+        operationArgs.description = operation.description;
+      }
+      operations.push(operationArgs);
+    }
+  }
+  return pathGenerator({
+    paths: operations,
+  });
+}
+
 /**
  * @name buildLib
  * @description Entry point to generating a lib from a provided OpenAPI 3.0.0 spec schema
@@ -228,7 +301,9 @@ const buildLib = async (schemaFilePath: string, outFile: string) => {
   schema.info.title = schema.info.title.split(' ').join('');
 
   const networkCalls = await generateNetworkCalls(schema);
+  const metaData = await generateMetaData(schema);
   const lib = generator({
+    metaData,
     networkCalls,
     schema,
   });
