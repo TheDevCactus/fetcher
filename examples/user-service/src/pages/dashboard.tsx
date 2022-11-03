@@ -35,18 +35,23 @@ const Authorized: NextPage = () => {
   }
 
   const getRoles = () => {
-    UserService.getRolesForActiveUser(null, {
+    UserService.getRolesForActiveUser.service(null, {
       200(response) {
+        const roles = response.roles;
+        if (!roles) return;
 
+        roles.forEach(role => {
+          console.log(role.permissions?.join(' '))
+        });
       },
       500(response) {
-        alert(response);
+        alert(response.message);
       },
     });
   };
 
   const getMe = () => {
-    UserService.getUserV1({
+    UserService.getUserV1.service({
       params: {
         userId: uid
       },
