@@ -60,520 +60,520 @@ export const BoomSportsUserServiceMetaData = {
    * @description Migrate a user from old boom (meteor) to the new DFS product.
    */
   migrateUser: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Create invites in bulk by uploading a csv file with correct information
    */
   bulkCreateInvitesV1: {
-    successStatusCodes: null,
-    errorStatusCodes: 500,
+    successStatusCodes: [] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Create invites in bulk by uploading a csv file with correct information
    */
   bulkCreateInvitesV2: {
-    successStatusCodes: null,
-    errorStatusCodes: 500,
+    successStatusCodes: [] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Get invites.
    */
   getInvitesV1: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Create an invitation to allow people to join the app and/or groups
    */
   createInviteV1: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Get invites.
    */
   getInvitesV2: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Create an invitation to allow people to join the app and/or groups
    */
   createInvite: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Get an invite.
    */
   getInviteV1: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Get an invite.
    */
   getInviteV2: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Accept a public or private invite
    */
   acceptInviteV1: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Accept a public or private invite
    */
   acceptInviteV2: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Forgot password flow.  Request a code to be sent to the email address provide to reset password.
    */
   requestPasswordReset: {
-    successStatusCodes: 204,
-    errorStatusCodes: 404 | 500,
+    successStatusCodes: ["204"] as const,
+    errorStatusCodes: ["404", "500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Check if the given code is valid.
    */
   checkPasswordResetCode: {
-    successStatusCodes: 204,
-    errorStatusCodes: 404 | 500,
+    successStatusCodes: ["204"] as const,
+    errorStatusCodes: ["404", "500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Use a reset code to set a new password for the user.
    */
   resetPassword: {
-    successStatusCodes: 204,
-    errorStatusCodes: 500,
+    successStatusCodes: ["204"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "patch" as HTTPMethod,
   },
   /**
    * @description Send a validation code to a given phone number. Used to validate that the number they are providing is accessible to the user.
    */
   sendPhoneCode: {
-    successStatusCodes: 200 | 204,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200", "204"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Verify that the given phone code is what was sent to the phone number
    */
   verifyPhoneCode: {
-    successStatusCodes: 204,
-    errorStatusCodes: 500,
+    successStatusCodes: ["204"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "patch" as HTTPMethod,
   },
   /**
    * @description Add a new entry to the waitlist
    */
   createWaitlistEntry: {
-    successStatusCodes: null,
-    errorStatusCodes: 500,
+    successStatusCodes: [] as const,
+    errorStatusCodes: ["500"] as const,
     method: "put" as HTTPMethod,
   },
   /**
    * @description Create a session (aka Log In).
    */
   createSession: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Generate a unique username.  This can be used to suggest a username during the registration process.
    */
   createRandomUsername: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Check to see if the given username exists and is valid.  Typically used by the client to check the username before registration.
    */
   checkUsername: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Get multiple users in a given array of userIds as well as by username and email address
    */
   getUsersV1: {
-    successStatusCodes: 200,
-    errorStatusCodes: 400 | 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["400", "500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Get multiple users in a given array of userIds as well as by username and email address
    */
   getUsersV2: {
-    successStatusCodes: 200,
-    errorStatusCodes: 400 | 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["400", "500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Create a new user
    */
   createUser: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Get bulk multiple users in a given array of userIds as well as by username and email address
    */
   getUsersInBulk: {
-    successStatusCodes: 200,
-    errorStatusCodes: 400 | 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["400", "500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Get roles that pertain to the tenant the user belongs to
    */
   getRolesForActiveUser: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Get a specific user by userId
    */
   getUserV1: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Update a user with new values
    */
   updateUserV1: {
-    successStatusCodes: 204,
-    errorStatusCodes: 500,
+    successStatusCodes: ["204"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "patch" as HTTPMethod,
   },
   /**
    * @description Updates the location of a user with new values
    */
   updateUserLocation: {
-    successStatusCodes: 204,
-    errorStatusCodes: 500,
+    successStatusCodes: ["204"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "patch" as HTTPMethod,
   },
   /**
    * @description Update the status of a user. Deleted accounts clear user data and cannot be recovered.
    */
   updateUserStatus: {
-    successStatusCodes: 204,
-    errorStatusCodes: 500,
+    successStatusCodes: ["204"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "patch" as HTTPMethod,
   },
   /**
    * @description Self exclude a user by updating their status to self-excluded for a set period of time.
    */
   selfExcludeUser: {
-    successStatusCodes: 204,
-    errorStatusCodes: 500,
+    successStatusCodes: ["204"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Save the location of the user when location is first enabled
    */
   setInitialLocation: {
-    successStatusCodes: 204,
-    errorStatusCodes: 500,
+    successStatusCodes: ["204"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Manually verify a user
    */
   manuallyVerifyUser: {
-    successStatusCodes: 204,
-    errorStatusCodes: 500,
+    successStatusCodes: ["204"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "patch" as HTTPMethod,
   },
   /**
    * @description Get a users wallets
    */
   getWallets: {
-    successStatusCodes: 200,
-    errorStatusCodes: 404 | 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["404", "500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Create a wallet for a user
    */
   createWallet: {
-    successStatusCodes: 204,
-    errorStatusCodes: 500,
+    successStatusCodes: ["204"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Update a specific wallet value for a user
    */
   updateWallet: {
-    successStatusCodes: 200,
-    errorStatusCodes: 404 | 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["404", "500"] as const,
     method: "patch" as HTTPMethod,
   },
   /**
    * @description Bulk Update contest best scores
    */
   bulkUpdateBestScores: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Request a withdrawal of funds
    */
   requestWithdrawal: {
-    successStatusCodes: 204,
-    errorStatusCodes: 400 | 401 | 404 | 500,
+    successStatusCodes: ["204"] as const,
+    errorStatusCodes: ["400", "401", "404", "500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Get all withdrawals matching a given type and status
    */
   getWithdrawals: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Bulk update winnings.  Used by contest service to pay out winners on contest close.
    */
   bulkUpdateWinnings: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Bulk update winnings.  Used by contest service to pay out winners on contest close.
    */
   alsoBulkUpdateWinningsLol: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Bulk update withdrawals.  Used by admins to update historical records and wallets that these users have been paid.
    */
   bulkUpdateWithdrawals: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Generate a referral link for the given user to give out.
    */
   generateReferral: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Check to see if the given user has had their identity verified.
    */
   getIdentityVerification: {
-    successStatusCodes: 200,
-    errorStatusCodes: 404 | 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["404", "500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Provide information to verify a users identity.
    */
   verifyIdentity: {
-    successStatusCodes: 204,
-    errorStatusCodes: 400 | 500,
+    successStatusCodes: ["204"] as const,
+    errorStatusCodes: ["400", "500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Allows an admin to update the verification information of a user
    */
   updateVerificationInformation: {
-    successStatusCodes: 204,
-    errorStatusCodes: 400 | 500,
+    successStatusCodes: ["204"] as const,
+    errorStatusCodes: ["400", "500"] as const,
     method: "patch" as HTTPMethod,
   },
   /**
    * @description Upload a user profile picture.  Body must be form-data and an image needs to be uploaded with the key : photo
    */
   uploadProfilePicture: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Get a specific group by groupId
    */
   getGroup: {
-    successStatusCodes: 200,
-    errorStatusCodes: 404 | 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["404", "500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Update a group with new values
    */
   updateGroup: {
-    successStatusCodes: 204,
-    errorStatusCodes: 404 | 500,
+    successStatusCodes: ["204"] as const,
+    errorStatusCodes: ["404", "500"] as const,
     method: "patch" as HTTPMethod,
   },
   /**
    * @description Get groups matching the given groupIds
    */
   getGroups: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Create a group
    */
   createGroup: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Add one or more users to a group
    */
   addUsersToGroup: {
-    successStatusCodes: 204,
-    errorStatusCodes: 404 | 500,
+    successStatusCodes: ["204"] as const,
+    errorStatusCodes: ["404", "500"] as const,
     method: "put" as HTTPMethod,
   },
   /**
    * @description Get details about a users access for given groups
    */
   getGroupAccessForUser: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Leave a group or remove a user from the group.
    */
   leaveGroup: {
-    successStatusCodes: 204,
-    errorStatusCodes: 404 | 500,
+    successStatusCodes: ["204"] as const,
+    errorStatusCodes: ["404", "500"] as const,
     method: "delete" as HTTPMethod,
   },
   /**
    * @description Upload an image for a group.  Body must be form-data and an image needs to be uploaded with the key : photo
    */
   uploadGroupImage: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Add group to user. Called by group service
    */
   addGroupToUser: {
-    successStatusCodes: 200,
-    errorStatusCodes: 404 | 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["404", "500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Add/remove groups to users in bulk. Called by group service.
    */
   updateUsersGroupBulk: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Remove group from user. Called by group-service.
    */
   removeGroupFromUser: {
-    successStatusCodes: 200,
-    errorStatusCodes: 404 | 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["404", "500"] as const,
     method: "delete" as HTTPMethod,
   },
   /**
    * @description Check to see if the name contains profanity
    */
   checkNameForProfanity: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Check to see if the given email exists.  Typically used by the client to check the email before registration.
    */
   checkEmail: {
-    successStatusCodes: 200,
-    errorStatusCodes: 500,
+    successStatusCodes: ["200"] as const,
+    errorStatusCodes: ["500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Get all allowed devices with pagination
    */
   getAllowedDevices: {
-    successStatusCodes: null,
-    errorStatusCodes: 500,
+    successStatusCodes: [] as const,
+    errorStatusCodes: ["500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Add user device to allowed devices
    */
   allowDevice: {
-    successStatusCodes: null,
-    errorStatusCodes: 500,
+    successStatusCodes: [] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Remove user device from allowed devices
    */
   unallowDevice: {
-    successStatusCodes: null,
-    errorStatusCodes: 500,
+    successStatusCodes: [] as const,
+    errorStatusCodes: ["500"] as const,
     method: "delete" as HTTPMethod,
   },
   /**
    * @description Get all banned devices with pagination
    */
   getBannedDevices: {
-    successStatusCodes: null,
-    errorStatusCodes: 500,
+    successStatusCodes: [] as const,
+    errorStatusCodes: ["500"] as const,
     method: "get" as HTTPMethod,
   },
   /**
    * @description Add user device to banned devices
    */
   banDevice: {
-    successStatusCodes: null,
-    errorStatusCodes: 500,
+    successStatusCodes: [] as const,
+    errorStatusCodes: ["500"] as const,
     method: "post" as HTTPMethod,
   },
   /**
    * @description Remove user device from banned devices
    */
   unbanDevice: {
-    successStatusCodes: null,
-    errorStatusCodes: 500,
+    successStatusCodes: [] as const,
+    errorStatusCodes: ["500"] as const,
     method: "delete" as HTTPMethod,
   },
 };

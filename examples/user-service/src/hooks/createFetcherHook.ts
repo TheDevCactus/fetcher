@@ -1,69 +1,111 @@
 import { useQuery } from "@tanstack/react-query";
 import { UserService } from "../services";
 import {
+  BoomSportsUserServiceMetaData,
   FetcherService,
+  HTTPMethod,
   RequestType,
   ResponseType,
 } from "../services/UserService";
 
-const createFetcherQuery = <F extends FetcherService>(
-  queryKey: string,
-  fetcherService: F
-) => {
-  return (request: RequestType<typeof fetcherService>) => {
-    const args = useQuery<
-      ResponseType<typeof fetcherService, "200">,
-      ResponseType<typeof fetcherService, "500">
-    >([queryKey], {
-      queryFn: async () =>
-        new Promise((resolve, reject) => {
-          fetcherService(request, {
-            200: resolve,
-            201: resolve,
-            202: resolve,
-            203: resolve,
-            204: resolve,
-            400: reject,
-            401: reject,
-            402: reject,
-            403: reject,
-            404: reject,
-            500: reject,
-            501: reject,
-            502: reject,
-            503: reject,
-          });
-        }),
-    });
-    return args;
-  };
+type FetcherServiceMetadata = {
+  successStatusCodes: readonly string[];
+  errorStatusCodes: readonly string[];
+  method: HTTPMethod;
 };
 
-const createFetcherQueries = <FM extends Record<string, FetcherService>>(
-  fetcherMap: FM
-) => {
-  type QueriesMap = {
-    [k in keyof typeof fetcherMap]: ReturnType<
-      typeof createFetcherQuery<typeof fetcherMap[k]>
-    >;
-  };
+type Queries<
+  ServiceMap extends Record<string, FetcherService>,
+  MetaDataMap extends {
+    [k in keyof ServiceMap]: FetcherServiceMetadata;
+  }
+> = {
+  [k in keyof ServiceMap]: ReturnType<
+    typeof createFetcherQuery<
+      SuccessStatusCodes<MetaDataMap[k]>,
+      ErrorStatusCodes<MetaDataMap[k]>,
+      ServiceMap[k]
+    >
+  >;
+};
 
-  const queries: QueriesMap = {} as QueriesMap;
-  const entries = Object.entries(fetcherMap);
-  for (let i = 0; i < entries.length; i++) {
-    const entry = entries[i];
-    if (!entry) {
+type SuccessStatusCodes<MetaData extends FetcherServiceMetadata> =
+  MetaData["successStatusCodes"][number];
+type ErrorStatusCodes<MetaData extends FetcherServiceMetadata> =
+  MetaData["errorStatusCodes"][number];
+
+const createFetcherQuery = <
+  SuccessStatusCodes extends string,
+  ErrorStatusCodes extends string,
+  F extends FetcherService
+>(
+  queryKey: string,
+  fetcherService: F,
+  fetcherServiceMetadata: FetcherServiceMetadata
+) => {
+  return (request: RequestType<typeof fetcherService>) =>
+    useQuery<
+      ResponseType<typeof fetcherService, SuccessStatusCodes>,
+      ResponseType<typeof fetcherService, ErrorStatusCodes>
+    >([queryKey], {
+      queryFn: () =>
+        new Promise((resolve, reject) => {
+          const callbackObject: Record<
+            number | "fallback",
+            typeof resolve | typeof reject
+          > = { fallback: reject };
+
+          fetcherServiceMetadata.successStatusCodes.forEach(
+            (key) => (callbackObject[Number(key)] = resolve)
+          );
+
+          fetcherServiceMetadata.errorStatusCodes.forEach(
+            (key) => (callbackObject[Number(key)] = reject)
+          );
+
+          fetcherService(request, callbackObject);
+        }),
+    });
+};
+
+const createFetcherQueries = <
+  ServiceMap extends Record<string, FetcherService>,
+  ServiceMetaDataMap extends { [k in keyof ServiceMap]: FetcherServiceMetadata }
+>(
+  services: ServiceMap,
+  metaDataMap: ServiceMetaDataMap
+) => {
+  const queries: Queries<typeof services, typeof metaDataMap> = {} as Queries<
+    typeof services,
+    typeof metaDataMap
+  >;
+
+  const servicesArray = Object.entries(services);
+  for (let i = 0; i < servicesArray.length; i++) {
+    const servicesEntry = servicesArray[i];
+    if (!servicesEntry) {
       continue;
     }
-    const [serviceName, service] = entry;
-    queries[serviceName as keyof typeof fetcherMap] = createFetcherQuery(
-      serviceName,
-      service
-    );
+
+    const [serviceName, service]: [
+      serviceName: keyof ServiceMap,
+      service: FetcherService
+    ] = servicesEntry;
+
+    const metaData = metaDataMap[serviceName];
+    if (!metaData) {
+      continue;
+    }
+
+    queries[serviceName] = createFetcherQuery(serviceName, service, metaData);
   }
+
   return queries;
 };
 
-const useUserQueries = createFetcherQueries(UserService);
+const useUserQueries = createFetcherQueries(
+  UserService,
+  BoomSportsUserServiceMetaData
+);
 
 export default createFetcherQuery;

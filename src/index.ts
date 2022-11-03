@@ -250,8 +250,8 @@ const generateMetaData = async (schema: OpenAPISpec) => {
         continue;
       }
 
-      const successStatusCodes = Object.keys(operation.responses).filter(statusCode => Number(statusCode) >= 200 && Number(statusCode) <= 299).join(' | ');
-      const errorStatusCodes = Object.keys(operation.responses).filter(statusCode => Number(statusCode) >= 400 && Number(statusCode) <= 599).join(' | ');
+      const successStatusCodes = `[${Object.keys(operation.responses).filter(statusCode => Number(statusCode) >= 200 && Number(statusCode) <= 299).map(code => `"${code}"`).join(', ')}] as const`;
+      const errorStatusCodes = `[${Object.keys(operation.responses).filter(statusCode => Number(statusCode) >= 400 && Number(statusCode) <= 599).map(code => `"${code}"`).join(',')}] as const`;
 
       const operationArgs: {
         description?: string
