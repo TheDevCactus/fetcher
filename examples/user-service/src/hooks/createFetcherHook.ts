@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import { UserService } from "../services";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { ContestService, UserService } from "../services";
+import { BoomSportsContestServiceMetaData } from "../services/ContestService";
 import {
   BoomSportsUserServiceMetaData,
   FetcherService,
@@ -43,29 +44,62 @@ const createFetcherQuery = <
   fetcherService: F,
   fetcherServiceMetadata: FetcherServiceMetadata
 ) => {
-  return (request: RequestType<typeof fetcherService>) =>
-    useQuery<
-      ResponseType<typeof fetcherService, SuccessStatusCodes>,
-      ResponseType<typeof fetcherService, ErrorStatusCodes>
-    >([queryKey], {
-      queryFn: () =>
-        new Promise((resolve, reject) => {
-          const callbackObject: Record<
-            number | "fallback",
-            typeof resolve | typeof reject
-          > = { fallback: reject };
+  switch (fetcherServiceMetadata.method) {
+    case 'get':
+      return (request: RequestType<typeof fetcherService>) =>
+        useQuery<
+          ResponseType<typeof fetcherService, SuccessStatusCodes>,
+          ResponseType<typeof fetcherService, ErrorStatusCodes>
+        >([queryKey], {
+          queryFn: () =>
+            new Promise((resolve, reject) => {
+              const callbackObject: Record<
+                number | "fallback",
+                typeof resolve | typeof reject
+              > = { fallback: reject };
 
-          fetcherServiceMetadata.successStatusCodes.forEach(
-            (key) => (callbackObject[Number(key)] = resolve)
-          );
+              fetcherServiceMetadata.successStatusCodes.forEach(
+                (key) => (callbackObject[Number(key)] = resolve)
+              );
 
-          fetcherServiceMetadata.errorStatusCodes.forEach(
-            (key) => (callbackObject[Number(key)] = reject)
-          );
+              fetcherServiceMetadata.errorStatusCodes.forEach(
+                (key) => (callbackObject[Number(key)] = reject)
+              );
 
-          fetcherService(request, callbackObject);
-        }),
-    });
+              fetcherService(request, callbackObject);
+            }),
+        })
+    case 'delete':
+    case 'patch':
+    case 'post':
+    case 'put':
+    case 'update':
+      return () =>
+        useMutation<
+          ResponseType<typeof fetcherService, SuccessStatusCodes>,
+          ResponseType<typeof fetcherService, ErrorStatusCodes>,
+          RequestType<typeof fetcherService>
+        >({
+          mutationFn: (request: RequestType<typeof fetcherService>) =>
+            new Promise((resolve, reject) => {
+              const callbackObject: Record<
+                number | "fallback",
+                typeof resolve | typeof reject
+              > = { fallback: reject };
+
+              fetcherServiceMetadata.successStatusCodes.forEach(
+                (key) => (callbackObject[Number(key)] = resolve)
+              );
+
+              fetcherServiceMetadata.errorStatusCodes.forEach(
+                (key) => (callbackObject[Number(key)] = reject)
+              );
+
+              fetcherService(request, callbackObject);
+            }),
+          mutationKey: [queryKey]
+        })
+  }
 };
 
 const createFetcherQueries = <
@@ -106,6 +140,10 @@ const createFetcherQueries = <
 export const useUserQueries = createFetcherQueries(
   UserService,
   BoomSportsUserServiceMetaData
+);
+export const useContestQueries = createFetcherQueries(
+  ContestService,
+  BoomSportsContestServiceMetaData
 );
 
 export default createFetcherQuery;

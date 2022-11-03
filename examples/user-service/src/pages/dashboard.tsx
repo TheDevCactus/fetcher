@@ -1,7 +1,7 @@
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { useUserQueries } from "../hooks/createFetcherHook";
+import { useContestQueries, useUserQueries } from "../hooks/createFetcherHook";
 import { UserService } from "../services";
 import { ResponseType } from "../services/UserService";
 import useUserStore from "../stores/user";
@@ -28,11 +28,19 @@ const Authorized: NextPage = () => {
   const { logout, uid } = useUserStore();
   const router = useRouter();
 
-  const { data, isLoading } = useUserQueries.getUserV1({
+  const userQuery = useUserQueries.getUserV1({
     query: {},
     params: {
       userId: uid,
     },
+  });
+
+  const contestQuery = useContestQueries.GetChoice({
+    params: {
+      contestId: 'some-contest',
+      choiceId: 'some-choice',
+      questionId: 'some-question'
+    }
   });
 
   const handleLogout = () => {
@@ -46,11 +54,18 @@ const Authorized: NextPage = () => {
         <Button onClick={handleLogout}>Logout</Button>
         <hr />
       </div>
-      {isLoading ? (
+      {userQuery.isLoading ? (
         <h1>loading</h1>
       ) : (
         <div className="max-h-full flex-1 space-y-2 overflow-y-scroll p-2">
-          <pre>{JSON.stringify(data, null, 2)}</pre>
+          <pre>{JSON.stringify(userQuery.data, null, 2)}</pre>
+        </div>
+      )}
+      {contestQuery.isLoading ? (
+        <h1>loading</h1>
+      ) : (
+        <div className="max-h-full flex-1 space-y-2 overflow-y-scroll p-2">
+          <pre>{JSON.stringify(contestQuery.data, null, 2)}</pre>
         </div>
       )}
     </div>

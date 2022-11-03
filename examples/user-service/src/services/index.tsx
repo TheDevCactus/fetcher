@@ -1,3 +1,4 @@
+import contestServiceInitialized from './ContestService'
 import userServiceInitializer, {
   HTTPMethod,
   ServiceCallAdapter,
@@ -41,4 +42,5 @@ ${body && `BODY: ${JSON.stringify(body, null, 2)}`}
   };
 };
 
+export const ContestService = contestServiceInitialized(adapter);
 export const UserService = userServiceInitializer(adapter);

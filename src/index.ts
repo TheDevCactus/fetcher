@@ -138,8 +138,11 @@ const generateNetworkCalls = async (schema: OpenAPISpec) => {
     for (let j = 0; j < validMethods.length; j++) {
       const method = validMethods[j];
       const operation = pathObj[method];
-      if (!operation || !operation.operationId) {
+      if (!operation || !operation.summary) {
         continue;
+      }
+      if (!operation.operationId) {
+        operation.operationId = operation?.summary?.split(' ').join('');
       }
 
       const bodyType = makeBodyTypeFromNetworkCallSpec({
@@ -246,8 +249,12 @@ const generateMetaData = async (schema: OpenAPISpec) => {
     for (let j = 0; j < validMethods.length; j++) {
       const method = validMethods[j];
       const operation = pathObj[method];
-      if (!operation || !operation.operationId) {
+      if (!operation || !operation.summary) {
         continue;
+      }
+
+      if (!operation.operationId) {
+        operation.operationId = operation.summary.split(' ').join('')
       }
 
       const successStatusCodes = `[${Object.keys(operation.responses).filter(statusCode => Number(statusCode) >= 200 && Number(statusCode) <= 299).map(code => `"${code}"`).join(', ')}] as const`;
