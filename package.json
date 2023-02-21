@@ -6,7 +6,7 @@
   "scripts": {
     "build": "yarn run tsc",
     "test": "nyc ts-mocha -p ./tsconfig.json ./tests/**/*.spec.ts",
-    "dev": "rm -rf ./testAPI.ts && yarn run build && node ./build/src/index.js generate ./inputFiles/boomContestService.json ./boomContestService.ts",
+    "dev": "rm -rf ./testAPI.ts && yarn run build && node ./build/src/index.js generate ./inputFiles/petstore.json ./petstoreService.ts",
     "clean": "rm -rf build ./testAPI.ts"
   },
   "devDependencies": {
